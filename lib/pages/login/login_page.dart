@@ -56,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
     final form = _formKey.currentState;
 
     if (form!.validate()) {
-      Map<String, dynamic> responseData = await validateUserApi(_emailController.text, _passwordController.text, 0);
+      Map<String, dynamic> responseData = await validateUserApi(_emailController.text, _passwordController.text, 1);
 
       setState(() {
         _isLoading = false;
@@ -134,7 +134,8 @@ class _LoginPageState extends State<LoginPage> {
                               //Ir para HOME
 
                             break;
-                            case 6:
+                            case 3:
+                              _showAlertDialog(context, 'Usuário não tem acesso ao Sistema.');
                               break;
                             default:
                               _showAlertDialog(context, 'Erro ao efetuar Validação');
