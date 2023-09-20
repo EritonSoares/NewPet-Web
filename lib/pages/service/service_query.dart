@@ -15,7 +15,17 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Petner - Sistema de Atendimento Veterinário'),
+        title: Row(
+            children: [
+              Image.asset(
+                'lib/shared/images/logoPetner.png', // Caminho para a imagem do logotipo
+                width: 150, // Largura desejada do logotipo
+                height: 150, // Altura desejada do logotipo
+              ),
+              const SizedBox(width: 10), // Espaço entre a imagem e o texto
+              const Text('Sistema de Atendimento Veterinário', textAlign: TextAlign.center),
+            ],
+          ),
         leading: Builder(
           builder: (BuildContext context) {
             return IconButton(
