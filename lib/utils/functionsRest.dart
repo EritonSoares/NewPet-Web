@@ -56,16 +56,15 @@ Future<Map<String, dynamic>> validateUserApi(
   } else {
     passwordMD5 = password;
   }
-  String userType = 'cliente';
-  if (kIsWeb) {
-    //userType = 'funcionario';  //Desconmentar PARA VALIDAÇÃO DAS TELAS DE VETERINÁRIO
-  }
+  String userType = '2';
 
   Map<String, dynamic> validateUser = {
     'email': email,
     'password': passwordMD5,
     'userType': userType
   };
+
+  print(validateUser);
 
   Map<String, dynamic> responseData;
 

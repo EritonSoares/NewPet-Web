@@ -1,10 +1,10 @@
 // ignore_for_file: library_private_types_in_public_api, use_build_context_synchronously, avoid_print
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:petner_web/pages/home/home_page.dart';
 import 'package:petner_web/utils/functionsRest.dart';
 
 import '../../utils/petColors.dart';
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -31,7 +31,8 @@ class _LoginPageState extends State<LoginPage> {
   void initState() {
     super.initState();
     if (kIsWeb) {
-      _isNotWeb = true; //alterar para false quando for desenvolver o sistema do veterinário
+      _isNotWeb =
+          true; //alterar para false quando for desenvolver o sistema do veterinário
     }
   }
 
@@ -40,7 +41,8 @@ class _LoginPageState extends State<LoginPage> {
       return 'Campo obrigatório';
     }
 
-    final RegExp emailRegex = RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
+    final RegExp emailRegex =
+        RegExp(r'^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$');
     if (!emailRegex.hasMatch(value)) {
       return 'Email inválido';
     }
@@ -56,7 +58,8 @@ class _LoginPageState extends State<LoginPage> {
     final form = _formKey.currentState;
 
     if (form!.validate()) {
-      Map<String, dynamic> responseData = await validateUserApi(_emailController.text, _passwordController.text, 1);
+      Map<String, dynamic> responseData = await validateUserApi(
+          _emailController.text, _passwordController.text, 0);
 
       setState(() {
         _isLoading = false;
@@ -112,12 +115,16 @@ class _LoginPageState extends State<LoginPage> {
                         prefixIcon: const Icon(Icons.lock), // Ícone do e-mail
                         suffixIcon: IconButton(
                           icon: Icon(
-                            _isObscure ? Icons.visibility_off : Icons.visibility,
+                            _isObscure
+                                ? Icons.visibility_off
+                                : Icons.visibility,
                           ),
                           onPressed: _toggleObscure,
                         ),
                       ),
-                      validator: (input) => (input?.length ?? 0) < 6 ? 'A senha deve ter pelo menos 6 caracteres' : null,
+                      validator: (input) => (input?.length ?? 0) < 6
+                          ? 'A senha deve ter pelo menos 6 caracteres'
+                          : null,
                     ),
                     const SizedBox(height: 50.0),
                     ElevatedButton(
@@ -125,20 +132,28 @@ class _LoginPageState extends State<LoginPage> {
                         _submit(context).then((value) {
                           switch (value) {
                             case 0:
-                              _showAlertDialog(context, 'Usuário não encontrado');
+                              _showAlertDialog(
+                                  context, 'Usuário não encontrado');
                               break;
                             case 1:
                               _showAlertDialog(context, 'Senha inválida');
                               break;
                             case 2:
                               //Ir para HOME
-
-                            break;
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HomePage(),
+                                ),
+                              );
+                              break;
                             case 3:
-                              _showAlertDialog(context, 'Usuário não tem acesso ao Sistema.');
+                              _showAlertDialog(context,
+                                  'Usuário não tem acesso ao Sistema.');
                               break;
                             default:
-                              _showAlertDialog(context, 'Erro ao efetuar Validação');
+                              _showAlertDialog(
+                                  context, 'Erro ao efetuar Validação');
                               break;
                           }
                         });
@@ -171,7 +186,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20.0),            
+                    const SizedBox(height: 20.0),
                   ],
                 ),
               ),
@@ -180,7 +195,8 @@ class _LoginPageState extends State<LoginPage> {
           if (_isLoading)
             Container(
               color: Colors.black.withOpacity(0.5),
-              child: const Center(child: CircularProgressIndicator(color: Colors.black)),
+              child: const Center(
+                  child: CircularProgressIndicator(color: Colors.black)),
             ),
         ],
       ),
