@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:petner_web/pages/service/service_query.dart';
+import 'package:petner_web/utils/routes.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -58,10 +59,8 @@ class _HomePageState extends State<HomePage> {
                     onTap: () {
                       // Coloque aqui a ação ao selecionar "Fila de Atendimento"
                       //Navigator.pop(context); // Fecha o menu
-                      setState(() {
-                        showFilaDeAtendimento = true;
-                      });
-                      Navigator.pop(context);
+                      Navigator.of(Routes.navigatorKey!.currentContext!)
+                          .pushNamed('/serviceQuery');
                     },
                   ),
                   ListTile(
@@ -81,44 +80,6 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: showFilaDeAtendimento
-          ? Center(
-        child: Container(
-          width: 1200, // Largura desejada
-          height: 600, // Altura desejada
-          decoration: const BoxDecoration(
-            color: Colors.white          
-          ),
-          child: const Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                'Fila de Atendimento',
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                'Fila',
-                style: TextStyle(
-                  fontSize: 18.0,
-                ),
-              ),
-            ],
-          ),
-        ),
-      )
-          : const Center(
-              child: Text(
-                'Conteúdo da HomePage',
-                style: TextStyle(
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
       backgroundColor: Colors.grey,
     );
   }
