@@ -1,6 +1,7 @@
 // ignore_for_file: file_names, library_private_types_in_public_api, use_build_context_synchronously, avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:petner_web/pages/home/home_page.dart';
 import 'package:petner_web/pages/login/login_page.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
 import 'package:petner_web/utils/functionsRest.dart';
@@ -32,7 +33,38 @@ class _SplashScreenState extends State<SplashScreen> {
     // dependendo do estado de login
     if (isLoggedIn) {
       // Usuário já fez login, navegar para a página principal
+      //Ir para HOME
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomePage(),
+        ),
+      );
+/*
+      showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
 
+        content: const Row(
+          children: [
+            Text('Texto 1'),
+            Text('Texto 2'),
+            Text('Texto 3'),
+          ],
+        ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Fecha o diálogo
+          },
+          child: const Text('Fechar'),
+        ),
+      ],
+    );
+    },
+  );
+  */
       print('logado');
       /*
       Navigator.pushReplacement(
