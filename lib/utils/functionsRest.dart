@@ -15,6 +15,7 @@ import 'package:petner_web/models/petShceduleActivityModel.dart';
 import 'package:petner_web/models/questionAnswerModel.dart';
 import 'package:petner_web/models/screeningQuestionListModel.dart';
 import 'package:petner_web/models/screeningReasonmodel.dart';
+import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/models/speciedModel.dart';
 import 'package:petner_web/shared/data/PetActivityData.dart';
 import 'package:petner_web/shared/data/petScheduleActivityData.dart';
@@ -1572,4 +1573,37 @@ Future<List<HealthEventFileTypeModel>> healthEventFileTypeApi() async {
   }
 
   return healthEventTypeFileList;
+}
+
+Future<List<ServiceQueueModel>> serviceQueueApi() async {
+  const url = 'https://adm.petner.com.br/ServiceQueueList';
+  List<ServiceQueueModel> serviceQueueList = [];
+
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+    );
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+
+      for (var item in jsonData) {
+        ServiceQueueModel healthEventFileType =
+            ServiceQueueModel.fromJson(item);
+        serviceQueueList.add(healthEventFileType);
+      }
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST ServiceQueueModel: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação GET ServiceQueueModel: $e');
+  }
+
+  return serviceQueueList;
 }

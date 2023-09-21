@@ -1,7 +1,5 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:petner_web/custom/custom_appbar.dart';
 import 'package:petner_web/custom/custom_drawer.dart';
@@ -20,13 +18,9 @@ class ServiceQueryPage extends StatefulWidget {
 class _ServiceQueryPageState extends State<ServiceQueryPage> {
   List<ServiceQueueModel> serviceQueueList = [];
   bool _queueSelected = false;
-  late Future<List<dynamic>> _future;
-  late Timer timer;
-  late int _index;
 
-  void _teste(int index) {
+  void _teste() {
     setState(() {
-      _index = index;
       _queueSelected = true; // Atualiza a variável de estado
     });
   }
@@ -34,15 +28,17 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   @override
   void initState() {
     super.initState();
-    _future =_fetchServiceQueue();
-   
-    timer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    _fetchServiceQueue();
+
+    /*
+    // Iniciar um Timer que atualiza a ListView a cada 30 segundos
+    timer = Timer.periodic(Duration(seconds: 30), (timer) {
       setState(() {
-        _queueSelected = false;
         // Atualize seus dados aqui, por exemplo:
-        _future =_fetchServiceQueue();
+        items.add(DateTime.now().toString());
       });
     });
+    */
   }
 
   Future<List<dynamic>> _fetchServiceQueue() async {
@@ -112,14 +108,14 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                         child: Column(
                           children: [
                             FutureBuilder<List<dynamic>>(
-                              future: _future,
+                              future: _fetchServiceQueue(),
                               builder: (context, snapshot) {
-                                /*if (snapshot.connectionState ==
+                                if (snapshot.connectionState ==
                                     ConnectionState.waiting) {
                                   return const Center(
                                     child: CircularProgressIndicator(),
                                   );
-                                } else*/ if (snapshot.hasError) {
+                                } else if (snapshot.hasError) {
                                   return Center(
                                     child: Text('Error: ${snapshot.error}'),
                                   );
@@ -180,10 +176,10 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                                 ),
                                               ],
                                             ),
-                                            child: InkWell(
+                                            child: GestureDetector(
                                               onTap: () {
                                                 //print(petVaccine.);
-                                                _teste(index);
+                                                _teste();
                                               },
                                               child: Padding(
                                                 padding:
@@ -192,6 +188,18 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                                   children: [
                                                     Column(
                                                       children: [
+                                                        const Text('XXXX'),
+                                                        Container(
+                                                          width:
+                                                              1, // Largura da linha divisória
+                                                          color: Colors
+                                                              .grey, // Cor da linha divisória
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Column(
+                                                      children: [
+                                                        const Text('xxxx'),
                                                         Row(
                                                           children: [
                                                             Expanded(
@@ -257,7 +265,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                           !_queueSelected
                               ? const Text(
                                   'Selecione um Atendimento para ver as Informações')
-                              : Text(serviceQueueList[_index].petName!),
+                              : const Text('x'),
                         ],
                       ),
                     ),
@@ -273,9 +281,4 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
       ),
     );
   }
-
-  Widget _ServiceSumary(_index) {
-
-
-    }
 }

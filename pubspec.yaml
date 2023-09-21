@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_database: ^10.2.5
-  firebase_core: ^2.15.1
+  firebase_core: ^2.16.0
   firebase_messaging: ^14.6.6
   flutter_local_notifications: ^15.1.0+1
   agora_rtc_engine: ^5.1.1
