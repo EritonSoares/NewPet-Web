@@ -1,6 +1,36 @@
 // ignore_for_file: file_names
 
-import 'package:flutter/material.dart' show AlertDialog, BuildContext, CircleAvatar, Colors, Column, CrossAxisAlignment, EdgeInsets, FontWeight, Icon, IconButton, MainAxisAlignment, MaterialPageRoute, Navigator, NetworkImage, Padding, Row, SizedBox, Text, TextButton, TextOverflow, TextStyle, Widget, showDialog;
+import 'package:flutter/material.dart'
+    show
+        AlertDialog,
+        AppBar,
+        BuildContext,
+        Builder,
+        CircleAvatar,
+        Colors,
+        Column,
+        CrossAxisAlignment,
+        EdgeInsets,
+        FontWeight,
+        Icon,
+        IconButton,
+        Icons,
+        Image,
+        MainAxisAlignment,
+        MaterialPageRoute,
+        Navigator,
+        NetworkImage,
+        Padding,
+        Row,
+        Scaffold,
+        SizedBox,
+        Text,
+        TextAlign,
+        TextButton,
+        TextOverflow,
+        TextStyle,
+        Widget,
+        showDialog;
 import 'package:phosphor_flutter/phosphor_flutter.dart';
 
 import '../models/petModel.dart';
@@ -10,7 +40,8 @@ import '../shared/data/raceData.dart';
 import '../shared/data/specieData.dart';
 
 class CustomWidgets {
-  static void showAlertDialog(BuildContext context, String message, int validate) {
+  static void showAlertDialog(
+      BuildContext context, String message, int validate) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -34,7 +65,8 @@ class CustomWidgets {
   }
 }
 
-Widget getPetData(PetModel myPet, bool pageMyPet, BuildContext context, [updatePetData]) {
+Widget getPetData(PetModel myPet, bool pageMyPet, BuildContext context,
+    [updatePetData]) {
   return Padding(
     padding: const EdgeInsets.all(16.0),
     child: Row(
@@ -54,7 +86,10 @@ Widget getPetData(PetModel myPet, bool pageMyPet, BuildContext context, [updateP
             // Espécie do pet
             Text(
               '${SpecieData().getSpecieById(PetData().getPetById(myPet.id.toString()).specie).name} - ${GenderData().getGenderById(PetData().getPetById(myPet.id.toString()).gender)['name']}',
-              style: const TextStyle(fontSize: 18, fontFamily: 'Montserrat', fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                  fontSize: 18,
+                  fontFamily: 'Montserrat',
+                  fontWeight: FontWeight.w600),
             ),
             // Raça do pet
             const SizedBox(height: 5.0),
