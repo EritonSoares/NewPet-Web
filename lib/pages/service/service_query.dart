@@ -18,6 +18,7 @@ class ServiceQueryPage extends StatefulWidget {
 }
 
 class _ServiceQueryPageState extends State<ServiceQueryPage> {
+  final TextEditingController _tutorNameController = TextEditingController();
   List<ServiceQueueModel> serviceQueueList = [];
   bool _queueSelected = false;
   late Future<List<dynamic>> _future;
@@ -27,6 +28,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   void _teste(int index) {
     setState(() {
       _index = index;
+      _tutorNameController.text = serviceQueueList[index].tutorName!;
       _queueSelected = true; // Atualiza a variável de estado
     });
   }
@@ -34,13 +36,13 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   @override
   void initState() {
     super.initState();
-    _future =_fetchServiceQueue();
-   
+    _future = _fetchServiceQueue();
+
     timer = Timer.periodic(const Duration(seconds: 30), (timer) {
       setState(() {
         _queueSelected = false;
         // Atualize seus dados aqui, por exemplo:
-        _future =_fetchServiceQueue();
+        _future = _fetchServiceQueue();
       });
     });
   }
@@ -107,7 +109,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                   mainAxisSize: MainAxisSize.max,
                   children: [
                     Expanded(
-                      flex: 6, // 70% do tamanho total
+                      flex: 6, // 60% do tamanho total
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
@@ -119,7 +121,8 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                   return const Center(
                                     child: CircularProgressIndicator(),
                                   );
-                                } else*/ if (snapshot.hasError) {
+                                } else*/
+                                if (snapshot.hasError) {
                                   return Center(
                                     child: Text('Error: ${snapshot.error}'),
                                   );
@@ -250,14 +253,14 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       color: Colors.grey, // Cor da linha divisória
                     ),
                     Expanded(
-                      flex: 4, // 30% do tamanho total
+                      flex: 4, // 40% do tamanho total
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           !_queueSelected
                               ? const Text(
                                   'Selecione um Atendimento para ver as Informações')
-                              : Text(serviceQueueList[_index].petName!),
+                              : _serviceSummary(_index),
                         ],
                       ),
                     ),
@@ -274,8 +277,30 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
     );
   }
 
-  Widget _ServiceSumary(_index) {
-
-
-    }
+  Widget _serviceSummary(int index) {
+    return Expanded(
+      child: SizedBox(
+        height: double.infinity,
+        width: double.infinity,
+        child: Container(
+          padding: const EdgeInsets.all(15),
+          child: Column(
+            children: [
+              TextFormField(
+                      enabled: false,
+                      controller: _tutorNameController,
+                      
+                      decoration: const InputDecoration(
+                        labelText: 'Nomedo Tutor',
+                        
+                      ),
+                      validator: (input) => input?.isEmpty == true ? 'Por favor informar o Nome' : null,
+                    ),
+              Text(serviceQueueList[index].petName!),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
