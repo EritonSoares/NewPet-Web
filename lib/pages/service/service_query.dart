@@ -173,7 +173,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                             height:
                                 25, // Altura desejada// Ocupa todo o espaço horizontal
                             child: const Text(
-                              'Consultas',
+                              'Consultas Eletivas',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontFamily: 'Montserrat',
