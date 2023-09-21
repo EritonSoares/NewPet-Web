@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                       // Coloque aqui a ação ao selecionar "Fila de Atendimento"
                       //Navigator.pop(context); // Fecha o menu
                       Navigator.of(Routes.navigatorKey!.currentContext!)
-                          .pushNamed('/serviceQuery');
+                          .pushReplacementNamed('/serviceQuery');
                     },
                   ),
                   ListTile(

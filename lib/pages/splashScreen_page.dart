@@ -6,6 +6,7 @@ import 'package:petner_web/pages/login/login_page.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
 import 'package:petner_web/utils/functionsRest.dart';
 import 'package:petner_web/utils/petColors.dart';
+import 'package:petner_web/utils/routes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -34,12 +35,8 @@ class _SplashScreenState extends State<SplashScreen> {
     if (isLoggedIn) {
       // Usuário já fez login, navegar para a página principal
       //Ir para HOME
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const HomePage(),
-        ),
-      );
+      Navigator.of(Routes.navigatorKey!.currentContext!)
+                          .pushReplacementNamed('/home');
 /*
       showDialog(
     context: context,
