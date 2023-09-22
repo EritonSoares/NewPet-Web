@@ -8,6 +8,7 @@ class ServiceQueueModel {
   late final String? specie;
   late final String? race;
   late final String? age;
+  late final String? gender;
   late final String? screening;
   late final List<ScreeningModel>? screeningList;
 
@@ -19,6 +20,7 @@ class ServiceQueueModel {
     required this.specie,
     required this.race,
     required this.age,
+    required this.gender,
     required this.screening,
     required this.screeningList,
   });
@@ -37,6 +39,7 @@ class ServiceQueueModel {
       specie: json['specie'],
       race: json['race'],
       age: json['age'],
+      gender: json['gender'],
       screening: json['screening'],
       screeningList: screeningList,
     );
@@ -54,6 +57,7 @@ class ServiceQueueModel {
       'specie': specie,
       'race': race,
       'age': age,
+      'gender': gender,
       'screening': screening,
       'vaccineList': screeningListJson
     };

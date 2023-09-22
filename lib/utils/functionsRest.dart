@@ -19,6 +19,7 @@ import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/models/speciedModel.dart';
 import 'package:petner_web/shared/data/PetActivityData.dart';
 import 'package:petner_web/shared/data/petScheduleActivityData.dart';
+import 'package:petner_web/shared/data/userData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
 import 'package:http/http.dart' as http;
 import 'package:petner_web/models/cityModel.dart';
@@ -91,6 +92,10 @@ Future<Map<String, dynamic>> validateUserApi(
           UserPreferences.saveCredentials(
               validateUser['email'], validateUser['password']);
         }
+
+        UserData().setId(responseData['userId']);
+        UserData().setName(responseData['name']);
+
         /*
         TutorData().setId(responseData['tutorId']);
         TutorData().setName(responseData['name']);

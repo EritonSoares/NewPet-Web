@@ -19,6 +19,12 @@ class ServiceQueryPage extends StatefulWidget {
 
 class _ServiceQueryPageState extends State<ServiceQueryPage> {
   final TextEditingController _tutorNameController = TextEditingController();
+  final TextEditingController _petNameController = TextEditingController();
+  final TextEditingController _raceController = TextEditingController();
+  final TextEditingController _specieController = TextEditingController();
+  final TextEditingController _genderController = TextEditingController();
+  final TextEditingController _screningController = TextEditingController();
+
   List<ServiceQueueModel> serviceQueueList = [];
   bool _queueSelected = false;
   late Future<List<dynamic>> _future;
@@ -29,6 +35,12 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
     setState(() {
       _index = index;
       _tutorNameController.text = serviceQueueList[index].tutorName!;
+      _petNameController.text = serviceQueueList[index].petName!;
+      _raceController.text = serviceQueueList[index].race!;
+      _specieController.text = serviceQueueList[index].specie!;
+      _genderController.text = serviceQueueList[index].gender!;
+      _screningController.text = serviceQueueList[index].screening!;
+
       _queueSelected = true; // Atualiza a variável de estado
     });
   }
@@ -40,7 +52,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
 
     timer = Timer.periodic(const Duration(seconds: 30), (timer) {
       setState(() {
-        _queueSelected = false;
+        //_queueSelected = false;
         // Atualize seus dados aqui, por exemplo:
         _future = _fetchServiceQueue();
       });
@@ -255,7 +267,9 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                     Expanded(
                       flex: 4, // 40% do tamanho total
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: !_queueSelected
+                            ? MainAxisAlignment.center
+                            : MainAxisAlignment.start,
                         children: [
                           !_queueSelected
                               ? const Text(
@@ -279,26 +293,171 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
 
   Widget _serviceSummary(int index) {
     return Expanded(
-      child: SizedBox(
-        height: double.infinity,
-        width: double.infinity,
-        child: Container(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            children: [
-              TextFormField(
-                      enabled: false,
-                      controller: _tutorNameController,
-                      
-                      decoration: const InputDecoration(
-                        labelText: 'Nomedo Tutor',
-                        
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextFormField(
+              style: const TextStyle(fontSize: 15.0),
+              enabled: false,
+              controller: _tutorNameController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(8.0)), // Raio dos cantos da borda
+                  borderSide: BorderSide(
+                      color: Colors.black,
+                      width: 1.0), // Cor e largura da borda
+                ),
+                labelText: 'Nome do Tutor',
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            TextFormField(
+              style: const TextStyle(fontSize: 15.0),
+              enabled: false,
+              controller: _petNameController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(8.0)), // Raio dos cantos da borda
+                  borderSide: BorderSide(
+                      color: Colors.black,
+                      width: 1.0), // Cor e largura da borda
+                ),
+                labelText: 'Nome do Pet',
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            TextFormField(
+              style: const TextStyle(fontSize: 15.0),
+              enabled: false,
+              controller: _raceController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(8.0)), // Raio dos cantos da borda
+                  borderSide: BorderSide(
+                      color: Colors.black,
+                      width: 1.0), // Cor e largura da borda
+                ),
+                labelText: 'Raça',
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    style: const TextStyle(fontSize: 15.0),
+                    enabled: false,
+                    controller: _specieController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(8.0)), // Raio dos cantos da borda
+                        borderSide: BorderSide(
+                            color: Colors.black,
+                            width: 1.0), // Cor e largura da borda
                       ),
-                      validator: (input) => input?.isEmpty == true ? 'Por favor informar o Nome' : null,
+                      labelText: 'Espécie',
                     ),
-              Text(serviceQueueList[index].petName!),
-            ],
-          ),
+                  ),
+                ),
+                const SizedBox(width: 10.0),
+                Expanded(
+                  child: TextFormField(
+                    style: const TextStyle(fontSize: 15.0),
+                    enabled: false,
+                    controller: _genderController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(8.0)), // Raio dos cantos da borda
+                        borderSide: BorderSide(
+                            color: Colors.black,
+                            width: 1.0), // Cor e largura da borda
+                      ),
+                      labelText: 'Gênero',
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10.0),
+            TextFormField(
+              style: const TextStyle(fontSize: 15.0),
+              enabled: false,
+              controller: _screningController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(8.0)), // Raio dos cantos da borda
+                  borderSide: BorderSide(
+                      color: Colors.black,
+                      width: 1.0), // Cor e largura da borda
+                ),
+                labelText: 'Sintoma',
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            const Text(
+              'Triagem',
+              style: TextStyle(color: Colors.grey),
+            ),
+            Expanded(
+              child: Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: ListView.builder(
+                      itemCount: serviceQueueList[index].screeningList!.length,
+                      itemBuilder: (context, subindex) {
+                        return Padding(
+                          // ignore: prefer_const_constructors
+                          padding: EdgeInsets.all(1),
+                          child: SizedBox(
+                            height: 55, // Defina a altura desejada para o card
+                            width: double.infinity,
+                            child: ListTile(
+                              title: Text(
+                                  '${subindex + 1}- ${serviceQueueList[index].screeningList![subindex].question!}'),
+                              subtitle: Text(
+                                  'R: ${serviceQueueList[index].screeningList![subindex].answer!}'),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10.0),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      
+
+
+                      Navigator.of(Routes.navigatorKey!.currentContext!)
+                          .pushReplacementNamed('/consultationRoom');
+                    },
+                    child: const Text('Iniciar Atendimento'),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

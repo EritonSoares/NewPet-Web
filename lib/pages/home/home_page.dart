@@ -16,19 +16,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxx');
-    //_fetchServiceQueue;
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxx');
-
-    /*
-    // Iniciar um Timer que atualiza a ListView a cada 30 segundos
-    timer = Timer.periodic(Duration(seconds: 30), (timer) {
-      setState(() {
-        // Atualize seus dados aqui, por exemplo:
-        items.add(DateTime.now().toString());
-      });
-    });
-    */
   }
   
   bool showFilaDeAtendimento = false;
