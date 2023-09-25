@@ -13,20 +13,26 @@ import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 
 const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
-const token = "006a12600dd0e80435ca0a1efc4660cbe6bIABA0Ug4bFpjYxdjWXx//De36mr93wxw9jsOjttA0Li+BEwKp+vpr4RpIgBOqzEBnUoEZQQAAQAtBwNlAgAtBwNlAwAtBwNlBAAtBwNl";
-const channel = "petner";
-
+//const token = "006a12600dd0e80435ca0a1efc4660cbe6bIABA0Ug4bFpjYxdjWXx//De36mr93wxw9jsOjttA0Li+BEwKp+vpr4RpIgBOqzEBnUoEZQQAAQAtBwNlAgAtBwNlAwAtBwNlBAAtBwNl";
+//const channel = "petner";
 
 class ConsultationRoomPage extends StatefulWidget {
-  const ConsultationRoomPage({super.key});
+  final String token;
+  final String channel;
+  final int crmv;
+  const ConsultationRoomPage({
+    super.key,
+    required this.token,
+    required this.channel,
+    required this.crmv,
+  });
 
   @override
   _ConsultationRoomPageState createState() => _ConsultationRoomPageState();
 }
 
 class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
-
-late final RtcEngine _engine;
+  late final RtcEngine _engine;
 
   bool isJoined = false,
       enabledAudio = true,
@@ -37,6 +43,9 @@ late final RtcEngine _engine;
   @override
   void initState() {
     super.initState();
+
+    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+
     _initEngine();
   }
 
@@ -75,8 +84,7 @@ late final RtcEngine _engine;
   Future<void> _initEngine() async {
     await html.window.navigator.getUserMedia(audio: true, video: true);
     //await <Permission>[Permission.microphone, Permission.camera].request();
-    _engine =
-        await RtcEngine.create(appId);
+    _engine = await RtcEngine.create(appId);
     await _engine.enableVideo();
 
     _engine.setEventHandler(
@@ -101,12 +109,16 @@ late final RtcEngine _engine;
       ),
     );
 
+    print('Token: ${widget.token}');
+    print('Channel: ${widget.channel}');
+    print('crmv: ${widget.crmv}');
+
     _joinChannel();
   }
 
   Future<void> _joinChannel() async {
     log('joined channed: _engine.joinChannel(' ', ....., null, 0)');
-    await _engine.joinChannel(token, channel, null, 90);
+    await _engine.joinChannel(widget.token, widget.channel, null, widget.crmv);
   }
 
   Future<void> _toggleMicrophone() async {
@@ -126,7 +138,7 @@ late final RtcEngine _engine;
   Future<void> _leaveChannel() async {
     await _engine.stopScreenCapture();
     await _engine.leaveChannel();
-    Navigator.of(context).pop();
+    //Navigator.of(context).pop();
   }
 
   Widget _remoteVideo() {
@@ -136,7 +148,7 @@ late final RtcEngine _engine;
         channelId: '.......',
       );
     } else {
-      return Text(
+      return const Text(
         'Please wait for remote user to join',
         textAlign: TextAlign.center,
       );
@@ -193,148 +205,149 @@ late final RtcEngine _engine;
   Widget _videoConsultation() {
     return Expanded(
       child: Stack(
-            children: <Widget>[
-              Container(
-                color: Colors.red,
-                child: Center(child: _remoteVideo()),
-              ),
-              Positioned(
-                bottom: 90,
-                right: 0,
-                child: Container(
-                  height: 240,
-                  width: 400,
-                  color: Colors.black,
-                  child: isJoined
-                      ? const RtcLocalView.SurfaceView()
-                      : const Center(
-                          child: CircularProgressIndicator(),
-                        ),
-                ),
-              ),
-              Positioned(
-                  bottom: 0,
-                  child: Container(
-                    height: 90,
-                    color: Colors.black.withOpacity(0.3),
-                    width: MediaQuery.of(context).size.width,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () {
-                              _toggleMicrophone();
-                            },
-                            child: Container(
-                              height: 48,
-                              width: 48,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(24),
-                                color: Colors.white,
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  enabledAudio ? Icons.mic : Icons.mic_off_rounded,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 16,
-                        ),
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () {
-                              _leaveChannel();
-                            },
-                            child: Container(
-                              height: 48,
-                              width: 48,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(24),
-                                color: Colors.red,
-                              ),
-                              child: const Center(
-                                child: Icon(
-                                  Icons.call_end,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          width: 16,
-                        ),
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () {
-                              _toggleCamera();
-                            },
-                            child: Container(
-                              height: 48,
-                              width: 48,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(24),
-                                color: Colors.white,
-                              ),
-                              child: Stack(
-                                children: <Widget>[
-                                  const Center(
-                                    child: Icon(
-                                      Icons.video_camera_front_outlined,
-                                      color: Colors.black,
-                                    ),
-                                  ),
-                                  if (!enableCamera)
-                                    const Center(
-                                      child: Icon(
-                                        Icons.cancel_outlined,
-                                        size: 38,
-                                      ),
-                                    )
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 16,
-                        ),
-                        MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () {
-                              _startScreenShare();
-                            },
-                            child: Container(
-                              height: 48,
-                              width: 48,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(24),
-                                color: Colors.white,
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  shareScreen ? Icons.stop_circle : Icons.screen_share,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+        children: <Widget>[
+          Container(
+            color: Colors.red,
+            child: Center(child: _remoteVideo()),
+          ),
+          Positioned(
+            bottom: 90,
+            right: 0,
+            child: Container(
+              height: 240,
+              width: 400,
+              color: Colors.black,
+              child: isJoined
+                  ? const RtcLocalView.SurfaceView()
+                  : const Center(
+                      child: CircularProgressIndicator(),
                     ),
-                  )),
-            ],
-     ), );
-
+            ),
+          ),
+          Positioned(
+              bottom: 0,
+              child: Container(
+                height: 90,
+                color: Colors.black.withOpacity(0.3),
+                width: MediaQuery.of(context).size.width,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          _toggleMicrophone();
+                        },
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              enabledAudio ? Icons.mic : Icons.mic_off_rounded,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          _leaveChannel();
+                        },
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            color: Colors.red,
+                          ),
+                          child: const Center(
+                            child: Icon(
+                              Icons.call_end,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 16,
+                    ),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          _toggleCamera();
+                        },
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            color: Colors.white,
+                          ),
+                          child: Stack(
+                            children: <Widget>[
+                              const Center(
+                                child: Icon(
+                                  Icons.video_camera_front_outlined,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              if (!enableCamera)
+                                const Center(
+                                  child: Icon(
+                                    Icons.cancel_outlined,
+                                    size: 38,
+                                  ),
+                                )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 16,
+                    ),
+                    MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          _startScreenShare();
+                        },
+                        child: Container(
+                          height: 48,
+                          width: 48,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            color: Colors.white,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              shareScreen
+                                  ? Icons.stop_circle
+                                  : Icons.screen_share,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              )),
+        ],
+      ),
+    );
   }
 }
-

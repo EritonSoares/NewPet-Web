@@ -3,7 +3,8 @@
 class UserData {
   int? _id;
   String? _name;
-  
+  int? _crmv;
+
   static final UserData _instance = UserData._internal();
 
   factory UserData() {
@@ -20,6 +21,10 @@ class UserData {
     _name = name;
   }
 
+  void setCrmv(int crmv) {
+    _crmv = crmv;
+  }
+
   int? getId() {
     return _id;
   }
@@ -27,5 +32,8 @@ class UserData {
   String? getName() {
     return _name;
   }
-  
+
+  int? getCrmv() {
+    return _crmv;
+  }
 }

@@ -95,6 +95,11 @@ Future<Map<String, dynamic>> validateUserApi(
 
         UserData().setId(responseData['userId']);
         UserData().setName(responseData['name']);
+        UserData().setCrmv(responseData['crmv']);
+
+        print('xxxxxxxxxx');
+        print(UserData().getCrmv()!);
+        print('xxxxxxxxxx');
 
         /*
         TutorData().setId(responseData['tutorId']);
@@ -1611,4 +1616,45 @@ Future<List<ServiceQueueModel>> serviceQueueApi() async {
   }
 
   return serviceQueueList;
+}
+
+Future<String> getRTCTokenApi(int petId, int roomNameId, int crmv) async {
+  const url = 'https://adm.petner.com.br/GetRTCToken';
+  String token = '0';
+
+  Map<String, dynamic> getRoom = {
+    'petId': petId,
+    'roomNameId': roomNameId,
+    'crmv': crmv
+  };
+
+  print('yyyyyyyyyyyyyyyyyyy');
+  print(getRoom);
+  print('yyyyyyyyyyyyyyyyyyy');
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(getRoom),
+    );
+    if (response.statusCode == 200) {
+      token = jsonDecode(response.body);
+
+      print('Token: $token');
+    } else {
+      token = '-1';
+      // A resposta não foi bem-sucedida
+      print('_Erro na solicitação POST getRTCTokenApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    token = '-2';
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação GET getRTCTokenApi: $e');
+  }
+
+  return token;
 }

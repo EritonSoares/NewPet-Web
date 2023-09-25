@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, avoid_web_libraries_in_flutter
 
 import 'dart:async';
 
@@ -7,8 +7,10 @@ import 'package:petner_web/custom/custom_appbar.dart';
 import 'package:petner_web/custom/custom_drawer.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/shared/data/serviceQueueData.dart';
+import 'package:petner_web/shared/data/userData.dart';
 import 'package:petner_web/utils/functionsRest.dart';
 import 'package:petner_web/utils/routes.dart';
+import 'dart:html' as html;
 
 class ServiceQueryPage extends StatefulWidget {
   const ServiceQueryPage({super.key});
@@ -30,8 +32,9 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   late Future<List<dynamic>> _future;
   late Timer timer;
   late int _index;
+  late String roomToken;
 
-  void _teste(int index) {
+  void _queueInformation(int index) {
     setState(() {
       _index = index;
       _tutorNameController.text = serviceQueueList[index].tutorName!;
@@ -48,6 +51,12 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   @override
   void initState() {
     super.initState();
+
+    final isReload = html.window.performance.navigation.type == 1;
+    if (isReload) {
+      print('LOADING DE PAGINA');
+    }
+
     _future = _fetchServiceQueue();
 
     timer = Timer.periodic(const Duration(seconds: 30), (timer) {
@@ -61,6 +70,14 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
 
   Future<List<dynamic>> _fetchServiceQueue() async {
     return serviceQueueList = await serviceQueueApi();
+  }
+
+  Future<String> _getRTCToken(int petId, int queueId, int crmv) async {
+    final roomToken = await getRTCTokenApi(petId, queueId, crmv);
+
+    print('XXXXXXXXXXXXXXXXXX $petId, $queueId, $crmv, $roomToken');
+
+    return roomToken;
   }
 
   @override
@@ -198,7 +215,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                             child: InkWell(
                                               onTap: () {
                                                 //print(petVaccine.);
-                                                _teste(index);
+                                                _queueInformation(index);
                                               },
                                               child: Padding(
                                                 padding:
@@ -271,7 +288,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                             ? MainAxisAlignment.center
                             : MainAxisAlignment.start,
                         children: [
-                          !_queueSelected
+                          (!_queueSelected || _index < 0)
                               ? const Text(
                                   'Selecione um Atendimento para ver as Informações')
                               : _serviceSummary(_index),
@@ -445,12 +462,33 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {
-                      
+                    onPressed: () async {
+                      roomToken = await _getRTCToken(
+                          serviceQueueList[index].petId,
+                          serviceQueueList[index].queueId,
+                          UserData().getCrmv()!);
 
-
-                      Navigator.of(Routes.navigatorKey!.currentContext!)
-                          .pushReplacementNamed('/consultationRoom');
+                      if (roomToken == '0') {
+                        print('erro 0');
+                      } else if (roomToken == '-1') {
+                        print('erro 1');
+                      } else if (roomToken == '-2') {
+                        print('erro 2');
+                      } else {
+                        print(roomToken);
+                        print(serviceQueueList[index].queueId);
+                        print(UserData().getCrmv()!);
+                        Navigator.of(Routes.navigatorKey!.currentContext!)
+                            .pushReplacementNamed(
+                          '/consultationRoom',
+                          arguments: {
+                            'token': roomToken,
+                            'channel':
+                                serviceQueueList[index].queueId.toString(),
+                            'crmv': UserData().getCrmv()!
+                          },
+                        );
+                      }
                     },
                     child: const Text('Iniciar Atendimento'),
                   ),
