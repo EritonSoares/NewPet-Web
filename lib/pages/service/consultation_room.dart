@@ -207,7 +207,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       child: Stack(
         children: <Widget>[
           Container(
-            color: Colors.red,
+            color: Colors.white,
             child: Center(child: _remoteVideo()),
           ),
           Positioned(
@@ -274,7 +274,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                           child: const Center(
                             child: Icon(
                               Icons.call_end,
-                              color: Colors.white,
+                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -316,9 +316,10 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       width: 16,
                     ),
+                    /*
                     MouseRegion(
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
@@ -343,6 +344,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                         ),
                       ),
                     )
+                    */
                   ],
                 ),
               )),
