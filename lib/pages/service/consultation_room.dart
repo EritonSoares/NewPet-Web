@@ -33,6 +33,12 @@ class ConsultationRoomPage extends StatefulWidget {
 
 class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   late final RtcEngine _engine;
+  late final List<Map<int, String>> typeService;
+  late final int _selectedTypeService;
+  int selectedOption = 1;
+  late List<Map<int, String>> consultaOptions;
+  late List<Widget> _pages;
+  late int _currentPageIndex;
 
   bool isJoined = false,
       enabledAudio = true,
@@ -44,9 +50,35 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   void initState() {
     super.initState();
 
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
+    consultaOptions = [
+      {1: 'Consulta Boas Vindas'},
+      {2: 'Consulta por Queixa'},
+      {3: 'Consulta'},
+      {4: 'Tele Orientação'},
+      {5: 'Acompanhamento de Evolução'},
+    ];
 
-    _initEngine();
+    _currentPageIndex = 0;
+    if (selectedOption == 1) {
+      _pages = [
+        WelcomePage(),
+        UpdateRegistrationDataPage(),
+        VaccineRegistrationPage(),
+        ChronicHealthConditionPage(),
+        SymptomPage(),
+        AnamnesisPage(),
+        Quiz3Page(),
+        Quiz4Page(),
+        IaPage(),
+        RecommendationPage(),
+        FinalClassificationPage(),
+        HealthProgramPage(),
+        DocumentAvaliablePage(),
+      ];
+    }
+
+    //DESCOMENTAR PARA ATIVAR A CHAMADA DE VÍDEO
+    //_initEngine();
   }
 
   @override
@@ -109,10 +141,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       ),
     );
 
-    print('Token: ${widget.token}');
-    print('Channel: ${widget.channel}');
-    print('crmv: ${widget.crmv}');
-
     _joinChannel();
   }
 
@@ -167,10 +195,10 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
               flex: 6, // 70% do espaço disponível
               child: Container(
                 color: Colors.white, // Cor da coluna esquerda
-                child: Column(
+                child: const Column(
                   children: [
                     // Conteúdo da coluna esquerda
-                    _videoConsultation(),
+                    //_videoConsultation(),
                   ],
                 ),
               ),
@@ -182,15 +210,101 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             Expanded(
               flex: 4, // 30% do espaço disponível
               child: Container(
+                padding: const EdgeInsets.all(10),
                 color: Colors.white, // Cor da coluna direita
-                child: const Column(
+                child: Column(
                   children: [
-                    // Conteúdo da coluna direita
-                    Center(
-                      child: Text(
-                        'Conteúdo 40%',
-                        style: TextStyle(fontSize: 20),
+                    DropdownButtonFormField<int>(
+                      decoration: const InputDecoration(
+                        labelText: 'Tipo de Ficha', // Texto no decoration
                       ),
+                      value: selectedOption,
+                      onChanged: (int? newCode) {
+                        if (newCode != null) {
+                          setState(() {
+                            selectedOption = newCode;
+                          });
+                        }
+                      },
+                      items: consultaOptions.map((Map<int, String> option) {
+                        final int code = option.keys.first;
+                        final String description = option.values.first;
+                        return DropdownMenuItem<int>(
+                          value: code,
+                          child: Text(description),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 10.0),
+                    Expanded(
+                      child: PageView.builder(
+                        itemCount: _pages.length,
+                        controller:
+                            PageController(initialPage: _currentPageIndex),
+                        itemBuilder: (context, index) {
+                          return _pages[_currentPageIndex];
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Visibility(
+                          visible: _currentPageIndex == 0
+                              ? false
+                              : true, // Controla a visibilidade do botão
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Lógica para ir para a página anterior
+                              if (_currentPageIndex > 0) {
+                                setState(() {
+                                  _currentPageIndex--;
+                                });
+                              }
+                            },
+                            child: const Text('Anterior'),
+                          ),
+                        ),
+                        Visibility(
+                          visible: _currentPageIndex == 0
+                              ? true
+                              : false, // Controla a visibilidade do botão
+                          child: const Text('           '),
+                          ),
+                        Expanded(
+                          child: Center(
+                            child: Text(
+                              '${_currentPageIndex+1} de ${_pages.length}',
+                              style: const TextStyle(fontSize: 16.0),
+                            ),
+                          ),
+                        ),
+                        Visibility(
+                          visible: _currentPageIndex == _pages.length - 1
+                              ? false
+                              : true, // Controla a visibilidade do botão
+                          child: ElevatedButton(
+                            onPressed: () {
+                              if (_currentPageIndex < _pages.length - 1) {
+                                setState(() {
+                                  _currentPageIndex++;
+                                });
+                              }
+                            },
+                            child: const Text('Próximo'),
+                          ),
+                        ),
+                        Visibility(
+                          visible: _currentPageIndex == _pages.length - 1
+                              ? true
+                              : false, // Controla a visibilidade do botão
+                          child: ElevatedButton(
+                            onPressed: () {},
+                            child: const Text('Finalizar'),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -349,6 +463,188 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                 ),
               )),
         ],
+      ),
+    );
+  }
+}
+
+class WelcomePage extends StatelessWidget {
+  const WelcomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Boas Vindas",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class UpdateRegistrationDataPage extends StatelessWidget {
+  const UpdateRegistrationDataPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Atualização dos Dados Cadastrais",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class VaccineRegistrationPage extends StatelessWidget {
+  const VaccineRegistrationPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Registro de Vácinas",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class ChronicHealthConditionPage extends StatelessWidget {
+  const ChronicHealthConditionPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Condições Crônicas de Saúde",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class SymptomPage extends StatelessWidget {
+  const SymptomPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Sintomas",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class AnamnesisPage extends StatelessWidget {
+  const AnamnesisPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Anamnese",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class Quiz3Page extends StatelessWidget {
+  const Quiz3Page({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Questionário 3",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class Quiz4Page extends StatelessWidget {
+  const Quiz4Page({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Questionário 4",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class IaPage extends StatelessWidget {
+  const IaPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Inteligência Artificial",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class RecommendationPage extends StatelessWidget {
+  const RecommendationPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Orientações e Recomendações Finais",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class FinalClassificationPage extends StatelessWidget {
+  const FinalClassificationPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Classificação de risco Final",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class HealthProgramPage extends StatelessWidget {
+  const HealthProgramPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Programa de Saúde Disponíveis",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
+class DocumentAvaliablePage extends StatelessWidget {
+  const DocumentAvaliablePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Aviso de Documentos Disponíveis",
+        style: TextStyle(fontSize: 24.0),
       ),
     );
   }

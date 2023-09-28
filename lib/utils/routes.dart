@@ -15,7 +15,7 @@ class Routes {
       return ConsultationRoomPage(
         token: args['token'],
         channel: args['channel'],
-        crmv: args['crmv'],
+        crmv: args['crmv'], 
       );
     },
   };
