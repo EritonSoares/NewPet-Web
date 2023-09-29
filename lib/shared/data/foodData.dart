@@ -4,15 +4,33 @@ class FoodData {
   List<Map<String, dynamic>> foodList = [
     {
       'id': '1',
-      'name': 'Comida de Panela',
+      'name': 'Alimentação Comercial',
+      'specie': 1,
     },
     {
       'id': '2',
-      'name': 'Natural',
+      'name': 'Alimentação Caseira',
+      'specie': 1,
     },
     {
       'id': '3',
-      'name': 'Ração',
+      'name': 'Alimentação Natural',
+      'specie': 1,
+    },
+    {
+      'id': '4',
+      'name': 'Alimentação Seca',
+      'specie': 2,
+    },
+    {
+      'id': '5',
+      'name': 'Alimentação Umida',
+      'specie': 2,
+    },
+    {
+      'id': '6',
+      'name': 'Dieta Caseira',
+      'specie': 2,
     },
   ];
 

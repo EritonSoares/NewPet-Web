@@ -18,4 +18,16 @@ class UserPreferences {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('password');
   }
+
+
+  static Future<void> saveRace(String race) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('race', race);
+  }
+
+  static Future<String?> getRace() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('race');
+  }
+
 }

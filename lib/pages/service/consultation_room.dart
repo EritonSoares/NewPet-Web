@@ -271,11 +271,11 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                               ? true
                               : false, // Controla a visibilidade do botão
                           child: const Text('           '),
-                          ),
+                        ),
                         Expanded(
                           child: Center(
                             child: Text(
-                              '${_currentPageIndex+1} de ${_pages.length}',
+                              '${_currentPageIndex + 1} de ${_pages.length}',
                               style: const TextStyle(fontSize: 16.0),
                             ),
                           ),
@@ -473,10 +473,13 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Boas Vindas",
-        style: TextStyle(fontSize: 24.0),
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [],
+        ),
       ),
     );
   }

@@ -8,6 +8,7 @@ import 'package:petner_web/custom/custom_drawer.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/shared/data/serviceQueueData.dart';
 import 'package:petner_web/shared/data/userData.dart';
+import 'package:petner_web/shared/data/userPreference.dart';
 import 'package:petner_web/utils/functionsRest.dart';
 import 'package:petner_web/utils/routes.dart';
 import 'dart:html' as html;
@@ -74,8 +75,6 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
 
   Future<String> _getRTCToken(int petId, int queueId, int crmv) async {
     final roomToken = await getRTCTokenApi(petId, queueId, crmv);
-
-    print('XXXXXXXXXXXXXXXXXX $petId, $queueId, $crmv, $roomToken');
 
     return roomToken;
   }
@@ -327,7 +326,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       color: Colors.black,
                       width: 1.0), // Cor e largura da borda
                 ),
-                labelText: 'Nome do Tutor',
+                labelText: 'Tutor',
               ),
             ),
             const SizedBox(height: 10.0),
@@ -343,7 +342,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       color: Colors.black,
                       width: 1.0), // Cor e largura da borda
                 ),
-                labelText: 'Nome do Pet',
+                labelText: 'Pet',
               ),
             ),
             const SizedBox(height: 10.0),
