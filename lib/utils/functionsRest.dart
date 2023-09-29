@@ -98,13 +98,13 @@ Future<Map<String, dynamic>> validateUserApi(
         UserData().setCrmv(responseData['crmv']);
 
 
-        /*
-        RaceData().raceList = await raceListApi();
+        
+        await raceListApi();
         print('==================================');
         print(RaceData().raceList[0].id);
         print(RaceData().raceList[0].name);
         print('==================================');
-        */
+        
 
         /*
         TutorData().setId(responseData['tutorId']);
@@ -262,11 +262,12 @@ Future<void> raceListApi([String? specie]) async {
         print('-------------------------------------------');
         print('JSON Raça: ${await UserPreferences.getRace()}');
         print('-------------------------------------------');
-
+        */
         final jsonData = await UserPreferences.getRace();
         
-        raceList = (jsonDecode(jsonData!) as List<dynamic>).map((e) => RaceModel.fromJson(e)).toList();
-        */
+        //raceList = (jsonDecode(jsonData!) as List<dynamic>).map((e) => RaceModel.fromJson(e)).toList();
+
+        RaceData().raceList = (jsonDecode(jsonData!) as List<dynamic>).map((e) => RaceModel.fromJson(e)).toList();
 
       } else {
         // A resposta não foi bem-sucedida
