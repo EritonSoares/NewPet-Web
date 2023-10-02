@@ -34,6 +34,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   late Timer timer;
   late int _index;
   late String roomToken;
+  String? _crmv, _veterinary;
 
   void _queueInformation(int index) {
     setState(() {
@@ -58,6 +59,8 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
       print('LOADING DE PAGINA');
     }
 
+    _getVeterinaryCrmv();
+
     _future = _fetchServiceQueue();
 
     timer = Timer.periodic(const Duration(seconds: 30), (timer) {
@@ -67,6 +70,11 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
         _future = _fetchServiceQueue();
       });
     });
+  }
+
+  Future<void> _getVeterinaryCrmv() async {
+    _veterinary = (await UserPreferences.getVeterinaryName())!;
+    _crmv = (await UserPreferences.getVeterinaryCrmv())!;
   }
 
   Future<List<dynamic>> _fetchServiceQueue() async {
@@ -287,7 +295,8 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                             ? MainAxisAlignment.center
                             : MainAxisAlignment.start,
                         children: [
-                          (!_queueSelected || _index < 0)
+                          (serviceQueueList.length == 0) ? const Text(
+                                  'Nenhum Atendimento na Fila') : (!_queueSelected || _index < 0)
                               ? const Text(
                                   'Selecione um Atendimento para ver as Informações')
                               : _serviceSummary(_index),
@@ -462,10 +471,13 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () async {
+                      _getVeterinaryCrmv();
+                      print(1111111111111);
                       roomToken = await _getRTCToken(
                           serviceQueueList[index].petId,
                           serviceQueueList[index].queueId,
-                          UserData().getCrmv()!);
+                          int.parse(_crmv!));
+                      print(1111111);
 
                       if (roomToken == '0') {
                         print('erro 0');
@@ -476,17 +488,11 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       } else {
                         print(roomToken);
                         print(serviceQueueList[index].queueId);
-                        print(UserData().getCrmv()!);
+                        print(_crmv);
+
+                        UserPreferences.saveRoom(roomToken, serviceQueueList[index].queueId.toString());
                         Navigator.of(Routes.navigatorKey!.currentContext!)
-                            .pushReplacementNamed(
-                          '/consultationRoom',
-                          arguments: {
-                            'token': roomToken,
-                            'channel':
-                                serviceQueueList[index].queueId.toString(),
-                            'crmv': UserData().getCrmv()!
-                          },
-                        );
+                            .pushReplacementNamed('/consultationRoom');
                       }
                     },
                     child: const Text('Iniciar Atendimento'),

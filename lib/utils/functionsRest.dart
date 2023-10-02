@@ -89,22 +89,26 @@ Future<Map<String, dynamic>> validateUserApi(
 
       if (responseData['validateUser'] == 2) {
         if (typeLogin == 0) {
-          UserPreferences.saveCredentials(
-              validateUser['email'], validateUser['password']);
+          await UserPreferences.saveCredentials(
+             validateUser['email'], validateUser['password']);
         }
 
-        UserData().setId(responseData['userId']);
-        UserData().setName(responseData['name']);
-        UserData().setCrmv(responseData['crmv']);
-
-
+        await UserPreferences.saveVeterinary(
+          responseData['userId'].toString(),
+          responseData['name'],
+          responseData['crmv'].toString(),
+        );
         
         await raceListApi();
+        await specieListApi();
+        await coatListApi();
+
+        /*
         print('==================================');
         print(RaceData().raceList[0].id);
         print(RaceData().raceList[0].name);
         print('==================================');
-        
+        */
 
         /*
         TutorData().setId(responseData['tutorId']);
@@ -210,7 +214,7 @@ Future<Map<String, dynamic>> createUserApi(
   return responseData;
 }
 
-Future<List<SpecieModel>> specieListApi() async {
+Future<void> specieListApi() async {
   const url = 'https://adm.petner.com.br/SpecieList';
   List<SpecieModel> specieList = [];
 
@@ -224,12 +228,16 @@ Future<List<SpecieModel>> specieListApi() async {
     );
 
     if (response.statusCode == 200) {
+      UserPreferences.saveSpecie(response.body);
+
+      /*
       final jsonData = jsonDecode(response.body);
 
       for (var item in jsonData) {
         SpecieModel specie = SpecieModel.fromJson(item);
         specieList.add(specie);
       }
+      */
     } else {
       // A resposta não foi bem-sucedida
       print('_Erro na solicitação POST: ${response.statusCode}');
@@ -238,45 +246,70 @@ Future<List<SpecieModel>> specieListApi() async {
     // Ocorreu um erro durante a solicitação
     print('Erro na solicitação GET specieList: $e');
   }
-
-  return specieList;
 }
 
 Future<void> raceListApi([String? specie]) async {
   const url = 'https://adm.petner.com.br/RaceList';
   List<RaceModel> raceList = [];
 
-    try {
-      final response = await http.get(
-        Uri.parse(url),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': headerBasic
-        },
-      );
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+    );
 
-      if (response.statusCode == 200) {
-        UserPreferences.saveRace(response.body);
+    if (response.statusCode == 200) {
+      UserPreferences.saveRace(response.body);
 
-        /*
+      /*
         print('-------------------------------------------');
         print('JSON Raça: ${await UserPreferences.getRace()}');
         print('-------------------------------------------');
         */
-        final jsonData = await UserPreferences.getRace();
-        
-        //raceList = (jsonDecode(jsonData!) as List<dynamic>).map((e) => RaceModel.fromJson(e)).toList();
+      final jsonData = await UserPreferences.getRace();
 
-        RaceData().raceList = (jsonDecode(jsonData!) as List<dynamic>).map((e) => RaceModel.fromJson(e)).toList();
+      //raceList = (jsonDecode(jsonData!) as List<dynamic>).map((e) => RaceModel.fromJson(e)).toList();
 
-      } else {
-        // A resposta não foi bem-sucedida
-        print('_Erro na solicitação POST raceList: ${response.statusCode}');
-      }
-    } catch (e) {
-      // Ocorreu um erro durante a solicitação
-      print('Erro na solicitação GET raceList: $e');
+      RaceData().raceList = (jsonDecode(jsonData!) as List<dynamic>)
+          .map((e) => RaceModel.fromJson(e))
+          .toList();
+    } else {
+      // A resposta não foi bem-sucedida
+      print('_Erro na solicitação POST raceList: ${response.statusCode}');
     }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação GET raceList: $e');
+  }
+}
+
+Future<void> coatListApi([String? specie]) async {
+  const url = 'https://adm.petner.com.br/CoatList';
+  List<RaceModel> raceList = [];
+
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+    );
+
+    if (response.statusCode == 200) {
+      UserPreferences.saveRace(response.body);
+    
+    } else {
+      // A resposta não foi bem-sucedida
+      print('_Erro na solicitação POST coatList: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação GET coatList: $e');
+  }
 }
 
 Future<Map<String, dynamic>> registerPetApi(

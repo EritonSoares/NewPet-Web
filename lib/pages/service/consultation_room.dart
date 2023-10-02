@@ -11,21 +11,14 @@ import 'dart:html' as html;
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:petner_web/shared/data/userPreference.dart';
 
 const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 //const token = "006a12600dd0e80435ca0a1efc4660cbe6bIABA0Ug4bFpjYxdjWXx//De36mr93wxw9jsOjttA0Li+BEwKp+vpr4RpIgBOqzEBnUoEZQQAAQAtBwNlAgAtBwNlAwAtBwNlBAAtBwNl";
 //const channel = "petner";
 
 class ConsultationRoomPage extends StatefulWidget {
-  final String token;
-  final String channel;
-  final int crmv;
-  const ConsultationRoomPage({
-    super.key,
-    required this.token,
-    required this.channel,
-    required this.crmv,
-  });
+  const ConsultationRoomPage({super.key});
 
   @override
   _ConsultationRoomPageState createState() => _ConsultationRoomPageState();
@@ -39,6 +32,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   late List<Map<int, String>> consultaOptions;
   late List<Widget> _pages;
   late int _currentPageIndex;
+  late String? _token, _channel, _crmv;
+
 
   bool isJoined = false,
       enabledAudio = true,
@@ -50,6 +45,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   void initState() {
     super.initState();
 
+    _roomConfiguration();
     consultaOptions = [
       {1: 'Consulta Boas Vindas'},
       {2: 'Consulta por Queixa'},
@@ -78,13 +74,19 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     }
 
     //DESCOMENTAR PARA ATIVAR A CHAMADA DE VÍDEO
-    //_initEngine();
+    _initEngine();
   }
 
   @override
   void dispose() {
     super.dispose();
     _dispose();
+  }
+
+  Future<void> _roomConfiguration() async {
+    _token = await UserPreferences.getRoomToken();
+    _channel = await UserPreferences.getRoomChannel();
+    _crmv = (await UserPreferences.getVeterinaryCrmv())!;
   }
 
   Future<void> _dispose() async {
@@ -146,7 +148,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
   Future<void> _joinChannel() async {
     log('joined channed: _engine.joinChannel(' ', ....., null, 0)');
-    await _engine.joinChannel(widget.token, widget.channel, null, widget.crmv);
+    await _engine.joinChannel(_token, _channel!, null, int.parse(_crmv!));
   }
 
   Future<void> _toggleMicrophone() async {
@@ -195,10 +197,10 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
               flex: 6, // 70% do espaço disponível
               child: Container(
                 color: Colors.white, // Cor da coluna esquerda
-                child: const Column(
+                child: Column(
                   children: [
                     // Conteúdo da coluna esquerda
-                    //_videoConsultation(),
+                    _videoConsultation(),
                   ],
                 ),
               ),
@@ -325,7 +327,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             child: Center(child: _remoteVideo()),
           ),
           Positioned(
-            bottom: 90,
+            bottom: 70,
             right: 0,
             child: Container(
               height: 240,
@@ -341,7 +343,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
           Positioned(
               bottom: 0,
               child: Container(
-                height: 90,
+                height: 70,
                 color: Colors.black.withOpacity(0.3),
                 width: MediaQuery.of(context).size.width,
                 child: Row(
@@ -468,6 +470,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 }
 
+/*
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
@@ -484,6 +487,22 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
+*/
+
+class WelcomePage extends StatelessWidget {
+  const WelcomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Text(
+        "Boas Vindas",
+        style: TextStyle(fontSize: 24.0),
+      ),
+    );
+  }
+}
+
 
 class UpdateRegistrationDataPage extends StatelessWidget {
   const UpdateRegistrationDataPage({super.key});

@@ -10,14 +10,7 @@ class Routes {
     '/splash': (_) => const SplashScreen(),
     '/serviceQuery': (_) => const ServiceQueryPage(),
     '/home': (_) => const HomePage(),
-    '/consultationRoom': (context) {
-      final args = ModalRoute.of(context)!.settings.arguments as Map;
-      return ConsultationRoomPage(
-        token: args['token'],
-        channel: args['channel'],
-        crmv: args['crmv'], 
-      );
-    },
+    '/consultationRoom': (_) => const ConsultationRoomPage(),
   };
 
   static String initial = '/splash';
