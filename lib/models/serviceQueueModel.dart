@@ -6,11 +6,36 @@ class ServiceQueueModel {
   late final String? tutorName;
   late final int petId;
   late final String? petName;
-  late final String? specie;
-  late final String? race;
+  late final String? petNickName;
+  late final String? bithDay;
   late final String? age;
-  late final String? gender;
-  late final String? screening;
+  late final int? ageType;
+  late final int? raceId;
+  late final String? raceName;
+  late final int? specieId;
+  late final String? specieName;
+  late final String? genderId;
+  late final String? genderName;
+  late final int? sizeId;
+  late final String? sizeName;
+  late final int? coatId;
+  late final String? coatName;
+  late final int? temperamentId;
+  late final String? temperamentName;
+  late final bool? castrated;
+  late final String? state;
+  late final String? city;
+  late final String? neidhborhood;
+  late final int? enviromentId;
+  late final String? enviromentName;
+  late final int? foodId;
+  late final String? foodName;
+  late final int? bodyScoreId;
+  late final String? bodyScoreName;
+  late final int? productId;
+  late final String? productName;
+  late final int? screeningId;
+  late final String? screeningName;
   late final List<ScreeningModel>? screeningList;
 
   ServiceQueueModel({
@@ -19,11 +44,36 @@ class ServiceQueueModel {
     required this.tutorName,
     required this.petId,
     required this.petName,
-    required this.specie,
-    required this.race,
+    required this.petNickName,
+    required this.bithDay,
     required this.age,
-    required this.gender,
-    required this.screening,
+    required this.ageType,
+    required this.raceId,
+    required this.raceName,
+    required this.specieId,
+    required this.specieName,
+    required this.genderId,
+    required this.genderName,
+    required this.sizeId,
+    required this.sizeName,
+    required this.coatId,
+    required this.coatName,
+    required this.temperamentId,
+    required this.temperamentName,
+    required this.castrated,
+    required this.state,
+    required this.city,
+    required this.neidhborhood,
+    required this.enviromentId,
+    required this.enviromentName,
+    required this.foodId,
+    required this.foodName,
+    required this.bodyScoreId,
+    required this.bodyScoreName,
+    required this.productId,
+    required this.productName,
+    required this.screeningId,
+    required this.screeningName,
     required this.screeningList,
   });
 
@@ -39,11 +89,36 @@ class ServiceQueueModel {
       tutorName: json['tutorName'],
       petId: json['petId'],
       petName: json['petName'],
-      specie: json['specie'],
-      race: json['race'],
+      petNickName: json['petNickName'],
+      bithDay: json['bithDay'],
       age: json['age'],
-      gender: json['gender'],
-      screening: json['screening'],
+      ageType: json['ageType'],
+      raceId: json['raceId'],
+      raceName: json['raceName'],
+      specieId: json['specieId'],
+      specieName: json['specieName'],
+      genderId: json['genderId'],
+      genderName: json['genderName'],
+      sizeId: json['sizeId'],
+      sizeName: json['sizeName'],
+      coatId: json['coatId'],
+      coatName: json['coatName'],
+      temperamentId: json['temperamentId'],
+      temperamentName: json['temperamentName'],
+      castrated: json['castrated'],
+      state: json['state'],
+      city: json['city'],
+      neidhborhood: json['neidhborhood'],
+      enviromentId: json['enviromentId'],
+      enviromentName: json['enviromentName'],
+      foodId: json['foodId'],
+      foodName: json['foodName'],
+      bodyScoreId: json['bodyScoreId'],
+      bodyScoreName: json['bodyScoreName'],
+      productId: json['productId'],
+      productName: json['productName'],
+      screeningId: json['screeningId'],
+      screeningName: json['screeningName'],
       screeningList: screeningList,
     );
   }
@@ -56,14 +131,39 @@ class ServiceQueueModel {
       'queueId': queueId,
       'queueType': queueType,
       'tutorName': tutorName,
-      'petName': petName,
       'petId': petId,
-      'specie': specie,
-      'race': race,
+      'petName': petName,
+      'petNickName': petNickName,
+      'bithDay': bithDay,
       'age': age,
-      'gender': gender,
-      'screening': screening,
-      'vaccineList': screeningListJson
+      'ageType': ageType,
+      'raceId': raceId,
+      'raceName': raceName,
+      'specieId': specieId,
+      'specieName': specieName,
+      'genderId': genderId,
+      'genderName': genderName,
+      'sizeId': sizeId,
+      'sizeName': sizeName,
+      'coatId': coatId,
+      'coatName': coatName,
+      'temperamentId': temperamentId,
+      'temperamentName': temperamentName,
+      'castrated': castrated,
+      'state': state,
+      'city': city,
+      'neidhborhood': neidhborhood,
+      'enviromentId': enviromentId,
+      'enviromentName': enviromentName,
+      'foodId': foodId,
+      'foodName': foodName,
+      'bodyScoreId': bodyScoreId,
+      'bodyScoreName': bodyScoreName,
+      'productId': productId,
+      'productName': productName,
+      'screeningId': screeningId,
+      'screeningName': screeningName,
+      'screeningList': screeningListJson
     };
   }
 }

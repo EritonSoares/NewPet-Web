@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, library_prefixes, avoid_web_libraries_in_flutter
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -11,11 +12,13 @@ import 'dart:html' as html;
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
 
 const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 //const token = "006a12600dd0e80435ca0a1efc4660cbe6bIABA0Ug4bFpjYxdjWXx//De36mr93wxw9jsOjttA0Li+BEwKp+vpr4RpIgBOqzEBnUoEZQQAAQAtBwNlAgAtBwNlAwAtBwNlBAAtBwNl";
 //const channel = "petner";
+late final ServiceQueueModel _serviceQueue;
 
 class ConsultationRoomPage extends StatefulWidget {
   const ConsultationRoomPage({super.key});
@@ -27,13 +30,11 @@ class ConsultationRoomPage extends StatefulWidget {
 class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   late final RtcEngine _engine;
   late final List<Map<int, String>> typeService;
-  late final int _selectedTypeService;
-  int selectedOption = 1;
+  int _selectedTypeService = 1;
   late List<Map<int, String>> consultaOptions;
   late List<Widget> _pages;
   late int _currentPageIndex;
   late String? _token, _channel, _crmv;
-
 
   bool isJoined = false,
       enabledAudio = true,
@@ -46,6 +47,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     super.initState();
 
     _roomConfiguration();
+    _getQueue();
+
     consultaOptions = [
       {1: 'Consulta Boas Vindas'},
       {2: 'Consulta por Queixa'},
@@ -55,7 +58,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     ];
 
     _currentPageIndex = 0;
-    if (selectedOption == 1) {
+    if (_selectedTypeService == 1) {
       _pages = [
         WelcomePage(),
         UpdateRegistrationDataPage(),
@@ -74,7 +77,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     }
 
     //DESCOMENTAR PARA ATIVAR A CHAMADA DE VÍDEO
-    _initEngine();
+    //_initEngine();
   }
 
   @override
@@ -87,6 +90,11 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _token = await UserPreferences.getRoomToken();
     _channel = await UserPreferences.getRoomChannel();
     _crmv = (await UserPreferences.getVeterinaryCrmv())!;
+  }
+
+  Future<void> _getQueue() async {
+    String? serviceQueue = await UserPreferences.getQueue();
+    _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
   }
 
   Future<void> _dispose() async {
@@ -199,8 +207,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                 color: Colors.white, // Cor da coluna esquerda
                 child: Column(
                   children: [
-                    // Conteúdo da coluna esquerda
-                    _videoConsultation(),
+                    // Descomentar para funcionar Vídeo
+                    //_videoConsultation(),
                   ],
                 ),
               ),
@@ -220,11 +228,11 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                       decoration: const InputDecoration(
                         labelText: 'Tipo de Ficha', // Texto no decoration
                       ),
-                      value: selectedOption,
+                      value: _selectedTypeService,
                       onChanged: (int? newCode) {
                         if (newCode != null) {
                           setState(() {
-                            selectedOption = newCode;
+                            _selectedTypeService = newCode;
                           });
                         }
                       },
@@ -494,15 +502,14 @@ class WelcomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: Text(
-        "Boas Vindas",
+        'Boas Vindas ${_serviceQueue.tutorName}',
         style: TextStyle(fontSize: 24.0),
       ),
     );
   }
 }
-
 
 class UpdateRegistrationDataPage extends StatelessWidget {
   const UpdateRegistrationDataPage({super.key});

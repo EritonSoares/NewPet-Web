@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class UserPreferences {
   /***************************************************************************************/
-  /* Credênciais de Login  */  
+  /* Credênciais de Login  */
   static Future<void> saveCredentials(String email, String password) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('email', email);
@@ -22,7 +22,6 @@ class UserPreferences {
   }
   /****************************************************************************************/
 
-
   /****************************************************************************************/
   /* Listagem de Raças  */
   static Future<void> saveRace(String race) async {
@@ -35,7 +34,6 @@ class UserPreferences {
     return prefs.getString('race');
   }
   /****************************************************************************************/
-
 
   /****************************************************************************************/
   /* Listagem de Espécie  */
@@ -82,15 +80,15 @@ class UserPreferences {
   }
   /****************************************************************************************/
 
-
   /****************************************************************************************/
   /* Dados dos Veterinário  */
-  static Future<void> saveVeterinary(String userId, String name, String crmv) async {
+  static Future<void> saveVeterinary(
+      String userId, String name, String crmv) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('userId', userId);
     await prefs.setString('name', name);
     await prefs.setString('crmv', crmv);
-}
+  }
 
   static Future<String?> getVeterinaryUserId() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -102,10 +100,22 @@ class UserPreferences {
     return prefs.getString('name');
   }
 
-    static Future<String?> getVeterinaryCrmv() async {
+  static Future<String?> getVeterinaryCrmv() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('crmv');
   }
   /****************************************************************************************/
 
+/****************************************************************************************/
+  /* Dados do agendamento  */
+  static Future<void> saveQueue(String queue) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('queue', queue);
+  }
+
+  static Future<String?> getQueue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('queue');
+  }
+  /****************************************************************************************/
 }

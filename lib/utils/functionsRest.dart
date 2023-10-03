@@ -90,7 +90,7 @@ Future<Map<String, dynamic>> validateUserApi(
       if (responseData['validateUser'] == 2) {
         if (typeLogin == 0) {
           await UserPreferences.saveCredentials(
-             validateUser['email'], validateUser['password']);
+              validateUser['email'], validateUser['password']);
         }
 
         await UserPreferences.saveVeterinary(
@@ -98,7 +98,7 @@ Future<Map<String, dynamic>> validateUserApi(
           responseData['name'],
           responseData['crmv'].toString(),
         );
-        
+
         await raceListApi();
         await specieListApi();
         await coatListApi();
@@ -300,8 +300,7 @@ Future<void> coatListApi([String? specie]) async {
     );
 
     if (response.statusCode == 200) {
-      UserPreferences.saveRace(response.body);
-    
+      UserPreferences.saveCoat(response.body);
     } else {
       // A resposta não foi bem-sucedida
       print('_Erro na solicitação POST coatList: ${response.statusCode}');

@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_web_libraries_in_flutter
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:petner_web/custom/custom_appbar.dart';
@@ -41,10 +42,10 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
       _index = index;
       _tutorNameController.text = serviceQueueList[index].tutorName!;
       _petNameController.text = serviceQueueList[index].petName!;
-      _raceController.text = serviceQueueList[index].race!;
-      _specieController.text = serviceQueueList[index].specie!;
-      _genderController.text = serviceQueueList[index].gender!;
-      _screningController.text = serviceQueueList[index].screening!;
+      _raceController.text = serviceQueueList[index].raceName!;
+      _specieController.text = serviceQueueList[index].specieName!;
+      _genderController.text = serviceQueueList[index].genderName!;
+      _screningController.text = serviceQueueList[index].screeningName!;
 
       _queueSelected = true; // Atualiza a variável de estado
     });
@@ -221,7 +222,6 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                             ),
                                             child: InkWell(
                                               onTap: () {
-                                                //print(petVaccine.);
                                                 _queueInformation(index);
                                               },
                                               child: Padding(
@@ -295,11 +295,12 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                             ? MainAxisAlignment.center
                             : MainAxisAlignment.start,
                         children: [
-                          (serviceQueueList.length == 0) ? const Text(
-                                  'Nenhum Atendimento na Fila') : (!_queueSelected || _index < 0)
-                              ? const Text(
-                                  'Selecione um Atendimento para ver as Informações')
-                              : _serviceSummary(_index),
+                          (serviceQueueList.length == 0)
+                              ? const Text('Nenhum Atendimento na Fila')
+                              : (!_queueSelected || _index < 0)
+                                  ? const Text(
+                                      'Selecione um Atendimento para ver as Informações')
+                                  : _serviceSummary(_index),
                         ],
                       ),
                     ),
@@ -472,12 +473,10 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                   child: ElevatedButton(
                     onPressed: () async {
                       _getVeterinaryCrmv();
-                      print(1111111111111);
                       roomToken = await _getRTCToken(
                           serviceQueueList[index].petId,
                           serviceQueueList[index].queueId,
                           int.parse(_crmv!));
-                      print(1111111);
 
                       if (roomToken == '0') {
                         print('erro 0');
@@ -486,11 +485,10 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       } else if (roomToken == '-2') {
                         print('erro 2');
                       } else {
-                        print(roomToken);
-                        print(serviceQueueList[index].queueId);
-                        print(_crmv);
-
-                        UserPreferences.saveRoom(roomToken, serviceQueueList[index].queueId.toString());
+                        UserPreferences.saveRoom(roomToken,
+                            serviceQueueList[index].queueId.toString());
+                        UserPreferences.saveQueue(
+                            jsonEncode(serviceQueueList[index].toJson()));
                         Navigator.of(Routes.navigatorKey!.currentContext!)
                             .pushReplacementNamed('/consultationRoom');
                       }
