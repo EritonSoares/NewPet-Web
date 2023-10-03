@@ -20,6 +20,14 @@ const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 //const channel = "petner";
 late final ServiceQueueModel _serviceQueue;
 
+// TextEditingController
+final TextEditingController _tutorNameController = TextEditingController();
+final TextEditingController _petNameController = TextEditingController();
+final TextEditingController _raceController = TextEditingController();
+final TextEditingController _specieController = TextEditingController();
+final TextEditingController _genderController = TextEditingController();
+final TextEditingController _screningController = TextEditingController();
+
 class ConsultationRoomPage extends StatefulWidget {
   const ConsultationRoomPage({super.key});
 
@@ -95,6 +103,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   Future<void> _getQueue() async {
     String? serviceQueue = await UserPreferences.getQueue();
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
+
+
+    _tutorNameController.text = _serviceQueue.tutorName!;
   }
 
   Future<void> _dispose() async {
@@ -478,7 +489,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 }
 
-/*
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
@@ -489,14 +499,30 @@ class WelcomePage extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [],
+          children: [
+            TextFormField(
+              style: const TextStyle(fontSize: 15.0),
+              enabled: false,
+              controller: _tutorNameController,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.all(
+                      Radius.circular(8.0)), // Raio dos cantos da borda
+                  borderSide: BorderSide(
+                      color: Colors.black,
+                      width: 1.0), // Cor e largura da borda
+                ),
+                labelText: 'Tutor',
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
-*/
 
+/*
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
 
@@ -510,6 +536,7 @@ class WelcomePage extends StatelessWidget {
     );
   }
 }
+*/
 
 class UpdateRegistrationDataPage extends StatelessWidget {
   const UpdateRegistrationDataPage({super.key});
