@@ -85,7 +85,7 @@ Widget getPetData(PetModel myPet, bool pageMyPet, BuildContext context,
             const SizedBox(height: 8.0),
             // Espécie do pet
             Text(
-              '${SpecieData().getSpecieById(PetData().getPetById(myPet.id.toString()).specie).name} - ${GenderData().getGenderById(PetData().getPetById(myPet.id.toString()).gender)['name']}',
+              '${SpecieData().getSpecieById(int.parse(PetData().getPetById(myPet.id.toString()).specie))['name']} - ${GenderData().getGenderById(PetData().getPetById(myPet.id.toString()).gender)['name']}',
               style: const TextStyle(
                   fontSize: 18,
                   fontFamily: 'Montserrat',

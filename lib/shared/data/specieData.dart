@@ -1,19 +1,30 @@
 // ignore_for_file: file_names
 
-import 'package:petner_web/models/speciedModel.dart';
-
 class SpecieData {
-  static final SpecieData _instance = SpecieData._internal();
+  List<Map<String, dynamic>> specieList = [
+    {
+      'id': '1',
+      'name': 'Canina',
+    },
+    {
+      'id': '2',
+      'name': 'Felina',
+    },
+  ];
 
-  factory SpecieData() {
-    return _instance;
+  List<Map<String, dynamic>> getSpecieList() {
+    return specieList;
   }
 
-  SpecieData._internal();
+  Map<String, dynamic> getSpecieByIndex(int index) {
+    if (index >= 0 && index < specieList.length) {
+      return specieList[index];
+    } else {
+      return {};
+    }
+  }
 
-  List<SpecieModel> specieList = [];
-
-  SpecieModel getSpecieById(String index) {
-    return specieList.firstWhere((element) => (element.id == index));
+  Map<String, dynamic> getSpecieById(int id) {
+    return specieList.firstWhere((element) => element['id'] == id);
   }
 }

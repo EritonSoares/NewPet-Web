@@ -31,4 +31,8 @@ class EnvironmentData {
       return {};
     }
   }
+
+  Map<String, dynamic> getEnvironmentById(int id) {
+    return environmentList.firstWhere((element) => element['id'] == id);
+  }
 }

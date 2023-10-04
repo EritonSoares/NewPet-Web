@@ -20,9 +20,28 @@ const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 //const channel = "petner";
 late final ServiceQueueModel _serviceQueue;
 
-// TextEditingController
+// Variaveis e controlers
+late final String _petPhoto;
+late final int _temperamentId;
+late bool _castrated;
+late final int _enviromentId;
+late final int _foodId;
+late final int _specieId;
+late final String _bithDay;
+late final String _age;
+late final int _ageType;
+late final String _genderId;
+late final int _raceId;
+late final int _sizeId;
+late final int _coatId;
+late final String _state;
+late final String _city;
+late final String _neighborhood;
+late final int _bodyScoreId;
+late final int _productId;
 final TextEditingController _tutorNameController = TextEditingController();
 final TextEditingController _petNameController = TextEditingController();
+final TextEditingController _petNickName = TextEditingController();
 final TextEditingController _raceController = TextEditingController();
 final TextEditingController _specieController = TextEditingController();
 final TextEditingController _genderController = TextEditingController();
@@ -103,7 +122,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   Future<void> _getQueue() async {
     String? serviceQueue = await UserPreferences.getQueue();
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
-
 
     _tutorNameController.text = _serviceQueue.tutorName!;
   }

@@ -7,6 +7,7 @@ class ServiceQueueModel {
   late final int petId;
   late final String? petName;
   late final String? petNickName;
+  late final String? petPhoto;
   late final String? bithDay;
   late final String? age;
   late final int? ageType;
@@ -45,6 +46,7 @@ class ServiceQueueModel {
     required this.petId,
     required this.petName,
     required this.petNickName,
+    required this.petPhoto,
     required this.bithDay,
     required this.age,
     required this.ageType,
@@ -90,6 +92,7 @@ class ServiceQueueModel {
       petId: json['petId'],
       petName: json['petName'],
       petNickName: json['petNickName'],
+      petPhoto: json['petPhoto'],
       bithDay: json['bithDay'],
       age: json['age'],
       ageType: json['ageType'],
@@ -134,6 +137,7 @@ class ServiceQueueModel {
       'petId': petId,
       'petName': petName,
       'petNickName': petNickName,
+      'petPhoto': petPhoto,
       'bithDay': bithDay,
       'age': age,
       'ageType': ageType,

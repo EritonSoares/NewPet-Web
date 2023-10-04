@@ -31,4 +31,8 @@ class SizeData {
       return {};
     }
   }
+
+  Map<String, dynamic> getSizeById(int id) {
+    return sizeList.firstWhere((element) => element['id'] == id);
+  }
 }

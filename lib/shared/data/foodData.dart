@@ -45,4 +45,8 @@ class FoodData {
       return {};
     }
   }
+
+  Map<String, dynamic> getFoodById(int id) {
+    return foodList.firstWhere((element) => element['id'] == id);
+  }
 }
