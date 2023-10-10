@@ -41,11 +41,18 @@ late final int _bodyScoreId;
 late final int _productId;
 final TextEditingController _tutorNameController = TextEditingController();
 final TextEditingController _petNameController = TextEditingController();
-final TextEditingController _petNickName = TextEditingController();
+final TextEditingController _petNickNameController = TextEditingController();
 final TextEditingController _raceController = TextEditingController();
 final TextEditingController _specieController = TextEditingController();
 final TextEditingController _genderController = TextEditingController();
 final TextEditingController _screningController = TextEditingController();
+final TextEditingController _productController = TextEditingController();
+bool isWelcome = false;
+bool isProduct = false;
+bool isCompany = false;
+bool isFaceToFaceConsultation = false;
+bool isHealthProgram = false;
+// Cor inicial
 
 class ConsultationRoomPage extends StatefulWidget {
   const ConsultationRoomPage({super.key});
@@ -87,19 +94,46 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _currentPageIndex = 0;
     if (_selectedTypeService == 1) {
       _pages = [
-        WelcomePage(),
-        UpdateRegistrationDataPage(),
-        VaccineRegistrationPage(),
-        ChronicHealthConditionPage(),
-        SymptomPage(),
-        AnamnesisPage(),
-        Quiz3Page(),
-        Quiz4Page(),
-        IaPage(),
-        RecommendationPage(),
-        FinalClassificationPage(),
-        HealthProgramPage(),
-        DocumentAvaliablePage(),
+        WelcomePage(
+          updateCheckboxWelcome: (bool newValue) {
+            setState(() {
+              isWelcome = newValue;
+            });
+          },
+          updateCheckboxCompany: (bool newValue) {
+            setState(() {
+              isCompany = newValue;
+            });
+          },
+          updateCheckboxProduct: (bool newValue) {
+            setState(() {
+              isProduct = newValue;
+            });
+          },
+          updateCheckboxFaceToFaceConsultation: (bool newValue) {
+            setState(() {
+              isFaceToFaceConsultation = newValue;
+            });
+          },
+          updateCheckboxHealthProgram: (bool newValue) {
+            setState(() {
+              isHealthProgram = newValue;
+            });
+          },
+        ),
+        const UpdateRegistrationDataPage(),
+        const UpdateRegistrationDataPage(),
+        const VaccineRegistrationPage(),
+        const ChronicHealthConditionPage(),
+        const SymptomPage(),
+        const AnamnesisPage(),
+        const Quiz3Page(),
+        const Quiz4Page(),
+        const IaPage(),
+        const RecommendationPage(),
+        const FinalClassificationPage(),
+        const HealthProgramPage(),
+        const DocumentAvaliablePage(),
       ];
     }
 
@@ -124,6 +158,12 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
 
     _tutorNameController.text = _serviceQueue.tutorName!;
+    _petNameController.text = _serviceQueue.petName!;
+    _petNickNameController.text = _serviceQueue.petNickName!;
+    _raceController.text = _serviceQueue.raceName!;
+    _specieController.text = _serviceQueue.specieName!;
+    _genderController.text = _serviceQueue.genderName!;
+    _productController.text = _serviceQueue.productName!;
   }
 
   Future<void> _dispose() async {
@@ -222,6 +262,19 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     }
   }
 
+  bool _validateFields() {
+    if (!(isWelcome &&
+        isCompany &&
+        isProduct &&
+        isFaceToFaceConsultation &&
+        isHealthProgram)) {
+      // Se algum campo estiver vazio ou nenhum dos checkboxes estiver marcado, a validação falha
+      return false;
+    }
+    // Todos os campos estão preenchidos e pelo menos um dos checkboxes está marcado, a validação é bem-sucedida
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -234,7 +287,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
               flex: 6, // 70% do espaço disponível
               child: Container(
                 color: Colors.white, // Cor da coluna esquerda
-                child: Column(
+                child: const Column(
                   children: [
                     // Descomentar para funcionar Vídeo
                     //_videoConsultation(),
@@ -325,10 +378,20 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                               : true, // Controla a visibilidade do botão
                           child: ElevatedButton(
                             onPressed: () {
-                              if (_currentPageIndex < _pages.length - 1) {
-                                setState(() {
-                                  _currentPageIndex++;
-                                });
+                              if (_currentPageIndex == 0) {
+                                if (_validateFields()) {
+                                  if (_currentPageIndex < _pages.length - 1) {
+                                    setState(() {
+                                      _currentPageIndex++;
+                                    });
+                                  }
+                                }
+                              } else {
+                                if (_currentPageIndex < _pages.length - 1) {
+                                  setState(() {
+                                    _currentPageIndex++;
+                                  });
+                                }
                               }
                             },
                             child: const Text('Próximo'),
@@ -507,54 +570,234 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 }
 
-class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
+class WelcomePage extends StatefulWidget {
+  final Function(bool) updateCheckboxWelcome;
+  final Function(bool) updateCheckboxProduct;
+  final Function(bool) updateCheckboxCompany;
+  final Function(bool) updateCheckboxFaceToFaceConsultation;
+  final Function(bool) updateCheckboxHealthProgram;
+
+  const WelcomePage({
+    Key? key,
+    required this.updateCheckboxWelcome,
+    required this.updateCheckboxProduct,
+    required this.updateCheckboxCompany,
+    required this.updateCheckboxFaceToFaceConsultation,
+    required this.updateCheckboxHealthProgram,
+  }) : super(key: key);
 
   @override
+  _WelcomePageState createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> {
+  @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFormField(
-              style: const TextStyle(fontSize: 15.0),
-              enabled: false,
-              controller: _tutorNameController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(8.0)), // Raio dos cantos da borda
-                  borderSide: BorderSide(
-                      color: Colors.black,
-                      width: 1.0), // Cor e largura da borda
-                ),
-                labelText: 'Tutor',
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            style: const TextStyle(fontSize: 15.0),
+            enabled: false,
+            controller: _tutorNameController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(
+                    Radius.circular(8.0)), // Raio dos cantos da borda
+                borderSide: BorderSide(
+                    color: Colors.black, width: 1.0), // Cor e largura da borda
               ),
+              labelText: 'Tutor',
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  enabled: false,
+                  controller: _petNameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Pet',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  enabled: false,
+                  controller: _petNickNameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Apelido',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  enabled: false,
+                  controller: _specieController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Espécie',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                flex: 2,
+                child: TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  enabled: false,
+                  controller: _raceController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Raça',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          TextFormField(
+            style: const TextStyle(fontSize: 15.0),
+            enabled: false,
+            controller: _productController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(
+                    Radius.circular(8.0)), // Raio dos cantos da borda
+                borderSide: BorderSide(
+                    color: Colors.black, width: 1.0), // Cor e largura da borda
+              ),
+              labelText: 'Produto Contratado',
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Checkbox(
+                value: isWelcome,
+                onChanged: (bool? newValue) {
+                  setState(() {
+                    isWelcome = newValue!;
+                  });
+                  widget.updateCheckboxWelcome(newValue!);
+                },
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    isWelcome = !isWelcome;
+                  });
+                  widget.updateCheckboxWelcome(isWelcome);
+                },
+                child: const Text('Mensagem de Boas-Vindas'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Checkbox(
+                value: isCompany,
+                onChanged: (bool? newValue) {
+                  setState(() {
+                    isCompany = newValue!;
+                  });
+                  widget.updateCheckboxCompany(newValue ?? false);
+                },
+              ),
+              const Text('Informações sobre a Petner'),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Checkbox(
+                value: isProduct,
+                onChanged: (bool? newValue) {
+                  setState(() {
+                    isProduct = newValue!;
+                  });
+                  widget.updateCheckboxProduct(newValue ?? false);
+                },
+              ),
+              const Text('Informações sobre o Prouto Contratado'),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Checkbox(
+                value: isFaceToFaceConsultation,
+                onChanged: (bool? newValue) {
+                  setState(() {
+                    isFaceToFaceConsultation = newValue!;
+                  });
+                  widget
+                      .updateCheckboxFaceToFaceConsultation(newValue ?? false);
+                },
+              ),
+              const Text('Informações sobre a Consulta Presencial'),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Checkbox(
+                value: isHealthProgram,
+                onChanged: (bool? newValue) {
+                  setState(() {
+                    isHealthProgram = newValue!;
+                  });
+                  widget.updateCheckboxHealthProgram(newValue ?? false);
+                },
+              ),
+              const Text('Informações gerais sobre Programas de Saúde'),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
-
-/*
-class WelcomePage extends StatelessWidget {
-  const WelcomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'Boas Vindas ${_serviceQueue.tutorName}',
-        style: TextStyle(fontSize: 24.0),
-      ),
-    );
-  }
-}
-*/
 
 class UpdateRegistrationDataPage extends StatelessWidget {
   const UpdateRegistrationDataPage({super.key});
@@ -563,7 +806,7 @@ class UpdateRegistrationDataPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text(
-        "Atualização dos Dados Cadastrais",
+        'Atualizar dados Cadastrais',
         style: TextStyle(fontSize: 24.0),
       ),
     );
