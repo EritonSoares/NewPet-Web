@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
-import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:petner_web/custom/custom_appbar.dart';
 import 'package:petner_web/custom/custom_drawer.dart';
@@ -13,17 +12,23 @@ import 'dart:html' as html;
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
+import 'package:petner_web/shared/data/bodyScoreData.dart';
+import 'package:petner_web/shared/data/cityData.dart';
 import 'package:petner_web/shared/data/coatData.dart';
 import 'package:petner_web/shared/data/environmentData.dart';
+import 'package:petner_web/shared/data/foodData.dart';
 import 'package:petner_web/shared/data/genderData.dart';
 import 'package:petner_web/shared/data/raceData.dart';
 import 'package:petner_web/shared/data/sizeData.dart';
 import 'package:petner_web/shared/data/specieData.dart';
+import 'package:petner_web/shared/data/stateData.dart';
 import 'package:petner_web/shared/data/temperamentData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
+import 'package:petner_web/utils/functionsRest.dart';
 
 const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 //const token = "006a12600dd0e80435ca0a1efc4660cbe6bIABA0Ug4bFpjYxdjWXx//De36mr93wxw9jsOjttA0Li+BEwKp+vpr4RpIgBOqzEBnUoEZQQAAQAtBwNlAgAtBwNlAwAtBwNlBAAtBwNl";
@@ -31,11 +36,12 @@ const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 late ServiceQueueModel _serviceQueue;
 
 // Variaveis e controlers
+bool _isLoading = false;
 late final String _petPhoto;
 late int? _temperamentId;
 late bool _castrated;
 late int? _environmentId;
-late int _foodId;
+late int? _foodId;
 late int _specieId;
 late final String _bithDay;
 late final String _age;
@@ -44,10 +50,10 @@ String? _genderId;
 int? _raceId;
 int? _sizeId;
 int? _coatId;
-late final String _state;
-late final String _city;
+late String? _state;
+late String? _city;
 late final String _neighborhood;
-late final int _bodyScoreId;
+late int? _bodyScoreId;
 late final int _productId;
 final TextEditingController _tutorNameController = TextEditingController();
 final TextEditingController _petNameController = TextEditingController();
@@ -66,6 +72,7 @@ bool isHealthProgram = false;
 bool isAgeReal = false;
 List<RaceModel> raceList = [];
 List<CoatModel> coatList = [];
+List<CityModel> listCity = [];
 // Cor inicial
 
 class ConsultationRoomPage extends StatefulWidget {
@@ -186,6 +193,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _specieId = _serviceQueue.specieId!;
     _raceId = _serviceQueue.raceId!;
     _coatId = _serviceQueue.coatId;
+    _bodyScoreId = _serviceQueue.bodyScoreId;
+    _state = _serviceQueue.state;
+    _city = _serviceQueue.city;
 
     final jsonRace = await UserPreferences.getRace();
     RaceData().raceList = (jsonDecode(jsonRace!) as List<dynamic>)
@@ -224,7 +234,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       }
     } else {
       if (_engine != null) {
-        await _engine!.stopScreenCapture();
+        await _engine.stopScreenCapture();
         // Potentially restart the camera feed here
         setState(() {
           shareScreen = false;
@@ -854,6 +864,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
   @override
   void initState() {
     super.initState();
+
+    _fetchCity(_state);
   }
 
   String? _validateDropDown(String? value) {
@@ -861,6 +873,19 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       return 'Selecione uma opção';
     }
     return null;
+  }
+
+  Future<void> _fetchCity([String? uf]) async {
+    _isLoading = true;
+
+    List<CityModel> cityList;
+
+    cityList = await cityListApi(uf);
+    setState(() {
+      CityData().cityList = cityList;
+      listCity = cityList;
+      _isLoading = false;
+    });
   }
 
   @override
@@ -879,7 +904,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                 borderRadius: BorderRadius.all(
                     Radius.circular(8.0)), // Raio dos cantos da borda
                 borderSide: BorderSide(
-                    color: Colors.black, width: 1.0), // Cor e largura da borda
+                    color: Colors.black,
+                    width: 1.0), // Cor e largura da borda
               ),
               labelText: 'Tutor',
             ),
@@ -1027,13 +1053,35 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           ),
           const SizedBox(height: 10.0),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: environmentDropdown(),
               ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: foodDropdown(),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: bodyScoreDropdown(),
+              ),
             ],
           ),
           const SizedBox(height: 10.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: stateDropdown(),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: cityDropDown(),
+              ),
+              const SizedBox(width: 10.0),
+            ],
+          ),
         ],
       ),
     );
@@ -1059,7 +1107,7 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
               .toList();
           _coatId = int.parse(coatList.first.id);
 
-          //foodSpecie = FoodData().getFoodBySpecie(int.parse(value!));
+          _foodId = null;
         });
       },
       items: SpecieData().specieList.map((species) {
@@ -1232,6 +1280,114 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
         labelText: 'Ambiente que vive',
       ),
       value: (_environmentId == null ? null : _environmentId.toString()),
+    );
+  }
+
+  DropdownButtonFormField<String> foodDropdown() {
+    return DropdownButtonFormField<String>(
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        setState(() {
+          _foodId = int.parse(value!);
+        });
+      },
+      items: FoodData().getFoodBySpecie(_specieId).map((size) {
+        return DropdownMenuItem<String>(
+          value: size['id'],
+          child: Text(size['name']),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          labelText: 'Alimentação'),
+      value: (_foodId == null ? null : _foodId.toString()),
+    );
+  }
+
+  DropdownButtonFormField<String> bodyScoreDropdown() {
+    return DropdownButtonFormField<String>(
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        setState(() {
+          _bodyScoreId = int.parse(value!);
+        });
+      },
+      items: BodyScoreData().bodyScoreList.map((size) {
+        return DropdownMenuItem<String>(
+          value: size['id'],
+          child: Text(size['name']),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          labelText: 'Score Corporal'),
+      value: (_bodyScoreId == null ? null : _bodyScoreId.toString()),
+    );
+  }
+
+  DropdownButtonFormField<String> stateDropdown() {
+    return DropdownButtonFormField<String>(
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        setState(() {
+          _state = value!;
+
+          _fetchCity(value);
+          _city = null;
+        });
+      },
+      items: StateData().getStateList().map((size) {
+        return DropdownMenuItem<String>(
+          value: size['uf'],
+          child: Text(size['name']),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          labelText: 'Estado'),
+      value: (_state == null ? null : _state.toString()),
+    );
+  }
+
+  DropdownButtonFormField<String> cityDropDown() {
+    return DropdownButtonFormField<String>(
+      //validator: _validateDropDown,
+      onChanged: (value) {
+        print('city: {$value}');
+        setState(() {
+          _city = value!;
+        });
+      },
+      items: listCity.map((city) {
+        return DropdownMenuItem<String>(
+          value: city.name,
+          child: Text(city.name.toString()),
+        );
+      }).toList(),
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelText: 'Cidade',
+      ),
+      value: _city,
     );
   }
 }
