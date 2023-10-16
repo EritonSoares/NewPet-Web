@@ -68,7 +68,9 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
       setState(() {
         //_queueSelected = false;
         // Atualize seus dados aqui, por exemplo:
-        _future = _fetchServiceQueue();
+        if (mounted) {
+          _future = _fetchServiceQueue();
+        }
       });
     });
   }

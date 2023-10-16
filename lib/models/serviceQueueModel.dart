@@ -27,8 +27,8 @@ class ServiceQueueModel {
   late final String? state;
   late final String? city;
   late final String? neidhborhood;
-  late final int? enviromentId;
-  late final String? enviromentName;
+  late final int? environmentId;
+  late final String? environmentName;
   late final int? foodId;
   late final String? foodName;
   late final int? bodyScoreId;
@@ -66,8 +66,8 @@ class ServiceQueueModel {
     required this.state,
     required this.city,
     required this.neidhborhood,
-    required this.enviromentId,
-    required this.enviromentName,
+    required this.environmentId,
+    required this.environmentName,
     required this.foodId,
     required this.foodName,
     required this.bodyScoreId,
@@ -112,8 +112,8 @@ class ServiceQueueModel {
       state: json['state'],
       city: json['city'],
       neidhborhood: json['neidhborhood'],
-      enviromentId: json['enviromentId'],
-      enviromentName: json['enviromentName'],
+      environmentId: json['environmentId'],
+      environmentName: json['environmentName'],
       foodId: json['foodId'],
       foodName: json['foodName'],
       bodyScoreId: json['bodyScoreId'],
@@ -157,8 +157,8 @@ class ServiceQueueModel {
       'state': state,
       'city': city,
       'neidhborhood': neidhborhood,
-      'enviromentId': enviromentId,
-      'enviromentName': enviromentName,
+      'environmentId': environmentId,
+      'environmentName': environmentName,
       'foodId': foodId,
       'foodName': foodName,
       'bodyScoreId': bodyScoreId,

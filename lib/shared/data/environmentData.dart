@@ -3,6 +3,10 @@
 class EnvironmentData {
   List<Map<String, dynamic>> environmentList = [
     {
+      'id': '0',
+      'name': 'Selecione uma Opção',
+    },
+    {
       'id': '1',
       'name': 'Apartamento',
     },

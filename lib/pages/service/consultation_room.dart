@@ -12,7 +12,16 @@ import 'dart:html' as html;
 import 'package:agora_rtc_engine/rtc_engine.dart';
 import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:petner_web/models/coatModel.dart';
+import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
+import 'package:petner_web/shared/data/coatData.dart';
+import 'package:petner_web/shared/data/environmentData.dart';
+import 'package:petner_web/shared/data/genderData.dart';
+import 'package:petner_web/shared/data/raceData.dart';
+import 'package:petner_web/shared/data/sizeData.dart';
+import 'package:petner_web/shared/data/specieData.dart';
+import 'package:petner_web/shared/data/temperamentData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
 
 const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
@@ -24,16 +33,16 @@ late final ServiceQueueModel _serviceQueue;
 late final String _petPhoto;
 late final int _temperamentId;
 late bool _castrated;
-late final int _enviromentId;
+late final int _environmentId;
 late final int _foodId;
-late final int _specieId;
+int _specieId = 0;
 late final String _bithDay;
 late final String _age;
 late final int _ageType;
-late final String _genderId;
-late final int _raceId;
-late final int _sizeId;
-late final int _coatId;
+String _genderId = '';
+int _raceId = 0;
+int? _sizeId = 0;
+int _coatId = 0;
 late final String _state;
 late final String _city;
 late final String _neighborhood;
@@ -47,11 +56,15 @@ final TextEditingController _specieController = TextEditingController();
 final TextEditingController _genderController = TextEditingController();
 final TextEditingController _screningController = TextEditingController();
 final TextEditingController _productController = TextEditingController();
+final TextEditingController _ageController = TextEditingController();
 bool isWelcome = false;
 bool isProduct = false;
 bool isCompany = false;
 bool isFaceToFaceConsultation = false;
 bool isHealthProgram = false;
+bool isAgeReal = false;
+List<RaceModel> raceList = [];
+List<CoatModel> coatList = [];
 // Cor inicial
 
 class ConsultationRoomPage extends StatefulWidget {
@@ -155,7 +168,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   Future<void> _getQueue() async {
     String? serviceQueue = await UserPreferences.getQueue();
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
-
     _tutorNameController.text = _serviceQueue.tutorName!;
     _petNameController.text = _serviceQueue.petName!;
     _petNickNameController.text = _serviceQueue.petNickName!;
@@ -163,6 +175,39 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _specieController.text = _serviceQueue.specieName!;
     _genderController.text = _serviceQueue.genderName!;
     _productController.text = _serviceQueue.productName!;
+    _ageController.text = _serviceQueue.age!;
+    _genderId = _serviceQueue.genderId!;
+    _foodId = _serviceQueue.foodId!;
+    _sizeId = (_serviceQueue.sizeId == null ? 0 : _serviceQueue.sizeId!);
+    _temperamentId = (_serviceQueue.temperamentId == null
+        ? 0
+        : _serviceQueue.temperamentId!);
+    _castrated = _serviceQueue.castrated!;
+    _environmentId = (_serviceQueue.environmentId == null
+        ? 0
+        : _serviceQueue.environmentId!);
+    _specieId = _serviceQueue.specieId!;
+    _raceId = _serviceQueue.raceId!;
+    final jsonRace = await UserPreferences.getRace();
+    RaceData().raceList = (jsonDecode(jsonRace!) as List<dynamic>)
+        .map((e) => RaceModel.fromJson(e))
+        .toList();
+    raceList = RaceData()
+        .raceList
+        .where((races) => races.specieId == _specieId.toString())
+        .toList();
+
+    _coatId = (_serviceQueue.coatId == null ? 1 : _serviceQueue.coatId!);
+    final jsonCoat = await UserPreferences.getCoat();
+    CoatData().coatList = (jsonDecode(jsonCoat!) as List<dynamic>)
+        .map((e) => CoatModel.fromJson(e))
+        .toList();
+    coatList = CoatData()
+        .coatList
+        .where((coats) => coats.specieId == _specieId.toString())
+        .toList();
+
+    _coatId = (_serviceQueue.coatId == null ? 1 : int.parse(coatList.last.id));
   }
 
   Future<void> _dispose() async {
@@ -268,7 +313,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         isFaceToFaceConsultation &&
         isHealthProgram)) {
       // Se algum campo estiver vazio ou nenhum dos checkboxes estiver marcado, a validação falha
-      return false;
+
+      //return false;
     }
     // Todos os campos estão preenchidos e pelo menos um dos checkboxes está marcado, a validação é bem-sucedida
     return true;
@@ -809,12 +855,344 @@ class UpdateRegistrationDataPage extends StatefulWidget {
 
 class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
   @override
+  void initState() {
+    super.initState();
+  }
+
+  String? _validateDropDown(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Selecione uma opção';
+    }
+    return null;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        'Atualizar dados Cadastrais',
-        style: TextStyle(fontSize: 24.0),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextFormField(
+            style: const TextStyle(fontSize: 15.0),
+            //enabled: false,
+            controller: _tutorNameController,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.all(
+                    Radius.circular(8.0)), // Raio dos cantos da borda
+                borderSide: BorderSide(
+                    color: Colors.black, width: 1.0), // Cor e largura da borda
+              ),
+              labelText: 'Tutor',
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  //enabled: false,
+                  controller: _petNameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Pet',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  //enabled: false,
+                  controller: _petNickNameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Apelido',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: speciesDropdown(),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                flex: 3,
+                child: racesDropdown(),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                flex: 2,
+                child: sizeDropdown(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: gendersDropDown(),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                flex: 4,
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 15.0),
+                        //enabled: false,
+                        controller: _ageController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Idade',
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 0,
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            value: isAgeReal,
+                            onChanged: (bool? newValue) {
+                              setState(() {
+                                isAgeReal = newValue!;
+                              });
+                            },
+                          ),
+                          const Text('Idade Real?'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: coatsDropdown(),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                flex: 1,
+                child: temperamentDropdown(),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                flex: 0,
+                child: Row(
+                  children: [
+                    Checkbox(
+                      value: _castrated,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          _castrated = newValue!;
+                        });
+                      },
+                    ),
+                    const Text('Castrado?'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                child: environmentDropdown(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+        ],
       ),
+    );
+  }
+
+  DropdownButtonFormField<String> speciesDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _specieId.toString(),
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        setState(() {
+          _specieId = int.parse(value!);
+          raceList = RaceData()
+              .raceList
+              .where((races) => races.specieId == _specieId.toString())
+              .toList();
+          _raceId = int.parse(raceList.first.id);
+
+          coatList = CoatData()
+              .coatList
+              .where((coats) => coats.specieId == _specieId.toString())
+              .toList();
+          _coatId = int.parse(coatList.first.id);
+
+          //foodSpecie = FoodData().getFoodBySpecie(int.parse(value!));
+        });
+      },
+      items: SpecieData().specieList.map((species) {
+        return DropdownMenuItem<String>(
+          value: species['id'],
+          child: Text(species['name']),
+        );
+      }).toList(),
+      decoration: const InputDecoration(
+        labelText: 'Espécie',
+      ),
+    );
+  }
+
+  DropdownButtonFormField<String> sizeDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _sizeId.toString(),
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        setState(() {
+          _sizeId = int.parse(value!);
+        });
+      },
+      items: SizeData().sizeList.map((size) {
+        return DropdownMenuItem<String>(
+          value: size['id'],
+          child: Text(size['name']),
+        );
+      }).toList(),
+      decoration: const InputDecoration(labelText: 'Porte'),
+    );
+  }
+
+  DropdownButtonFormField<String> racesDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _raceId.toString(),
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        _raceId = int.parse(value!);
+      },
+      items: raceList.map((races) {
+        return DropdownMenuItem<String>(
+          value: races.id.toString(),
+          child: Text(races.name),
+        );
+      }).toList(),
+      decoration: const InputDecoration(
+        labelText: 'Raça',
+      ),
+    );
+  }
+
+  DropdownButtonFormField<String> gendersDropDown() {
+    return DropdownButtonFormField<String>(
+      value: _genderId,
+      validator: _validateDropDown,
+      onChanged: (value) {
+        setState(() {
+          _genderId = value!;
+        });
+      },
+      items: GenderData().genderList.map((gender) {
+        return DropdownMenuItem<String>(
+          value: gender['id'],
+          child: Text(gender['name']),
+        );
+      }).toList(),
+      decoration: const InputDecoration(labelText: 'Gênero'),
+    );
+  }
+
+  DropdownButtonFormField<String> coatsDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _coatId.toString(),
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        _raceId = int.parse(value!);
+      },
+      items: coatList.map((coats) {
+        return DropdownMenuItem<String>(
+          value: coats.id.toString(),
+          child: Text(coats.name),
+        );
+      }).toList(),
+      decoration: const InputDecoration(
+        labelText: 'Pelagem',
+      ),
+    );
+  }
+
+  DropdownButtonFormField<String> temperamentDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _temperamentId.toString(),
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        setState(() {
+          _temperamentId = int.parse(value!);
+        });
+      },
+      items: TemperamentData().temperamentList.map((size) {
+        return DropdownMenuItem<String>(
+          value: size['id'],
+          child: Text(size['name']),
+        );
+      }).toList(),
+      decoration: const InputDecoration(labelText: 'Temperamento'),
+    );
+  }
+
+  DropdownButtonFormField<String> environmentDropdown() {
+    return DropdownButtonFormField<String>(
+      value: _environmentId.toString(),
+      validator: _validateDropDown,
+      isDense: true,
+      onChanged: (value) {
+        setState(() {
+          _environmentId = int.parse(value!);
+        });
+      },
+      items: EnvironmentData().environmentList.map((size) {
+        return DropdownMenuItem<String>(
+          value: size['id'],
+          child: Text(size['name']),
+        );
+      }).toList(),
+      decoration: const InputDecoration(labelText: 'Ambiente que vive'),
     );
   }
 }
