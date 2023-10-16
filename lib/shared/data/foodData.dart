@@ -49,4 +49,9 @@ class FoodData {
   Map<String, dynamic> getFoodById(int id) {
     return foodList.firstWhere((element) => element['id'] == id);
   }
+
+  List<Map<String, dynamic>> getFoodBySpecie(int index) {
+    return foodList.where((food) => food['specie'] == index).toList();
+  }
+
 }
