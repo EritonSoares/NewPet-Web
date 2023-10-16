@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:dropdown_textfield/dropdown_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:petner_web/custom/custom_appbar.dart';
 import 'package:petner_web/custom/custom_drawer.dart';
@@ -27,22 +28,22 @@ import 'package:petner_web/shared/data/userPreference.dart';
 const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 //const token = "006a12600dd0e80435ca0a1efc4660cbe6bIABA0Ug4bFpjYxdjWXx//De36mr93wxw9jsOjttA0Li+BEwKp+vpr4RpIgBOqzEBnUoEZQQAAQAtBwNlAgAtBwNlAwAtBwNlBAAtBwNl";
 //const channel = "petner";
-late final ServiceQueueModel _serviceQueue;
+late ServiceQueueModel _serviceQueue;
 
 // Variaveis e controlers
 late final String _petPhoto;
-late final int _temperamentId;
+late int? _temperamentId;
 late bool _castrated;
-late final int _environmentId;
-late final int _foodId;
-int _specieId = 0;
+late int? _environmentId;
+late int _foodId;
+late int _specieId;
 late final String _bithDay;
 late final String _age;
 late final int _ageType;
-String _genderId = '';
-int _raceId = 0;
-int? _sizeId = 0;
-int _coatId = 0;
+String? _genderId;
+int? _raceId;
+int? _sizeId;
+int? _coatId;
 late final String _state;
 late final String _city;
 late final String _neighborhood;
@@ -178,16 +179,14 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _ageController.text = _serviceQueue.age!;
     _genderId = _serviceQueue.genderId!;
     _foodId = _serviceQueue.foodId!;
-    _sizeId = (_serviceQueue.sizeId == null ? 0 : _serviceQueue.sizeId!);
-    _temperamentId = (_serviceQueue.temperamentId == null
-        ? 0
-        : _serviceQueue.temperamentId!);
+    _sizeId = _serviceQueue.sizeId;
+    _temperamentId = _serviceQueue.temperamentId;
     _castrated = _serviceQueue.castrated!;
-    _environmentId = (_serviceQueue.environmentId == null
-        ? 0
-        : _serviceQueue.environmentId!);
+    _environmentId = _serviceQueue.environmentId;
     _specieId = _serviceQueue.specieId!;
     _raceId = _serviceQueue.raceId!;
+    _coatId = _serviceQueue.coatId;
+
     final jsonRace = await UserPreferences.getRace();
     RaceData().raceList = (jsonDecode(jsonRace!) as List<dynamic>)
         .map((e) => RaceModel.fromJson(e))
@@ -197,7 +196,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         .where((races) => races.specieId == _specieId.toString())
         .toList();
 
-    _coatId = (_serviceQueue.coatId == null ? 1 : _serviceQueue.coatId!);
+    //_coatId = (_serviceQueue.coatId == null ? 1 : _serviceQueue.coatId!);
     final jsonCoat = await UserPreferences.getCoat();
     CoatData().coatList = (jsonDecode(jsonCoat!) as List<dynamic>)
         .map((e) => CoatModel.fromJson(e))
@@ -206,8 +205,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         .coatList
         .where((coats) => coats.specieId == _specieId.toString())
         .toList();
-
-    _coatId = (_serviceQueue.coatId == null ? 1 : int.parse(coatList.last.id));
   }
 
   Future<void> _dispose() async {
@@ -941,7 +938,7 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
               ),
               const SizedBox(width: 10.0),
               Expanded(
-                flex: 2,
+                flex: 1,
                 child: sizeDropdown(),
               ),
             ],
@@ -1071,7 +1068,12 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           child: Text(species['name']),
         );
       }).toList(),
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
         labelText: 'Espécie',
       ),
     );
@@ -1079,7 +1081,6 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
 
   DropdownButtonFormField<String> sizeDropdown() {
     return DropdownButtonFormField<String>(
-      value: _sizeId.toString(),
       validator: _validateDropDown,
       isDense: true,
       onChanged: (value) {
@@ -1093,7 +1094,14 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           child: Text(size['name']),
         );
       }).toList(),
-      decoration: const InputDecoration(labelText: 'Porte'),
+      decoration: InputDecoration(
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          filled: true,
+          fillColor: Colors.white,
+          labelText: 'Porte'),
+      value: (_sizeId == null ? null : _sizeId.toString()),
     );
   }
 
@@ -1111,7 +1119,12 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           child: Text(races.name),
         );
       }).toList(),
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
         labelText: 'Raça',
       ),
     );
@@ -1119,7 +1132,6 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
 
   DropdownButtonFormField<String> gendersDropDown() {
     return DropdownButtonFormField<String>(
-      value: _genderId,
       validator: _validateDropDown,
       onChanged: (value) {
         setState(() {
@@ -1132,17 +1144,24 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           child: Text(gender['name']),
         );
       }).toList(),
-      decoration: const InputDecoration(labelText: 'Gênero'),
+      value: _genderId,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelText: 'Gênero',
+      ),
     );
   }
 
   DropdownButtonFormField<String> coatsDropdown() {
     return DropdownButtonFormField<String>(
-      value: _coatId.toString(),
       validator: _validateDropDown,
       isDense: true,
       onChanged: (value) {
-        _raceId = int.parse(value!);
+        _coatId = int.parse(value!);
       },
       items: coatList.map((coats) {
         return DropdownMenuItem<String>(
@@ -1150,15 +1169,20 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           child: Text(coats.name),
         );
       }).toList(),
-      decoration: const InputDecoration(
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
         labelText: 'Pelagem',
       ),
+      value: (_coatId == null ? null : _coatId.toString()),
     );
   }
 
   DropdownButtonFormField<String> temperamentDropdown() {
     return DropdownButtonFormField<String>(
-      value: _temperamentId.toString(),
       validator: _validateDropDown,
       isDense: true,
       onChanged: (value) {
@@ -1172,13 +1196,20 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           child: Text(size['name']),
         );
       }).toList(),
-      decoration: const InputDecoration(labelText: 'Temperamento'),
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelText: 'Temperamento',
+      ),
+      value: (_temperamentId == null ? null : _temperamentId.toString()),
     );
   }
 
   DropdownButtonFormField<String> environmentDropdown() {
     return DropdownButtonFormField<String>(
-      value: _environmentId.toString(),
       validator: _validateDropDown,
       isDense: true,
       onChanged: (value) {
@@ -1192,7 +1223,15 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           child: Text(size['name']),
         );
       }).toList(),
-      decoration: const InputDecoration(labelText: 'Ambiente que vive'),
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelText: 'Ambiente que vive',
+      ),
+      value: (_environmentId == null ? null : _environmentId.toString()),
     );
   }
 }
