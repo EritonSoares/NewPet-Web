@@ -102,7 +102,7 @@ Future<Map<String, dynamic>> validateUserApi(
         await raceListApi();
         await specieListApi();
         await coatListApi();
-        
+
         /*
         print('==================================');
         print(RaceData().raceList[0].id);
@@ -517,7 +517,6 @@ Future<List<PetVaccineCardModel>> petVaccineCardListApi([String? petId]) async {
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-      print(response.body);
       for (var item in jsonData) {
         PetVaccineCardModel petVaccine = PetVaccineCardModel.fromJson(item);
         petVaccineList.add(petVaccine);

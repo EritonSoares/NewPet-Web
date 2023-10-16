@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:petner_web/custom/custom_appbar.dart';
 import 'package:petner_web/custom/custom_drawer.dart';
 import 'dart:html' as html;
@@ -14,6 +15,7 @@ import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
+import 'package:petner_web/models/petVaccineCardModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/shared/data/bodyScoreData.dart';
@@ -22,6 +24,8 @@ import 'package:petner_web/shared/data/coatData.dart';
 import 'package:petner_web/shared/data/environmentData.dart';
 import 'package:petner_web/shared/data/foodData.dart';
 import 'package:petner_web/shared/data/genderData.dart';
+import 'package:petner_web/shared/data/petVaccinationCardData.dart';
+import 'package:petner_web/shared/data/petVaccineData.dart';
 import 'package:petner_web/shared/data/raceData.dart';
 import 'package:petner_web/shared/data/sizeData.dart';
 import 'package:petner_web/shared/data/specieData.dart';
@@ -50,6 +54,7 @@ String? _genderId;
 int? _raceId;
 int? _sizeId;
 int? _coatId;
+int? _vaccineId;
 late String? _state;
 late String? _city;
 late final String _neighborhood;
@@ -650,6 +655,14 @@ class _WelcomePageState extends State<WelcomePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Boas-Vindas',
+                  style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(height: 10.0),
           TextFormField(
             style: const TextStyle(fontSize: 15.0),
             enabled: false,
@@ -895,6 +908,14 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Conferencia e Atualização de Dados',
+                  style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(height: 10.0),
           TextFormField(
             style: const TextStyle(fontSize: 15.0),
             //enabled: false,
@@ -904,8 +925,7 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                 borderRadius: BorderRadius.all(
                     Radius.circular(8.0)), // Raio dos cantos da borda
                 borderSide: BorderSide(
-                    color: Colors.black,
-                    width: 1.0), // Cor e largura da borda
+                    color: Colors.black, width: 1.0), // Cor e largura da borda
               ),
               labelText: 'Tutor',
             ),
@@ -1392,16 +1412,513 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
   }
 }
 
-class VaccineRegistrationPage extends StatelessWidget {
-  const VaccineRegistrationPage({super.key});
+class VaccineRegistrationPage extends StatefulWidget {
+  const VaccineRegistrationPage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _VaccineRegistrationPage createState() => _VaccineRegistrationPage();
+}
+
+class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<List<dynamic>> _fetchPetVaccines() async {
+    List<PetVaccineCardModel> petVaccineList;
+    petVaccineList =
+        await petVaccineCardListApi(_serviceQueue.petId.toString());
+
+    return petVaccineList;
+  }
+
+  Future<List<dynamic>> _fetchPetVaccinationCard() async {
+    PetVaccinationCardData().petVaccinationCardList =
+        PetVaccineData().getVaccinationCardByVaccineId(_vaccineId.toString());
+
+    print('--------------------------');
+    print(
+        PetVaccinationCardData().petVaccinationCardList.first.applicationDate);
+    print('--------------------------');
+
+    return PetVaccinationCardData().petVaccinationCardList =
+        PetVaccineData().getVaccinationCardByVaccineId(_vaccineId.toString());
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Registro de Vácinas",
-        style: TextStyle(fontSize: 24.0),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Vacinas', style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(width: 10.0),
+          FutureBuilder<List<dynamic>>(
+              future: _fetchPetVaccines(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                } else {
+                  // final List<dynamic> data = snapshot.data!;
+
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView.builder(
+                        itemCount: PetVaccineData().petVaccineList.length,
+                        itemBuilder: (context, index) {
+                          final petVaccine =
+                              PetVaccineData().petVaccineList[index];
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              height:
+                                  150, // Defina a altura desejada para o card
+                              width: double
+                                  .infinity, // Defina a largura desejada para o card
+
+                              // Estilize o card com o BoxDecoration ou o Card widget
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  //print(petVaccine.);
+                                  _vaccineId = petVaccine.petVaccineId;
+                                  _showVaccineDoseList(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              alignment: Alignment.topRight,
+                                              child: Text(
+                                                petVaccine.mandatory
+                                                    ? '(Obrigatória)'
+                                                    : '',
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.red),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            alignment: Alignment.centerRight,
+                                            child: const Icon(Icons.vaccines,
+                                                color: Colors.black, size: 50),
+                                          ),
+                                          Container(
+                                            alignment: Alignment.centerRight,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                petVaccine.vaccineName,
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10.0),
+                                      Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            if (petVaccine.totalDose == 0)
+                                              Expanded(
+                                                child: Container(
+                                                  width: 100,
+                                                  height: 50,
+                                                  decoration: BoxDecoration(
+                                                    color: const Color.fromARGB(
+                                                        255, 241, 161, 161),
+                                                    border: Border.all(
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              241,
+                                                              161,
+                                                              161),
+                                                      width: 2,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: const Text(
+                                                      'Nenhuma Dose Aplicada'),
+                                                ),
+                                              )
+                                            else
+                                              Expanded(
+                                                child: Container(
+                                                  width: 100,
+                                                  height: 50,
+                                                  decoration: BoxDecoration(
+                                                    color: const Color.fromARGB(
+                                                        255, 172, 211, 243),
+                                                    border: Border.all(
+                                                      color:
+                                                          const Color.fromARGB(
+                                                              255,
+                                                              81,
+                                                              166,
+                                                              235),
+                                                      width: 2,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                  ),
+                                                  alignment: Alignment.center,
+                                                  child: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const Text(
+                                                                'Última Dose:'),
+                                                            Text(petVaccine
+                                                                .lastDose),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const Text(
+                                                                'Próxima Dose:'),
+                                                            Text(petVaccine
+                                                                .nextDose),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                          ]),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }
+              }),
+        ],
       ),
+    );
+  }
+
+  void _showVaccineDoseList(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            width: 600.0,
+            height: 600.0,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8.5),
+                  decoration: const BoxDecoration(
+                    color: Colors.blueAccent,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(
+                          5.0), // Arredonda apenas o canto superior esquerdo
+                      topRight: Radius.circular(
+                          5.0), // Arredonda apenas o canto superior direito
+                    ),
+                  ),
+                  height: 40, // Altura desejada
+                  width: double.infinity, // Ocupa todo o espaço horizontal
+                  child: Row(
+                    children: [
+                      IconButton(
+                        iconSize: 16,
+                        icon: Icon(Icons.close),
+                        color: Colors.white,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      const Text(
+                        'Doses Aplicadas',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Montserrat',
+                          //fontWeight: FontWeight.w600,
+                          color: Colors.white, // Cor do texto em branco
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                FutureBuilder<List<dynamic>>(
+                    future: _fetchPetVaccinationCard(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      } else {
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListView.builder(
+                              itemCount: PetVaccinationCardData()
+                                  .petVaccinationCardList
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final petVaccineCard = PetVaccinationCardData()
+                                    .petVaccinationCardList[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height:
+                                        100, // Defina a altura desejada para o card
+                                    width: double
+                                        .infinity, // Defina a largura desejada para o card
+
+                                    // Estilize o card com o BoxDecoration ou o Card widget
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        /*
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => RegisterVaccineDosePage(myPet: widget.myPet, vaccinePetId: widget.vaccinePetId, vaccineDoseId: petVaccineCard.vaccineTypeId, typeRegister: 'U', vaccinationCardId: petVaccineCard.vaccinationCardId.toString()),
+                                ),
+                              ).whenComplete(() {
+                                updatePetData(PetData().getPetById(myPet.id.toString()));
+                              });
+                              */
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              alignment: Alignment.topLeft,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  petVaccineCard
+                                                      .applicationDate,
+                                                  style: const TextStyle(
+                                                      fontSize: 12),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              alignment: Alignment.centerRight,
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Text(
+                                                  petVaccineCard.vaccineType,
+                                                  style: const TextStyle(
+                                                      fontSize: 18),
+                                                ),
+                                              ),
+                                            ),
+                                            Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: IconButton(
+                                                icon: const Icon(Icons.delete),
+                                                color: Colors.red,
+                                                onPressed: () {
+                                                  setState(() {
+                                                    //_selectedVaccineDoseId = petVaccineCard.vaccinationCardId.toString();
+                                                  });
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return Form(
+                                                        //key: _formKey,
+                                                        child: AlertDialog(
+                                                          title: const Text(
+                                                              'Excluir Dose da Vacina?'),
+                                                          content: const SizedBox(
+                                                              width: double
+                                                                  .maxFinite,
+                                                              child: Text(
+                                                                  'A Dose será Excluída. Confirma?')),
+                                                          actions: <Widget>[
+                                                            TextButton(
+                                                              child: const Text(
+                                                                  'Não'),
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                            ),
+                                                            TextButton(
+                                                              child: const Text(
+                                                                  'Sim'),
+                                                              onPressed: () {
+                                                                /*
+                                                                                                            _option = 'D';
+                                                                                                            _registerVaccineDose(context).then(
+                                                        (value) {
+                                                          switch (value) {
+                                                            case 0:
+                                                              break;
+                                                            case 1:
+                                                              Navigator.of(context).pop();
+                                                              break;
+                                                            case 2:
+                                                              showAlertDialog(context, 'Erro ao Consultar API', 0);
+                                                              break;
+                                                            case 3:
+                                                              showAlertDialog(context, 'Erro ao chamar função API', 0);
+                                                              break;
+                                                            case 4:
+                                                              showAlertDialog(context, 'Erro na função API', 0);
+                                                              break;
+                                                            default:
+                                                              showAlertDialog(context, 'Erro ao Excluir Vacina', 0);
+                                                              break;
+                                                          }
+                                                        },
+                                                                                                            );
+                                                                                                            */
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                  // Ação ao pressionar o botão de lixeira
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    }),
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  height: 60,
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Adicione a lógica para ação do botão aqui
+                        },
+                        child: const Text('Adicionar Dose'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

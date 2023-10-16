@@ -43,6 +43,7 @@ dependencies:
   phosphor_flutter: ^2.0.0
   meta: ^1.7.0
   dropdown_textfield: ^1.0.8
+  font_awesome_flutter: ^10.4.0
 
 
   # The following adds the Cupertino Icons font to your application.
