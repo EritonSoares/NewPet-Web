@@ -122,7 +122,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
           },
         ),
         const UpdateRegistrationDataPage(),
-        const UpdateRegistrationDataPage(),
         const VaccineRegistrationPage(),
         const ChronicHealthConditionPage(),
         const SymptomPage(),
@@ -799,9 +798,16 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 }
 
-class UpdateRegistrationDataPage extends StatelessWidget {
-  const UpdateRegistrationDataPage({super.key});
+class UpdateRegistrationDataPage extends StatefulWidget {
+  const UpdateRegistrationDataPage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _UpdateRegistrationDataPage createState() => _UpdateRegistrationDataPage();
+}
+
+class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
   @override
   Widget build(BuildContext context) {
     return const Center(
