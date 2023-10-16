@@ -3,6 +3,10 @@
 class TemperamentData {
   List<Map<String, dynamic>> temperamentList = [
     {
+      'id': '0',
+      'name': 'Selecione uma opção',
+    },
+    {
       'id': '1',
       'name': 'Linfático',
     },

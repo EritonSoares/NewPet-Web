@@ -3,6 +3,10 @@
 class SizeData {
   List<Map<String, dynamic>> sizeList = [
     {
+      'id': '0',
+      'name': 'Selecione uma Opção',
+    },
+    {
       'id': '1',
       'name': 'Pequeno',
     },
