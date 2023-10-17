@@ -6,6 +6,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:petner_web/custom/custom_appbar.dart';
 import 'package:petner_web/custom/custom_drawer.dart';
 import 'dart:html' as html;
@@ -18,6 +19,7 @@ import 'package:petner_web/models/coatModel.dart';
 import 'package:petner_web/models/petVaccineCardModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
+import 'package:petner_web/models/vaccineDoseModel.dart';
 import 'package:petner_web/shared/data/bodyScoreData.dart';
 import 'package:petner_web/shared/data/cityData.dart';
 import 'package:petner_web/shared/data/coatData.dart';
@@ -32,6 +34,8 @@ import 'package:petner_web/shared/data/specieData.dart';
 import 'package:petner_web/shared/data/stateData.dart';
 import 'package:petner_web/shared/data/temperamentData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
+import 'package:petner_web/shared/data/vaccineDoseData.dart';
+import 'package:petner_web/utils/functions.dart';
 import 'package:petner_web/utils/functionsRest.dart';
 
 const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
@@ -54,7 +58,9 @@ String? _genderId;
 int? _raceId;
 int? _sizeId;
 int? _coatId;
+int? _petVaccineId;
 int? _vaccineId;
+String? _vaccineDoseId;
 late String? _state;
 late String? _city;
 late final String _neighborhood;
@@ -69,6 +75,14 @@ final TextEditingController _genderController = TextEditingController();
 final TextEditingController _screningController = TextEditingController();
 final TextEditingController _productController = TextEditingController();
 final TextEditingController _ageController = TextEditingController();
+final TextEditingController _applicationDateController =
+    TextEditingController();
+final TextEditingController _brandController = TextEditingController();
+final TextEditingController _veterinaryController = TextEditingController();
+final TextEditingController _observationController = TextEditingController();
+final TextEditingController _lotController = TextEditingController();
+final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+String? _typeRegister;
 bool isWelcome = false;
 bool isProduct = false;
 bool isCompany = false;
@@ -658,8 +672,7 @@ class _WelcomePageState extends State<WelcomePage> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Boas-Vindas',
-                  style: TextStyle(fontSize: 30)),
+              Text('Boas-Vindas', style: TextStyle(fontSize: 30)),
             ],
           ),
           const SizedBox(height: 10.0),
@@ -911,7 +924,7 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Conferencia e Atualização de Dados',
+              Text('Conferência e Atualização de Dados',
                   style: TextStyle(fontSize: 30)),
             ],
           ),
@@ -1422,10 +1435,12 @@ class VaccineRegistrationPage extends StatefulWidget {
 }
 
 class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
+  /*
   @override
   void initState() {
     super.initState();
   }
+  */
 
   Future<List<dynamic>> _fetchPetVaccines() async {
     List<PetVaccineCardModel> petVaccineList;
@@ -1436,16 +1451,65 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
   }
 
   Future<List<dynamic>> _fetchPetVaccinationCard() async {
-    PetVaccinationCardData().petVaccinationCardList =
-        PetVaccineData().getVaccinationCardByVaccineId(_vaccineId.toString());
+    return PetVaccinationCardData().petVaccinationCardList = PetVaccineData()
+        .getVaccinationCardByVaccineId(_petVaccineId.toString());
+  }
 
-    print('--------------------------');
-    print(
-        PetVaccinationCardData().petVaccinationCardList.first.applicationDate);
-    print('--------------------------');
+  String? _validateDropDown(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Selecione uma opção';
+    }
+    return null;
+  }
 
-    return PetVaccinationCardData().petVaccinationCardList =
-        PetVaccineData().getVaccinationCardByVaccineId(_vaccineId.toString());
+  Future<void> _selectApplicationDate(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _applicationDateController.text =
+            DateFormat('dd/MM/yyyy').format(pickedDate);
+      });
+    }
+  }
+
+  Future<int?> _registerVaccineDose(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerVaccineDoseApi(
+        _typeRegister,
+        '',
+        _applicationDateController.text,
+        true,
+        _serviceQueue.petId.toString(),
+        _petVaccineId.toString(),
+        _vaccineDoseId,
+        _brandController.text,
+        _lotController.text,
+        _veterinaryController.text,
+        _observationController.text,
+        '',
+        '',
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterVaccineDose'];
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return 4;
   }
 
   @override
@@ -1508,7 +1572,8 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                               child: InkWell(
                                 onTap: () {
                                   //print(petVaccine.);
-                                  _vaccineId = petVaccine.petVaccineId;
+                                  _petVaccineId = petVaccine.petVaccineId;
+                                  _vaccineId = petVaccine.vaccineId;
                                   _showVaccineDoseList(context);
                                 },
                                 child: Padding(
@@ -1705,7 +1770,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                     children: [
                       IconButton(
                         iconSize: 16,
-                        icon: Icon(Icons.close),
+                        icon: const Icon(Icons.close),
                         color: Colors.white,
                         onPressed: () {
                           Navigator.of(context).pop();
@@ -1907,7 +1972,13 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          // Adicione a lógica para ação do botão aqui
+                          //_fetchVaccineType(_petVaccineId.toString());
+                          _applicationDateController.text = '';
+                          _brandController.text = '';
+                          _lotController.text = '';
+                          _veterinaryController.text = '';
+                          _observationController.text = '';
+                          _showRegisterVaccineDose(context);
                         },
                         child: const Text('Adicionar Dose'),
                       ),
@@ -1921,25 +1992,451 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
       },
     );
   }
+
+  void _showRegisterVaccineDose(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            width: 450,
+            height: 500,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+            child: Form(
+              key: _formKey,
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8.5),
+                    decoration: const BoxDecoration(
+                      color: Colors.blueAccent,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(
+                            5.0), // Arredonda apenas o canto superior esquerdo
+                        topRight: Radius.circular(
+                            5.0), // Arredonda apenas o canto superior direito
+                      ),
+                    ),
+                    height: 40, // Altura desejada
+                    width: double.infinity, // Ocupa todo o espaço horizontal
+                    child: Row(
+                      children: [
+                        IconButton(
+                          iconSize: 16,
+                          icon: const Icon(Icons.close),
+                          color: Colors.white,
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        const Text(
+                          'Cadastrar Dose',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontFamily: 'Montserrat',
+                            //fontWeight: FontWeight.w600,
+                            color: Colors.white, // Cor do texto em branco
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView(
+                        children: <Widget>[
+                          FutureBuilder<List<VaccineDoseModel>>(
+                            future: vaccineDoseListApi(
+                                _serviceQueue.petId.toString(),
+                                _vaccineId
+                                    .toString()), // Função para buscar os dados da API VaccineType
+                            builder: (BuildContext context,
+                                AsyncSnapshot<List<VaccineDoseModel>>
+                                    snapshot) {
+                              if (snapshot.hasData) {
+                                List<VaccineDoseModel> vaccineDose =
+                                    snapshot.data!;
+                                return DropdownButtonFormField<String>(
+                                  hint: const Text('Selecione uma Dose'),
+                                  value: _vaccineDoseId,
+                                  validator: _validateDropDown,
+                                  items: vaccineDose.map((vaccineDose) {
+                                    return DropdownMenuItem<String>(
+                                      value:
+                                          vaccineDose.vaccineDoseId.toString(),
+                                      child: Text(vaccineDose.name),
+                                    );
+                                  }).toList(),
+                                  onChanged: (String? selectedValue) {
+                                    _vaccineDoseId = selectedValue;
+                                    // Ação a ser executada quando um item for selecionado no dropdown
+                                    if (selectedValue != null) {
+                                      // Faça algo com o valor selecionado
+                                      print(selectedValue);
+                                    }
+                                  },
+                                  decoration: const InputDecoration(
+                                    labelText: 'Vacina',
+                                  ),
+                                );
+                              } else if (snapshot.hasError) {
+                                return const Text('Erro ao carregar os dados');
+                              } else {
+                                _vaccineDoseId = null;
+                                return Container(
+                                  width: 5,
+                                  color: Colors.black.withOpacity(0.5),
+                                  child: const Center(
+                                    heightFactor: 1,
+                                    widthFactor: 1,
+                                    child: CircularProgressIndicator(
+                                        color: Colors.black),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 10.0),
+                          TextFormField(
+                            decoration: InputDecoration(
+                              labelText: 'Data Aplicação',
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.calendar_today),
+                                onPressed: () =>
+                                    _selectApplicationDate(context),
+                              ),
+                            ),
+                            controller: _applicationDateController,
+                            readOnly: true,
+                            onTap: () => _selectApplicationDate(context),
+                            validator: (input) => input?.isEmpty == true
+                                ? 'Informar a Data da Aplicação'
+                                : null,
+                          ),
+                          TextFormField(
+                            controller: _brandController,
+                            decoration: const InputDecoration(
+                                labelText: 'Marca da Vacina'),
+                          ),
+                          TextFormField(
+                            controller: _lotController,
+                            decoration: const InputDecoration(
+                                labelText: 'Lote da Vacina'),
+                          ),
+                          TextFormField(
+                            controller: _veterinaryController,
+                            decoration: const InputDecoration(
+                                labelText: 'Veterinário que Aplicou'),
+                          ),
+                          TextFormField(
+                            maxLines: null,
+                            controller: _observationController,
+                            decoration:
+                                const InputDecoration(labelText: 'Observação'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.all(16.0),
+                    height: 60,
+                    width: double.infinity,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Fechar'),
+                        ),
+                        const SizedBox(width: 10.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            _typeRegister = 'C';
+                            if (_formKey.currentState!.validate()) {
+                              _registerVaccineDose(context).then(
+                                (value) {
+                                  switch (value) {
+                                    case 0:
+                                      break;
+                                    case 1:
+                                      Navigator.of(context).pop();
+                                      Navigator.of(context).pop();
+                                      break;
+                                    case 2:
+                                      showAlertDialog(
+                                          context, 'Erro ao Consultar API', 0);
+                                      break;
+                                    case 3:
+                                      showAlertDialog(context,
+                                          'Erro ao chamar função API', 0);
+                                      break;
+                                    case 4:
+                                      showAlertDialog(
+                                          context, 'Erro na função API', 0);
+                                      break;
+                                    default:
+                                      showAlertDialog(context,
+                                          'Erro ao Adicionar Vacina', 0);
+                                      break;
+                                  }
+                                },
+                              );
+                            } else {
+                              print('Falta informação');
+                            }
+                            setState(() {});
+                          },
+                          child: const Text('Cadastrar'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
-class ChronicHealthConditionPage extends StatelessWidget {
-  const ChronicHealthConditionPage({super.key});
+class ChronicHealthConditionPage extends StatefulWidget {
+  const ChronicHealthConditionPage({
+    Key? key,
+  }) : super(key: key);
 
   @override
+  _ChronicHealthConditionPage createState() => _ChronicHealthConditionPage();
+}
+
+class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
+  @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Condições Crônicas de Saúde",
-        style: TextStyle(fontSize: 24.0),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Condições Crônicas de Saúde',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView(
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 230,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 206, 205, 205)),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8.5),
+                              decoration: const BoxDecoration(
+                                color: Colors.blueAccent,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(
+                                      5.0), // Arredonda apenas o canto superior esquerdo
+                                  topRight: Radius.circular(
+                                      5.0), // Arredonda apenas o canto superior direito
+                                ),
+                              ),
+                              height: 40, // Altura desejada
+                              width: double
+                                  .infinity, // Ocupa todo o espaço horizontal
+                              child: const Text(
+                                'Doenças Crônicas',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontFamily: 'Montserrat',
+                                  //fontWeight: FontWeight.w600,
+                                  color: Colors.white, // Cor do texto em branco
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        bottom:
+                            10, // Define a posição do botão a partir do fundo
+                        right:
+                            10, // Define a posição do botão a partir da direita
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Adicionar ação de "Adicionar" aqui
+                          },
+                          child: const Icon(Icons.add),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10.0),
+                  Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 230,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 206, 205, 205)),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8.5),
+                              decoration: const BoxDecoration(
+                                color: Colors.blueAccent,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(
+                                      5.0), // Arredonda apenas o canto superior esquerdo
+                                  topRight: Radius.circular(
+                                      5.0), // Arredonda apenas o canto superior direito
+                                ),
+                              ),
+                              height: 40, // Altura desejada
+                              width: double
+                                  .infinity, // Ocupa todo o espaço horizontal
+                              child: const Text(
+                                'Medicamentos de Uso Contínuo',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontFamily: 'Montserrat',
+                                  //fontWeight: FontWeight.w600,
+                                  color: Colors.white, // Cor do texto em branco
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        bottom:
+                            10, // Define a posição do botão a partir do fundo
+                        right:
+                            10, // Define a posição do botão a partir da direita
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Adicionar ação de "Adicionar" aqui
+                          },
+                          child: const Icon(Icons.add),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10.0),
+                  Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 230,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 206, 205, 205)),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8.5),
+                              decoration: const BoxDecoration(
+                                color: Colors.blueAccent,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(
+                                      5.0), // Arredonda apenas o canto superior esquerdo
+                                  topRight: Radius.circular(
+                                      5.0), // Arredonda apenas o canto superior direito
+                                ),
+                              ),
+                              height: 40, // Altura desejada
+                              width: double
+                                  .infinity, // Ocupa todo o espaço horizontal
+                              child: const Text(
+                                'Alergias',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontFamily: 'Montserrat',
+                                  //fontWeight: FontWeight.w600,
+                                  color: Colors.white, // Cor do texto em branco
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Positioned(
+                        bottom:
+                            10, // Define a posição do botão a partir do fundo
+                        right:
+                            10, // Define a posição do botão a partir da direita
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Adicionar ação de "Adicionar" aqui
+                          },
+                          child: const Icon(Icons.add),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class SymptomPage extends StatelessWidget {
-  const SymptomPage({super.key});
+class SymptomPage extends StatefulWidget {
+  const SymptomPage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _SymptomPage createState() => _SymptomPage();
+}
+
+class _SymptomPage extends State<SymptomPage> {
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -1951,9 +2448,16 @@ class SymptomPage extends StatelessWidget {
   }
 }
 
-class AnamnesisPage extends StatelessWidget {
-  const AnamnesisPage({super.key});
+class AnamnesisPage extends StatefulWidget {
+  const AnamnesisPage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _AnamnesisPage createState() => _AnamnesisPage();
+}
+
+class _AnamnesisPage extends State<AnamnesisPage> {
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -1965,9 +2469,16 @@ class AnamnesisPage extends StatelessWidget {
   }
 }
 
-class Quiz3Page extends StatelessWidget {
-  const Quiz3Page({super.key});
+class Quiz3Page extends StatefulWidget {
+  const Quiz3Page({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _Quiz3Page createState() => _Quiz3Page();
+}
+
+class _Quiz3Page extends State<Quiz3Page> {
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -1979,9 +2490,16 @@ class Quiz3Page extends StatelessWidget {
   }
 }
 
-class Quiz4Page extends StatelessWidget {
-  const Quiz4Page({super.key});
+class Quiz4Page extends StatefulWidget {
+  const Quiz4Page({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _Quiz4Page createState() => _Quiz4Page();
+}
+
+class _Quiz4Page extends State<Quiz4Page> {
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -1993,9 +2511,16 @@ class Quiz4Page extends StatelessWidget {
   }
 }
 
-class IaPage extends StatelessWidget {
-  const IaPage({super.key});
+class IaPage extends StatefulWidget {
+  const IaPage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _IaPage createState() => _IaPage();
+}
+
+class _IaPage extends State<IaPage> {
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -2007,9 +2532,16 @@ class IaPage extends StatelessWidget {
   }
 }
 
-class RecommendationPage extends StatelessWidget {
-  const RecommendationPage({super.key});
+class RecommendationPage extends StatefulWidget {
+  const RecommendationPage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _RecommendationPage createState() => _RecommendationPage();
+}
+
+class _RecommendationPage extends State<RecommendationPage> {
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -2021,9 +2553,16 @@ class RecommendationPage extends StatelessWidget {
   }
 }
 
-class FinalClassificationPage extends StatelessWidget {
-  const FinalClassificationPage({super.key});
+class FinalClassificationPage extends StatefulWidget {
+  const FinalClassificationPage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _FinalClassificationPage createState() => _FinalClassificationPage();
+}
+
+class _FinalClassificationPage extends State<FinalClassificationPage> {
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -2035,9 +2574,16 @@ class FinalClassificationPage extends StatelessWidget {
   }
 }
 
-class HealthProgramPage extends StatelessWidget {
-  const HealthProgramPage({super.key});
+class HealthProgramPage extends StatefulWidget {
+  const HealthProgramPage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _HealthProgramPage createState() => _HealthProgramPage();
+}
+
+class _HealthProgramPage extends State<HealthProgramPage> {
   @override
   Widget build(BuildContext context) {
     return const Center(
@@ -2049,9 +2595,16 @@ class HealthProgramPage extends StatelessWidget {
   }
 }
 
-class DocumentAvaliablePage extends StatelessWidget {
-  const DocumentAvaliablePage({super.key});
+class DocumentAvaliablePage extends StatefulWidget {
+  const DocumentAvaliablePage({
+    Key? key,
+  }) : super(key: key);
 
+  @override
+  _DocumentAvaliablePage createState() => _DocumentAvaliablePage();
+}
+
+class _DocumentAvaliablePage extends State<DocumentAvaliablePage> {
   @override
   Widget build(BuildContext context) {
     return const Center(
