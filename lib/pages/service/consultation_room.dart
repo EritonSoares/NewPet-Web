@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:custom_searchable_dropdown/custom_searchable_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -17,6 +18,7 @@ import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
 import 'package:petner_web/models/diseaseModel.dart';
+import 'package:petner_web/models/petDiseaseModel.dart';
 import 'package:petner_web/models/petVaccineCardModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
@@ -28,6 +30,7 @@ import 'package:petner_web/shared/data/diseaseData.dart';
 import 'package:petner_web/shared/data/environmentData.dart';
 import 'package:petner_web/shared/data/foodData.dart';
 import 'package:petner_web/shared/data/genderData.dart';
+import 'package:petner_web/shared/data/petDiseaseData.dart';
 import 'package:petner_web/shared/data/petVaccinationCardData.dart';
 import 'package:petner_web/shared/data/petVaccineData.dart';
 import 'package:petner_web/shared/data/raceData.dart';
@@ -64,6 +67,7 @@ int? _petVaccineId;
 int? _vaccineId;
 String? _vaccineDoseId;
 String? _diseaseId;
+int? _petDiseaseId;
 late String? _state;
 late String? _city;
 late final String _neighborhood;
@@ -249,8 +253,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         .diseaseList
         .where((diseases) => diseases.specieId == _specieId)
         .toList();
-
-    print('diseaseList: ${diseaseList.first.name}');
   }
 
   Future<void> _dispose() async {
@@ -311,7 +313,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _joinChannel() async {
-    log('joined channed: _engine.joinChannel(' ', ....., null, 0)');
+    print(
+        'joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
     await _engine.joinChannel(_token, _channel!, null, int.parse(_crmv!));
   }
 
@@ -2334,6 +2337,14 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
     return null;
   }
 
+  Future<List<dynamic>> _fetchPetDiseaes() async {
+    List<PetDiseaseModel> petDiseaseList;
+    petDiseaseList =
+        await petDiseaseListApi(_serviceQueue.petId.toString(), true);
+
+    return petDiseaseList;
+  }
+
   Future<int?> _registerChronicDisease(BuildContext context) async {
     final form = _formKey.currentState;
     if (form!.validate()) {
@@ -2342,6 +2353,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
         _serviceQueue.petId.toString(),
         _diseaseId,
         _otherChronicDiseaseController.text,
+        true,
       );
 
       setState(() {
@@ -2418,8 +2430,122 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                 ),
                               ),
                             ),
+                            // colocar lista
+
+                            FutureBuilder<List<dynamic>>(
+                                future: _fetchPetDiseaes(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text('Error: ${snapshot.error}'),
+                                    );
+                                  } else {
+                                    // final List<dynamic> data = snapshot.data!;
+
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ListView.builder(
+                                          itemCount: PetDiseaseData()
+                                              .petDiseaseList
+                                              .length,
+                                          itemBuilder: (context, index) {
+                                            final petDisease = PetDiseaseData()
+                                                .petDiseaseList[index];
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Container(
+                                                height:
+                                                    50, // Defina a altura desejada para o card
+                                                width: double
+                                                    .infinity, // Defina a largura desejada para o card
+
+                                                // Estilize o card com o BoxDecoration ou o Card widget
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.5),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 5,
+                                                      offset:
+                                                          const Offset(0, 3),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    //print(petVaccine.);
+                                                    _petDiseaseId =
+                                                        petDisease.petDiseaseId;
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            /*
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: const Icon(
+                                                                  Icons
+                                                                      .health_and_safety,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  size: 50),
+                                                            ),
+                                                            */
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        0.0),
+                                                                child: Text(
+                                                                  petDisease
+                                                                      .name!,
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          18),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }),
                           ],
-                          // colocar lista
                         ),
                       ),
                       Positioned(
@@ -2626,43 +2752,47 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: ListView(
                             children: <Widget>[
-                              DropdownButtonFormField<String>(
-                                hint: const Text('Selecione uma Doença'),
-                                value: _vaccineDoseId,
-                                validator: _validateDropDown,
+                              
+                              CustomSearchableDropDown(
+                                dropdownHintText: 'Procurar uma Doença',
+                                label: 'Selecione uma Doença',
+                                hint: 'Selecione uma Doença',
+                                prefixIcon: Icon(Icons.search),
+                                //value: _diseaseId,
+                                //validator: _validateDropDown,
                                 items: diseaseList
                                     .where((diseases) =>
                                         diseases.chronic == true ||
                                         diseases.id == '171')
-                                    .map((disease) {
-                                  return DropdownMenuItem<String>(
-                                    value: disease.id.toString(),
-                                    child: Text(disease.name),
-                                  );
+                                    .toList(),
+                                dropDownMenuItems: diseaseList
+                                    .where((diseases) =>
+                                        diseases.chronic == true ||
+                                        diseases.id == '171')
+                                    .map((item) {
+                                  return item.name;
                                 }).toList(),
-                                onChanged: (String? selectedValue) {
-                                  _diseaseId = selectedValue;
+                                menuMode: true,
+                                onChanged: (value) {
+                                  print(value.name);
+                                  if (value != null) {
+                                    _diseaseId = value.id;
+                                  } else {
+                                    _diseaseId = null;
+                                  }
+                                  
                                   if (_diseaseId == '171') {
-                                    print('_diseaseId: $_diseaseId');
                                     setState(() {
-                                      _isotherChronicDiseaseVisible =
-                                          !_isotherChronicDiseaseVisible;
+                                      _isotherChronicDiseaseVisible = true;
+                                    });
+                                  }else{
+                                    setState(() {
+                                      _isotherChronicDiseaseVisible = false;
                                     });
                                   }
-                                  // Ação a ser executada quando um item for selecionado no dropdown
-                                  if (selectedValue != null) {
-                                    // Faça algo com o valor selecionado
-                                    print(selectedValue);
-                                  }
                                 },
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  labelText: 'Doença Crônica',
-                                ),
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.blue)),
                               ),
                               const SizedBox(height: 10.0),
                               Visibility(

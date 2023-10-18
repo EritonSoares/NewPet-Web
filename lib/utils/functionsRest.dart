@@ -13,6 +13,7 @@ import 'package:petner_web/models/fileTypeModel.dart';
 import 'package:petner_web/models/healthEventFileTypeModel.dart';
 import 'package:petner_web/models/healthEventTypeModel.dart';
 import 'package:petner_web/models/petActivityModel.dart';
+import 'package:petner_web/models/petDiseaseModel.dart';
 import 'package:petner_web/models/petShceduleActivityModel.dart';
 import 'package:petner_web/models/questionAnswerModel.dart';
 import 'package:petner_web/models/screeningQuestionListModel.dart';
@@ -20,6 +21,7 @@ import 'package:petner_web/models/screeningReasonmodel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/models/speciedModel.dart';
 import 'package:petner_web/shared/data/PetActivityData.dart';
+import 'package:petner_web/shared/data/petDiseaseData.dart';
 import 'package:petner_web/shared/data/petScheduleActivityData.dart';
 import 'package:petner_web/shared/data/userData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
@@ -894,8 +896,6 @@ Future<Map<String, dynamic>> registerTreatmentApi([
 
     if (response.statusCode == 200) {
       responseData = {'validateRegisterTreatment': 1};
-
-      //PetVaccineData().petVaccineList = await petVaccineCardListApi(petId);
     } else {
       responseData = {'validateRegisterTreatment': 2};
       // A resposta não foi bem-sucedida
@@ -1624,11 +1624,13 @@ Future<String> getRTCTokenApi(int petId, int roomNameId, int crmv) async {
   return token;
 }
 
-Future<Map<String, dynamic>> registerDiseaseApi(
-    [String? option,
-    String? petId,
-    String? diseaseId,
-    String? otherDisease]) async {
+Future<Map<String, dynamic>> registerDiseaseApi([
+  String? option,
+  String? petId,
+  String? diseaseId,
+  String? otherDisease,
+  bool? chronic,
+]) async {
   const url = 'https://adm.petner.com.br/RegisterDisease';
   Map<String, dynamic> responseData;
 
@@ -1637,6 +1639,7 @@ Future<Map<String, dynamic>> registerDiseaseApi(
     'petId': petId,
     'diseaseId': diseaseId,
     'otherDisease': otherDisease,
+    'chronic': chronic,
   };
 
   print(jsonSend);
@@ -1653,28 +1656,27 @@ Future<Map<String, dynamic>> registerDiseaseApi(
 
     if (response.statusCode == 200) {
       responseData = jsonDecode(response.body);
-      PetVaccineData().petVaccineList = await petVaccineCardListApi(petId);
     } else {
-      responseData = {'validateRegisterVaccine': 2};
+      responseData = {'registerDisease': 2};
       // A resposta não foi bem-sucedida
       print(
-          '_Erro na solicitação POST registerVaccine: ${response.statusCode}');
+          '_Erro na solicitação POST registerDisease: ${response.statusCode}');
     }
   } catch (e) {
-    responseData = {'validateRegisterVaccine': 3};
+    responseData = {'registerDiseaseApi': 3};
     // Ocorreu um erro durante a solicitação
-    print('Erro na solicitação POST registerVaccine: $e');
+    print('Erro na solicitação POST registerDisease: $e');
   }
 
   return responseData;
 }
 
-Future<Map<String, dynamic>> petDiseaseListApi([
+Future<List<PetDiseaseModel>> petDiseaseListApi([
   String? petId,
   bool? chronic,
 ]) async {
   const url = 'https://adm.petner.com.br/PetDiseaseList';
-  Map<String, dynamic> responseData;
+  List<PetDiseaseModel> petDiseaseList = [];
 
   Map<String, dynamic> jsonSend = {
     'petId': petId,
@@ -1694,19 +1696,24 @@ Future<Map<String, dynamic>> petDiseaseListApi([
     );
 
     if (response.statusCode == 200) {
-      responseData = jsonDecode(response.body);
-      PetVaccineData().petVaccineList = await petVaccineCardListApi(petId);
+      final jsonData = jsonDecode(response.body);
+
+      print(jsonData);
+
+      for (var item in jsonData) {
+        PetDiseaseModel petDiseaseModel = PetDiseaseModel.fromJson(item);
+        petDiseaseList.add(petDiseaseModel);
+      }
+      PetDiseaseData().petDiseaseList = petDiseaseList;
     } else {
-      responseData = {'validateRegisterVaccine': 2};
       // A resposta não foi bem-sucedida
       print(
-          '_Erro na solicitação POST registerVaccine: ${response.statusCode}');
+          '_Erro na solicitação POST petDiseaseListApi: ${response.statusCode}');
     }
   } catch (e) {
-    responseData = {'validateRegisterVaccine': 3};
     // Ocorreu um erro durante a solicitação
-    print('Erro na solicitação POST registerVaccine: $e');
+    print('Erro na solicitação POST petDiseaseListApi: $e');
   }
 
-  return responseData;
+  return petDiseaseList;
 }
