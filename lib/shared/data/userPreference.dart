@@ -62,6 +62,20 @@ class UserPreferences {
   /****************************************************************************************/
 
   /****************************************************************************************/
+  /* Listagem de Doença  */
+  static Future<void> saveDisease(String disease) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    print('saveDisease: $disease');
+    await prefs.setString('disease', disease);
+  }
+
+  static Future<String?> getDisease() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('disease');
+  }
+  /****************************************************************************************/
+
+  /****************************************************************************************/
   /* Listagem de Pelagem  */
   static Future<void> saveRoom(String token, String channel) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

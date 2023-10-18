@@ -16,6 +16,7 @@ import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
+import 'package:petner_web/models/diseaseModel.dart';
 import 'package:petner_web/models/petVaccineCardModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
@@ -23,6 +24,7 @@ import 'package:petner_web/models/vaccineDoseModel.dart';
 import 'package:petner_web/shared/data/bodyScoreData.dart';
 import 'package:petner_web/shared/data/cityData.dart';
 import 'package:petner_web/shared/data/coatData.dart';
+import 'package:petner_web/shared/data/diseaseData.dart';
 import 'package:petner_web/shared/data/environmentData.dart';
 import 'package:petner_web/shared/data/foodData.dart';
 import 'package:petner_web/shared/data/genderData.dart';
@@ -61,6 +63,7 @@ int? _coatId;
 int? _petVaccineId;
 int? _vaccineId;
 String? _vaccineDoseId;
+String? _diseaseId;
 late String? _state;
 late String? _city;
 late final String _neighborhood;
@@ -81,6 +84,8 @@ final TextEditingController _brandController = TextEditingController();
 final TextEditingController _veterinaryController = TextEditingController();
 final TextEditingController _observationController = TextEditingController();
 final TextEditingController _lotController = TextEditingController();
+final TextEditingController _otherChronicDiseaseController =
+    TextEditingController();
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 String? _typeRegister;
 bool isWelcome = false;
@@ -92,6 +97,7 @@ bool isAgeReal = false;
 List<RaceModel> raceList = [];
 List<CoatModel> coatList = [];
 List<CityModel> listCity = [];
+List<DiseaseModel> diseaseList = [];
 // Cor inicial
 
 class ConsultationRoomPage extends StatefulWidget {
@@ -234,6 +240,17 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         .coatList
         .where((coats) => coats.specieId == _specieId.toString())
         .toList();
+
+    final jsonDisease = await UserPreferences.getDisease();
+    DiseaseData().diseaseList = (jsonDecode(jsonDisease!) as List<dynamic>)
+        .map((e) => DiseaseModel.fromJson(e))
+        .toList();
+    diseaseList = DiseaseData()
+        .diseaseList
+        .where((diseases) => diseases.specieId == _specieId)
+        .toList();
+
+    print('diseaseList: ${diseaseList.first.name}');
   }
 
   Future<void> _dispose() async {
@@ -1442,6 +1459,8 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
   }
   */
 
+  StateSetter? _setState;
+
   Future<List<dynamic>> _fetchPetVaccines() async {
     List<PetVaccineCardModel> petVaccineList;
     petVaccineList =
@@ -1734,107 +1753,114 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            width: 600.0,
-            height: 600.0,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8.5),
-                  decoration: const BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(
-                          5.0), // Arredonda apenas o canto superior esquerdo
-                      topRight: Radius.circular(
-                          5.0), // Arredonda apenas o canto superior direito
+        return StatefulBuilder(
+          builder: (context, StateSetter setState) {
+            _setState = setState;
+            return Dialog(
+              child: Container(
+                width: 600.0,
+                height: 600.0,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
                     ),
-                  ),
-                  height: 40, // Altura desejada
-                  width: double.infinity, // Ocupa todo o espaço horizontal
-                  child: Row(
-                    children: [
-                      IconButton(
-                        iconSize: 16,
-                        icon: const Icon(Icons.close),
-                        color: Colors.white,
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      const Text(
-                        'Doses Aplicadas',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontFamily: 'Montserrat',
-                          //fontWeight: FontWeight.w600,
-                          color: Colors.white, // Cor do texto em branco
+                  ],
+                ),
+                //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8.5),
+                      decoration: const BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(
+                              5.0), // Arredonda apenas o canto superior esquerdo
+                          topRight: Radius.circular(
+                              5.0), // Arredonda apenas o canto superior direito
                         ),
                       ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16.0),
-                FutureBuilder<List<dynamic>>(
-                    future: _fetchPetVaccinationCard(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Center(
-                          child: Text('Error: ${snapshot.error}'),
-                        );
-                      } else {
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: ListView.builder(
-                              itemCount: PetVaccinationCardData()
-                                  .petVaccinationCardList
-                                  .length,
-                              itemBuilder: (context, index) {
-                                final petVaccineCard = PetVaccinationCardData()
-                                    .petVaccinationCardList[index];
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Container(
-                                    height:
-                                        100, // Defina a altura desejada para o card
-                                    width: double
-                                        .infinity, // Defina a largura desejada para o card
+                      height: 40, // Altura desejada
+                      width: double.infinity, // Ocupa todo o espaço horizontal
+                      child: Row(
+                        children: [
+                          IconButton(
+                            iconSize: 16,
+                            icon: const Icon(Icons.close),
+                            color: Colors.white,
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                          const Text(
+                            'Doses Aplicadas',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontFamily: 'Montserrat',
+                              //fontWeight: FontWeight.w600,
+                              color: Colors.white, // Cor do texto em branco
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    FutureBuilder<List<dynamic>>(
+                        future: _fetchPetVaccinationCard(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Text('Error: ${snapshot.error}'),
+                            );
+                          } else {
+                            return Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: ListView.builder(
+                                  itemCount: PetVaccinationCardData()
+                                      .petVaccinationCardList
+                                      .length,
+                                  itemBuilder: (context, index) {
+                                    final petVaccineCard =
+                                        PetVaccinationCardData()
+                                            .petVaccinationCardList[index];
+                                    return Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Container(
+                                        height:
+                                            100, // Defina a altura desejada para o card
+                                        width: double
+                                            .infinity, // Defina a largura desejada para o card
 
-                                    // Estilize o card com o BoxDecoration ou o Card widget
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.5),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: const Offset(0, 3),
+                                        // Estilize o card com o BoxDecoration ou o Card widget
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.grey.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 5,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                    child: InkWell(
-                                      onTap: () {
-                                        /*
+                                        child: InkWell(
+                                          onTap: () {
+                                            /*
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -1844,77 +1870,87 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                                 updatePetData(PetData().getPetById(myPet.id.toString()));
                               });
                               */
-                                      },
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Container(
-                                              alignment: Alignment.topLeft,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Text(
-                                                  petVaccineCard
-                                                      .applicationDate,
-                                                  style: const TextStyle(
-                                                      fontSize: 12),
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Container(
+                                                  alignment: Alignment.topLeft,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Text(
+                                                      petVaccineCard
+                                                          .applicationDate,
+                                                      style: const TextStyle(
+                                                          fontSize: 12),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                            Container(
-                                              alignment: Alignment.centerRight,
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Text(
-                                                  petVaccineCard.vaccineType,
-                                                  style: const TextStyle(
-                                                      fontSize: 18),
+                                                Container(
+                                                  alignment:
+                                                      Alignment.centerRight,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Text(
+                                                      petVaccineCard
+                                                          .vaccineType,
+                                                      style: const TextStyle(
+                                                          fontSize: 18),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: IconButton(
-                                                icon: const Icon(Icons.delete),
-                                                color: Colors.red,
-                                                onPressed: () {
-                                                  setState(() {
-                                                    //_selectedVaccineDoseId = petVaccineCard.vaccinationCardId.toString();
-                                                  });
-                                                  showDialog(
-                                                    context: context,
-                                                    builder:
-                                                        (BuildContext context) {
-                                                      return Form(
-                                                        //key: _formKey,
-                                                        child: AlertDialog(
-                                                          title: const Text(
-                                                              'Excluir Dose da Vacina?'),
-                                                          content: const SizedBox(
-                                                              width: double
-                                                                  .maxFinite,
-                                                              child: Text(
-                                                                  'A Dose será Excluída. Confirma?')),
-                                                          actions: <Widget>[
-                                                            TextButton(
-                                                              child: const Text(
-                                                                  'Não'),
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                            ),
-                                                            TextButton(
-                                                              child: const Text(
-                                                                  'Sim'),
-                                                              onPressed: () {
-                                                                /*
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: IconButton(
+                                                    icon: const Icon(
+                                                        Icons.delete),
+                                                    color: Colors.red,
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        //_selectedVaccineDoseId = petVaccineCard.vaccinationCardId.toString();
+                                                      });
+                                                      showDialog(
+                                                        context: context,
+                                                        builder: (BuildContext
+                                                            context) {
+                                                          return Form(
+                                                            //key: _formKey,
+                                                            child: AlertDialog(
+                                                              title: const Text(
+                                                                  'Excluir Dose da Vacina?'),
+                                                              content: const SizedBox(
+                                                                  width: double
+                                                                      .maxFinite,
+                                                                  child: Text(
+                                                                      'A Dose será Excluída. Confirma?')),
+                                                              actions: <Widget>[
+                                                                TextButton(
+                                                                  child:
+                                                                      const Text(
+                                                                          'Não'),
+                                                                  onPressed:
+                                                                      () {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                ),
+                                                                TextButton(
+                                                                  child:
+                                                                      const Text(
+                                                                          'Sim'),
+                                                                  onPressed:
+                                                                      () {
+                                                                    /*
                                                                                                             _option = 'D';
                                                                                                             _registerVaccineDose(context).then(
                                                         (value) {
@@ -1940,54 +1976,56 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                                                         },
                                                                                                             );
                                                                                                             */
-                                                              },
+                                                                  },
+                                                                ),
+                                                              ],
                                                             ),
-                                                          ],
-                                                        ),
+                                                          );
+                                                        },
                                                       );
+                                                      // Ação ao pressionar o botão de lixeira
                                                     },
-                                                  );
-                                                  // Ação ao pressionar o botão de lixeira
-                                                },
-                                              ),
+                                                  ),
+                                                ),
+                                              ],
                                             ),
-                                          ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                          }
+                        }),
+                    Container(
+                      padding: const EdgeInsets.all(16.0),
+                      height: 60,
+                      width: double.infinity,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              //_fetchVaccineType(_petVaccineId.toString());
+                              _applicationDateController.text = '';
+                              _brandController.text = '';
+                              _lotController.text = '';
+                              _veterinaryController.text = '';
+                              _observationController.text = '';
+                              _showRegisterVaccineDose(context);
+                            },
+                            child: const Text('Adicionar Dose'),
                           ),
-                        );
-                      }
-                    }),
-                Container(
-                  padding: const EdgeInsets.all(16.0),
-                  height: 60,
-                  width: double.infinity,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          //_fetchVaccineType(_petVaccineId.toString());
-                          _applicationDateController.text = '';
-                          _brandController.text = '';
-                          _lotController.text = '';
-                          _veterinaryController.text = '';
-                          _observationController.text = '';
-                          _showRegisterVaccineDose(context);
-                        },
-                        child: const Text('Adicionar Dose'),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -1997,221 +2035,280 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Dialog(
-          child: Container(
-            width: 450,
-            height: 500,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(5.0),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.5),
-                  spreadRadius: 5,
-                  blurRadius: 7,
-                  offset: const Offset(0, 3),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              child: Container(
+                width: 450,
+                height: 500,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8.5),
-                    decoration: const BoxDecoration(
-                      color: Colors.blueAccent,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(
-                            5.0), // Arredonda apenas o canto superior esquerdo
-                        topRight: Radius.circular(
-                            5.0), // Arredonda apenas o canto superior direito
-                      ),
-                    ),
-                    height: 40, // Altura desejada
-                    width: double.infinity, // Ocupa todo o espaço horizontal
-                    child: Row(
-                      children: [
-                        IconButton(
-                          iconSize: 16,
-                          icon: const Icon(Icons.close),
-                          color: Colors.white,
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        const Text(
-                          'Cadastrar Dose',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontFamily: 'Montserrat',
-                            //fontWeight: FontWeight.w600,
-                            color: Colors.white, // Cor do texto em branco
+                //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8.5),
+                        decoration: const BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior esquerdo
+                            topRight: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior direito
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16.0),
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: ListView(
-                        children: <Widget>[
-                          FutureBuilder<List<VaccineDoseModel>>(
-                            future: vaccineDoseListApi(
-                                _serviceQueue.petId.toString(),
-                                _vaccineId
-                                    .toString()), // Função para buscar os dados da API VaccineType
-                            builder: (BuildContext context,
-                                AsyncSnapshot<List<VaccineDoseModel>>
-                                    snapshot) {
-                              if (snapshot.hasData) {
-                                List<VaccineDoseModel> vaccineDose =
-                                    snapshot.data!;
-                                return DropdownButtonFormField<String>(
-                                  hint: const Text('Selecione uma Dose'),
-                                  value: _vaccineDoseId,
-                                  validator: _validateDropDown,
-                                  items: vaccineDose.map((vaccineDose) {
-                                    return DropdownMenuItem<String>(
-                                      value:
-                                          vaccineDose.vaccineDoseId.toString(),
-                                      child: Text(vaccineDose.name),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? selectedValue) {
-                                    _vaccineDoseId = selectedValue;
-                                    // Ação a ser executada quando um item for selecionado no dropdown
-                                    if (selectedValue != null) {
-                                      // Faça algo com o valor selecionado
-                                      print(selectedValue);
-                                    }
-                                  },
-                                  decoration: const InputDecoration(
-                                    labelText: 'Vacina',
-                                  ),
-                                );
-                              } else if (snapshot.hasError) {
-                                return const Text('Erro ao carregar os dados');
-                              } else {
-                                _vaccineDoseId = null;
-                                return Container(
-                                  width: 5,
-                                  color: Colors.black.withOpacity(0.5),
-                                  child: const Center(
-                                    heightFactor: 1,
-                                    widthFactor: 1,
-                                    child: CircularProgressIndicator(
-                                        color: Colors.black),
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                          const SizedBox(height: 10.0),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: 'Data Aplicação',
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.calendar_today),
-                                onPressed: () =>
-                                    _selectApplicationDate(context),
+                        height: 40, // Altura desejada
+                        width:
+                            double.infinity, // Ocupa todo o espaço horizontal
+                        child: Row(
+                          children: [
+                            IconButton(
+                              iconSize: 16,
+                              icon: const Icon(Icons.close),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            const Text(
+                              'Cadastrar Dose',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: 'Montserrat',
+                                //fontWeight: FontWeight.w600,
+                                color: Colors.white, // Cor do texto em branco
                               ),
                             ),
-                            controller: _applicationDateController,
-                            readOnly: true,
-                            onTap: () => _selectApplicationDate(context),
-                            validator: (input) => input?.isEmpty == true
-                                ? 'Informar a Data da Aplicação'
-                                : null,
-                          ),
-                          TextFormField(
-                            controller: _brandController,
-                            decoration: const InputDecoration(
-                                labelText: 'Marca da Vacina'),
-                          ),
-                          TextFormField(
-                            controller: _lotController,
-                            decoration: const InputDecoration(
-                                labelText: 'Lote da Vacina'),
-                          ),
-                          TextFormField(
-                            controller: _veterinaryController,
-                            decoration: const InputDecoration(
-                                labelText: 'Veterinário que Aplicou'),
-                          ),
-                          TextFormField(
-                            maxLines: null,
-                            controller: _observationController,
-                            decoration:
-                                const InputDecoration(labelText: 'Observação'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(16.0),
-                    height: 60,
-                    width: double.infinity,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Fechar'),
+                          ],
                         ),
-                        const SizedBox(width: 10.0),
-                        ElevatedButton(
-                          onPressed: () {
-                            _typeRegister = 'C';
-                            if (_formKey.currentState!.validate()) {
-                              _registerVaccineDose(context).then(
-                                (value) {
-                                  switch (value) {
-                                    case 0:
-                                      break;
-                                    case 1:
-                                      Navigator.of(context).pop();
-                                      Navigator.of(context).pop();
-                                      break;
-                                    case 2:
-                                      showAlertDialog(
-                                          context, 'Erro ao Consultar API', 0);
-                                      break;
-                                    case 3:
-                                      showAlertDialog(context,
-                                          'Erro ao chamar função API', 0);
-                                      break;
-                                    case 4:
-                                      showAlertDialog(
-                                          context, 'Erro na função API', 0);
-                                      break;
-                                    default:
-                                      showAlertDialog(context,
-                                          'Erro ao Adicionar Vacina', 0);
-                                      break;
+                      ),
+                      const SizedBox(height: 16.0),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView(
+                            children: <Widget>[
+                              FutureBuilder<List<VaccineDoseModel>>(
+                                future: vaccineDoseListApi(
+                                    _serviceQueue.petId.toString(),
+                                    _vaccineId
+                                        .toString()), // Função para buscar os dados da API VaccineType
+                                builder: (BuildContext context,
+                                    AsyncSnapshot<List<VaccineDoseModel>>
+                                        snapshot) {
+                                  if (snapshot.hasData) {
+                                    List<VaccineDoseModel> vaccineDose =
+                                        snapshot.data!;
+                                    return DropdownButtonFormField<String>(
+                                      hint: const Text('Selecione uma Dose'),
+                                      value: _vaccineDoseId,
+                                      validator: _validateDropDown,
+                                      items: vaccineDose.map((vaccineDose) {
+                                        return DropdownMenuItem<String>(
+                                          value: vaccineDose.vaccineDoseId
+                                              .toString(),
+                                          child: Text(vaccineDose.name),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? selectedValue) {
+                                        _vaccineDoseId = selectedValue;
+                                        // Ação a ser executada quando um item for selecionado no dropdown
+                                        if (selectedValue != null) {
+                                          // Faça algo com o valor selecionado
+                                          print(selectedValue);
+                                        }
+                                      },
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        labelText: 'Vacina',
+                                      ),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return const Text(
+                                        'Erro ao carregar os dados');
+                                  } else {
+                                    _vaccineDoseId = null;
+                                    return Container(
+                                      width: 5,
+                                      color: Colors.black.withOpacity(0.5),
+                                      child: const Center(
+                                        heightFactor: 1,
+                                        widthFactor: 1,
+                                        child: CircularProgressIndicator(
+                                            color: Colors.black),
+                                      ),
+                                    );
                                   }
                                 },
-                              );
-                            } else {
-                              print('Falta informação');
-                            }
-                            setState(() {});
-                          },
-                          child: const Text('Cadastrar'),
+                              ),
+                              const SizedBox(height: 10.0),
+                              TextFormField(
+                                decoration: InputDecoration(
+                                  labelText: 'Data Aplicação',
+                                  suffixIcon: IconButton(
+                                    icon: const Icon(Icons.calendar_today),
+                                    onPressed: () =>
+                                        _selectApplicationDate(context),
+                                  ),
+                                  border: const OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            8.0)), // Raio dos cantos da borda
+                                    borderSide: BorderSide(
+                                        color: Colors.black, width: 1.0),
+                                  ),
+                                ),
+                                controller: _applicationDateController,
+                                readOnly: true,
+                                onTap: () => _selectApplicationDate(context),
+                                validator: (input) => input?.isEmpty == true
+                                    ? 'Informar a Data da Aplicação'
+                                    : null,
+                              ),
+                              const SizedBox(height: 10.0),
+                              TextFormField(
+                                controller: _brandController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Marca da Vacina',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            8.0)), // Raio dos cantos da borda
+                                    borderSide: BorderSide(
+                                        color: Colors.black, width: 1.0),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10.0),
+                              TextFormField(
+                                controller: _lotController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Lote da Vacina',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            8.0)), // Raio dos cantos da borda
+                                    borderSide: BorderSide(
+                                        color: Colors.black, width: 1.0),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10.0),
+                              TextFormField(
+                                controller: _veterinaryController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Veterinário que Aplicou',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            8.0)), // Raio dos cantos da borda
+                                    borderSide: BorderSide(
+                                        color: Colors.black, width: 1.0),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10.0),
+                              TextFormField(
+                                maxLines: null,
+                                controller: _observationController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Observação',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(
+                                            8.0)), // Raio dos cantos da borda
+                                    borderSide: BorderSide(
+                                        color: Colors.black, width: 1.0),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        height: 60,
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                _setState!(() {
+                                  _fetchPetVaccinationCard();
+                                  print(
+                                      'y ${PetVaccinationCardData().petVaccinationCardList.length}');
+                                });
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Fechar'),
+                            ),
+                            const SizedBox(width: 10.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                _typeRegister = 'C';
+                                if (_formKey.currentState!.validate()) {
+                                  _registerVaccineDose(context).then(
+                                    (value) {
+                                      switch (value) {
+                                        case 0:
+                                          break;
+                                        case 1:
+                                          Navigator.of(context).pop();
+                                          Navigator.of(context).pop();
+                                          break;
+                                        case 2:
+                                          showAlertDialog(context,
+                                              'Erro ao Consultar API', 0);
+                                          break;
+                                        case 3:
+                                          showAlertDialog(context,
+                                              'Erro ao chamar função API', 0);
+                                          break;
+                                        case 4:
+                                          showAlertDialog(
+                                              context, 'Erro na função API', 0);
+                                          break;
+                                        default:
+                                          showAlertDialog(context,
+                                              'Erro ao Adicionar Vacina', 0);
+                                          break;
+                                      }
+                                    },
+                                  );
+                                } else {
+                                  print('Falta informação');
+                                }
+                              },
+                              child: const Text('Cadastrar'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         );
       },
     );
@@ -2228,7 +2325,40 @@ class ChronicHealthConditionPage extends StatefulWidget {
 }
 
 class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
-  @override
+  bool _isotherChronicDiseaseVisible = false;
+
+  String? _validateDropDown(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Selecione uma opção';
+    }
+    return null;
+  }
+
+  Future<int?> _registerChronicDisease(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerDiseaseApi(
+        _typeRegister,
+        _serviceQueue.petId.toString(),
+        _diseaseId,
+        _otherChronicDiseaseController.text,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterChronicDisease'];
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return 4;
+  }
+
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -2289,6 +2419,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                               ),
                             ),
                           ],
+                          // colocar lista
                         ),
                       ),
                       Positioned(
@@ -2298,7 +2429,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                             10, // Define a posição do botão a partir da direita
                         child: ElevatedButton(
                           onPressed: () {
-                            // Adicionar ação de "Adicionar" aqui
+                            _showChronicDisease(context);
                           },
                           child: const Icon(Icons.add),
                         ),
@@ -2423,6 +2554,173 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showChronicDisease(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              child: Container(
+                width: 450,
+                height: 300,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8.5),
+                        decoration: const BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior esquerdo
+                            topRight: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior direito
+                          ),
+                        ),
+                        height: 40, // Altura desejada
+                        width:
+                            double.infinity, // Ocupa todo o espaço horizontal
+                        child: Row(
+                          children: [
+                            IconButton(
+                              iconSize: 16,
+                              icon: const Icon(Icons.close),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            const Text(
+                              'Doenças Crônicas',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: 'Montserrat',
+                                //fontWeight: FontWeight.w600,
+                                color: Colors.white, // Cor do texto em branco
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView(
+                            children: <Widget>[
+                              DropdownButtonFormField<String>(
+                                hint: const Text('Selecione uma Doença'),
+                                value: _vaccineDoseId,
+                                validator: _validateDropDown,
+                                items: diseaseList
+                                    .where((diseases) =>
+                                        diseases.chronic == true ||
+                                        diseases.id == '171')
+                                    .map((disease) {
+                                  return DropdownMenuItem<String>(
+                                    value: disease.id.toString(),
+                                    child: Text(disease.name),
+                                  );
+                                }).toList(),
+                                onChanged: (String? selectedValue) {
+                                  _diseaseId = selectedValue;
+                                  if (_diseaseId == '171') {
+                                    print('_diseaseId: $_diseaseId');
+                                    setState(() {
+                                      _isotherChronicDiseaseVisible =
+                                          !_isotherChronicDiseaseVisible;
+                                    });
+                                  }
+                                  // Ação a ser executada quando um item for selecionado no dropdown
+                                  if (selectedValue != null) {
+                                    // Faça algo com o valor selecionado
+                                    print(selectedValue);
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  labelText: 'Doença Crônica',
+                                ),
+                              ),
+                              const SizedBox(height: 10.0),
+                              Visibility(
+                                visible: _isotherChronicDiseaseVisible,
+                                child: TextFormField(
+                                  controller: _otherChronicDiseaseController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Outra Doença Crônica',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(
+                                              8.0)), // Raio dos cantos da borda
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 1.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        height: 60,
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Fechar'),
+                            ),
+                            const SizedBox(width: 10.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _typeRegister = 'C';
+                                  _registerChronicDisease(context)
+                                      .then((value) {});
+                                  Navigator.of(context).pop();
+                                });
+                              },
+                              child: const Text('Cadastrar'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

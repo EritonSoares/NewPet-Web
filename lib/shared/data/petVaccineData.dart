@@ -14,18 +14,31 @@ class PetVaccineData {
   List<PetVaccineCardModel> petVaccineList = [];
 
   List<PetVaccinationCardModel> getVaccinationCardByVaccineId(String index) {
-    return petVaccineList.firstWhere((element) => (element.petVaccineId.toString() == index)).vaccineList;
+    return petVaccineList
+        .firstWhere((element) => (element.petVaccineId.toString() == index))
+        .vaccineList;
   }
 
-  PetVaccinationCardModel getVaccinationCardByVaccinationCardId(String petVaccineId, String vaccinationCardId) {
-    return petVaccineList.firstWhere((element) => (element.petVaccineId.toString() == petVaccineId)).vaccineList.firstWhere((element) => (element.vaccinationCardId.toString() == vaccinationCardId));
+  PetVaccinationCardModel getVaccinationCardByVaccinationCardId(
+      String petVaccineId, String vaccinationCardId) {
+    return petVaccineList
+        .firstWhere(
+            (element) => (element.petVaccineId.toString() == petVaccineId))
+        .vaccineList
+        .firstWhere((element) =>
+            (element.vaccinationCardId.toString() == vaccinationCardId));
   }
 
   PetVaccineCardModel getVaccineCardById(String index) {
-    return petVaccineList.firstWhere((element) => (element.petVaccineId.toString() == index));
+    return petVaccineList
+        .firstWhere((element) => (element.petVaccineId.toString() == index));
   }
 
-  addVaccinationCardByVaccineId(String index, PetVaccinationCardModel vaccinationCard) {
-    petVaccineList.firstWhere((element) => (element.petVaccineId.toString() == index)).vaccineList.add(vaccinationCard);
+  addVaccinationCardByVaccineId(
+      String index, PetVaccinationCardModel vaccinationCard) {
+    petVaccineList
+        .firstWhere((element) => (element.petVaccineId.toString() == index))
+        .vaccineList
+        .add(vaccinationCard);
   }
 }
