@@ -65,13 +65,25 @@ class UserPreferences {
   /* Listagem de Doença  */
   static Future<void> saveDisease(String disease) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    print('saveDisease: $disease');
     await prefs.setString('disease', disease);
   }
 
   static Future<String?> getDisease() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('disease');
+  }
+  /****************************************************************************************/
+
+  /****************************************************************************************/
+  /* Listagem de Doença  */
+  static Future<void> saveMedicine(String medicine) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('medicine', medicine);
+  }
+
+  static Future<String?> getMedicine() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('medicine');
   }
   /****************************************************************************************/
 

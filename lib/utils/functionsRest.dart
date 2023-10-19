@@ -13,7 +13,9 @@ import 'package:petner_web/models/fileTypeModel.dart';
 import 'package:petner_web/models/healthEventFileTypeModel.dart';
 import 'package:petner_web/models/healthEventTypeModel.dart';
 import 'package:petner_web/models/petActivityModel.dart';
+import 'package:petner_web/models/petAllergyModel.dart';
 import 'package:petner_web/models/petDiseaseModel.dart';
+import 'package:petner_web/models/petMedicineModel.dart';
 import 'package:petner_web/models/petShceduleActivityModel.dart';
 import 'package:petner_web/models/questionAnswerModel.dart';
 import 'package:petner_web/models/screeningQuestionListModel.dart';
@@ -21,7 +23,9 @@ import 'package:petner_web/models/screeningReasonmodel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/models/speciedModel.dart';
 import 'package:petner_web/shared/data/PetActivityData.dart';
+import 'package:petner_web/shared/data/petAllergyData.dart';
 import 'package:petner_web/shared/data/petDiseaseData.dart';
+import 'package:petner_web/shared/data/petMedicineData.dart';
 import 'package:petner_web/shared/data/petScheduleActivityData.dart';
 import 'package:petner_web/shared/data/userData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
@@ -105,6 +109,7 @@ Future<Map<String, dynamic>> validateUserApi(
         await specieListApi();
         await coatListApi();
         await diseaseListApi();
+        await medicineListApi();
 
         /*
         print('==================================');
@@ -309,30 +314,6 @@ Future<void> coatListApi([String? specie]) async {
   } catch (e) {
     // Ocorreu um erro durante a solicitação
     print('Erro na solicitação GET coatList: $e');
-  }
-}
-
-Future<void> diseaseListApi() async {
-  const url = 'https://adm.petner.com.br/DiseaseList';
-  List<DiseaseModel> diseaseList = [];
-
-  try {
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': headerBasic
-      },
-    );
-    if (response.statusCode == 200) {
-      UserPreferences.saveDisease(response.body);
-    } else {
-      // A resposta não foi bem-sucedida
-      print('_Erro na solicitação POST diseaseList: ${response.statusCode}');
-    }
-  } catch (e) {
-    // Ocorreu um erro durante a solicitação
-    print('Erro na solicitação GET diseaseList: $e');
   }
 }
 
@@ -1671,6 +1652,29 @@ Future<Map<String, dynamic>> registerDiseaseApi([
   return responseData;
 }
 
+Future<void> diseaseListApi() async {
+  const url = 'https://adm.petner.com.br/DiseaseList';
+
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+    );
+    if (response.statusCode == 200) {
+      UserPreferences.saveDisease(response.body);
+    } else {
+      // A resposta não foi bem-sucedida
+      print('_Erro na solicitação POST diseaseList: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação GET diseaseList: $e');
+  }
+}
+
 Future<List<PetDiseaseModel>> petDiseaseListApi([
   String? petId,
   bool? chronic,
@@ -1716,4 +1720,205 @@ Future<List<PetDiseaseModel>> petDiseaseListApi([
   }
 
   return petDiseaseList;
+}
+
+Future<Map<String, dynamic>> registerMedicineApi([
+  String? option,
+  String? petId,
+  String? medicineId,
+  String? otherMedicine,
+  bool? continuousUser,
+]) async {
+  const url = 'https://adm.petner.com.br/RegisterMedicine';
+  Map<String, dynamic> responseData;
+
+  Map<String, dynamic> jsonSend = {
+    'option': option,
+    'petId': petId,
+    'medicineId': medicineId,
+    'otherMedicine': otherMedicine,
+    'continuousUser': continuousUser,
+  };
+
+  print(jsonSend);
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    if (response.statusCode == 200) {
+      responseData = jsonDecode(response.body);
+    } else {
+      responseData = {'registerDisease': 2};
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST registerDisease: ${response.statusCode}');
+    }
+  } catch (e) {
+    responseData = {'registerDiseaseApi': 3};
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST registerDisease: $e');
+  }
+
+  return responseData;
+}
+
+Future<void> medicineListApi() async {
+  const url = 'https://adm.petner.com.br/MedicineList';
+
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+    );
+    if (response.statusCode == 200) {
+      UserPreferences.saveMedicine(response.body);
+    } else {
+      // A resposta não foi bem-sucedida
+      print('_Erro na solicitação POST diseaseList: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação GET diseaseList: $e');
+  }
+}
+
+Future<List<PetMedicineModel>> petMedicineListApi([
+  String? petId,
+]) async {
+  const url = 'https://adm.petner.com.br/PetMedicineList';
+  List<PetMedicineModel> petMedicineList = [];
+
+  Map<String, dynamic> jsonSend = {
+    'petId': petId,
+  };
+
+  print(jsonSend);
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+
+      print(jsonData);
+
+      for (var item in jsonData) {
+        PetMedicineModel petMedicineModel = PetMedicineModel.fromJson(item);
+        petMedicineList.add(petMedicineModel);
+      }
+      PetMedicineData().petMedicineList = petMedicineList;
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST petMedicineListApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST petMedicineListApi: $e');
+  }
+
+  return petMedicineList;
+}
+
+Future<Map<String, dynamic>> registerAllergyApi([
+  String? option,
+  String? petId,
+  String? allergy,
+]) async {
+  const url = 'https://adm.petner.com.br/RegisterAllergy';
+  Map<String, dynamic> responseData;
+
+  Map<String, dynamic> jsonSend = {
+    'option': option,
+    'petId': petId,
+    'allergy': allergy,
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    if (response.statusCode == 200) {
+      responseData = jsonDecode(response.body);
+    } else {
+      responseData = {'registerDisease': 2};
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST registerDisease: ${response.statusCode}');
+    }
+  } catch (e) {
+    responseData = {'registerDiseaseApi': 3};
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST registerDisease: $e');
+  }
+
+  return responseData;
+}
+
+Future<List<PetAllergyModel>> petAllergyListApi([
+  String? petId,
+]) async {
+  const url = 'https://adm.petner.com.br/PetAllergyList';
+  List<PetAllergyModel> petAllergyList = [];
+
+  Map<String, dynamic> jsonSend = {
+    'petId': petId,
+  };
+
+  print(jsonSend);
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+
+      print(jsonData);
+
+      for (var item in jsonData) {
+        PetAllergyModel petAllergyModel = PetAllergyModel.fromJson(item);
+        petAllergyList.add(petAllergyModel);
+      }
+      PetAllergyData().petAllergyList = petAllergyList;
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST petAllergyListApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST petAllergyListApi: $e');
+  }
+
+  return petAllergyList;
 }

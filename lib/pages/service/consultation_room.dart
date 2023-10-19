@@ -18,7 +18,10 @@ import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
 import 'package:petner_web/models/diseaseModel.dart';
+import 'package:petner_web/models/medicineModel.dart';
+import 'package:petner_web/models/petAllergyModel.dart';
 import 'package:petner_web/models/petDiseaseModel.dart';
+import 'package:petner_web/models/petMedicineModel.dart';
 import 'package:petner_web/models/petVaccineCardModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
@@ -30,7 +33,10 @@ import 'package:petner_web/shared/data/diseaseData.dart';
 import 'package:petner_web/shared/data/environmentData.dart';
 import 'package:petner_web/shared/data/foodData.dart';
 import 'package:petner_web/shared/data/genderData.dart';
+import 'package:petner_web/shared/data/medicineData.dart';
+import 'package:petner_web/shared/data/petAllergyData.dart';
 import 'package:petner_web/shared/data/petDiseaseData.dart';
+import 'package:petner_web/shared/data/petMedicineData.dart';
 import 'package:petner_web/shared/data/petVaccinationCardData.dart';
 import 'package:petner_web/shared/data/petVaccineData.dart';
 import 'package:petner_web/shared/data/raceData.dart';
@@ -68,6 +74,9 @@ int? _vaccineId;
 String? _vaccineDoseId;
 String? _diseaseId;
 int? _petDiseaseId;
+String? _medicineId;
+int? _petMedicineId;
+int? _petAllergyId;
 late String? _state;
 late String? _city;
 late final String _neighborhood;
@@ -90,6 +99,8 @@ final TextEditingController _observationController = TextEditingController();
 final TextEditingController _lotController = TextEditingController();
 final TextEditingController _otherChronicDiseaseController =
     TextEditingController();
+final TextEditingController _otherMedicineController = TextEditingController();
+final TextEditingController _allergyController = TextEditingController();
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 String? _typeRegister;
 bool isWelcome = false;
@@ -98,10 +109,12 @@ bool isCompany = false;
 bool isFaceToFaceConsultation = false;
 bool isHealthProgram = false;
 bool isAgeReal = false;
+bool _continuousUse = false;
 List<RaceModel> raceList = [];
 List<CoatModel> coatList = [];
 List<CityModel> listCity = [];
 List<DiseaseModel> diseaseList = [];
+List<MedicineModel> medicineList = [];
 // Cor inicial
 
 class ConsultationRoomPage extends StatefulWidget {
@@ -252,6 +265,15 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     diseaseList = DiseaseData()
         .diseaseList
         .where((diseases) => diseases.specieId == _specieId)
+        .toList();
+
+    final jsonMedicine = await UserPreferences.getMedicine();
+    MedicineData().medicineList = (jsonDecode(jsonMedicine!) as List<dynamic>)
+        .map((e) => MedicineModel.fromJson(e))
+        .toList();
+    medicineList = MedicineData()
+        .medicineList
+        .where((medicines) => medicines.specieId == _specieId)
         .toList();
   }
 
@@ -2329,6 +2351,7 @@ class ChronicHealthConditionPage extends StatefulWidget {
 
 class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
   bool _isotherChronicDiseaseVisible = false;
+  bool _isotherMedicineVisible = false;
 
   String? _validateDropDown(String? value) {
     if (value == null || value.isEmpty) {
@@ -2363,6 +2386,33 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
       //return 1;
       return responseData['validateRegisterChronicDisease'];
     }
+  }
+
+  Future<List<dynamic>> _fetchPetMedicines() async {
+    List<PetMedicineModel> petMedicineList;
+    petMedicineList = await petMedicineListApi(_serviceQueue.petId.toString());
+
+    return petMedicineList;
+  }
+
+  Future<int?> _registerMedicine(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerMedicineApi(
+        _typeRegister,
+        _serviceQueue.petId.toString(),
+        _medicineId,
+        _otherMedicineController.text,
+        true,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterMedicine'];
+    }
 
     setState(() {
       _isLoading = false;
@@ -2371,6 +2421,38 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
     return 4;
   }
 
+  Future<List<dynamic>> _fetchPetAllergies() async {
+    List<PetAllergyModel> petAllergyList;
+    petAllergyList = await petAllergyListApi(_serviceQueue.petId.toString());
+
+    return petAllergyList;
+  }
+
+  Future<int?> _registerAllergy(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerAllergyApi(
+        _typeRegister,
+        _serviceQueue.petId.toString(),
+        _allergyController.text,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterAllergy'];
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return 4;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -2601,6 +2683,120 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                 ),
                               ),
                             ),
+                            FutureBuilder<List<dynamic>>(
+                                future: _fetchPetMedicines(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text('Error: ${snapshot.error}'),
+                                    );
+                                  } else {
+                                    // final List<dynamic> data = snapshot.data!;
+
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ListView.builder(
+                                          itemCount: PetMedicineData()
+                                              .petMedicineList
+                                              .length,
+                                          itemBuilder: (context, index) {
+                                            final petMedicine =
+                                                PetMedicineData()
+                                                    .petMedicineList[index];
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Container(
+                                                height:
+                                                    50, // Defina a altura desejada para o card
+                                                width: double
+                                                    .infinity, // Defina a largura desejada para o card
+
+                                                // Estilize o card com o BoxDecoration ou o Card widget
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.5),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 5,
+                                                      offset:
+                                                          const Offset(0, 3),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    //print(petVaccine.);
+                                                    _petMedicineId = petMedicine
+                                                        .petMedicineId;
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            /*
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: const Icon(
+                                                                  Icons
+                                                                      .health_and_safety,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  size: 50),
+                                                            ),
+                                                            */
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        0.0),
+                                                                child: Text(
+                                                                  petMedicine
+                                                                      .name!,
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          18),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }),
                           ],
                         ),
                       ),
@@ -2612,6 +2808,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         child: ElevatedButton(
                           onPressed: () {
                             // Adicionar ação de "Adicionar" aqui
+                            _showMedicine(context);
                           },
                           child: const Icon(Icons.add),
                         ),
@@ -2657,6 +2854,119 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                 ),
                               ),
                             ),
+                            FutureBuilder<List<dynamic>>(
+                                future: _fetchPetAllergies(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text('Error: ${snapshot.error}'),
+                                    );
+                                  } else {
+                                    // final List<dynamic> data = snapshot.data!;
+
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ListView.builder(
+                                          itemCount: PetAllergyData()
+                                              .petAllergyList
+                                              .length,
+                                          itemBuilder: (context, index) {
+                                            final petAllergy = PetAllergyData()
+                                                .petAllergyList[index];
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Container(
+                                                height:
+                                                    50, // Defina a altura desejada para o card
+                                                width: double
+                                                    .infinity, // Defina a largura desejada para o card
+
+                                                // Estilize o card com o BoxDecoration ou o Card widget
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.5),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 5,
+                                                      offset:
+                                                          const Offset(0, 3),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    //print(petVaccine.);
+                                                    _petAllergyId =
+                                                        petAllergy.petAllergyId;
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            /*
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: const Icon(
+                                                                  Icons
+                                                                      .health_and_safety,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  size: 50),
+                                                            ),
+                                                            */
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        0.0),
+                                                                child: Text(
+                                                                  petAllergy
+                                                                      .name!,
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          18),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }),
                           ],
                         ),
                       ),
@@ -2668,6 +2978,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         child: ElevatedButton(
                           onPressed: () {
                             // Adicionar ação de "Adicionar" aqui
+                            _showAllergies(context);
                           },
                           child: const Icon(Icons.add),
                         ),
@@ -2692,7 +3003,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
             return Dialog(
               child: Container(
                 width: 450,
-                height: 300,
+                height: 250,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5.0),
@@ -2752,7 +3063,6 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: ListView(
                             children: <Widget>[
-                              
                               CustomSearchableDropDown(
                                 dropdownHintText: 'Procurar uma Doença',
                                 label: 'Selecione uma Doença',
@@ -2780,12 +3090,12 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                   } else {
                                     _diseaseId = null;
                                   }
-                                  
+
                                   if (_diseaseId == '171') {
                                     setState(() {
                                       _isotherChronicDiseaseVisible = true;
                                     });
-                                  }else{
+                                  } else {
                                     setState(() {
                                       _isotherChronicDiseaseVisible = false;
                                     });
@@ -2835,6 +3145,286 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                   _typeRegister = 'C';
                                   _registerChronicDisease(context)
                                       .then((value) {});
+                                  Navigator.of(context).pop();
+                                });
+                              },
+                              child: const Text('Cadastrar'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showMedicine(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, StateSetter setStateMedicine) {
+            return Dialog(
+              child: Container(
+                width: 450,
+                height: 250,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8.5),
+                        decoration: const BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior esquerdo
+                            topRight: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior direito
+                          ),
+                        ),
+                        height: 40, // Altura desejada
+                        width:
+                            double.infinity, // Ocupa todo o espaço horizontal
+                        child: Row(
+                          children: [
+                            IconButton(
+                              iconSize: 16,
+                              icon: const Icon(Icons.close),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            const Text(
+                              'Medicamentos',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: 'Montserrat',
+                                //fontWeight: FontWeight.w600,
+                                color: Colors.white, // Cor do texto em branco
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView(
+                            children: <Widget>[
+                              CustomSearchableDropDown(
+                                dropdownHintText: 'Procurar um Medicamento',
+                                label: 'Selecione um Medicamento',
+                                hint: 'Selecione um Medicamento',
+                                prefixIcon: Icon(Icons.search),
+                                //value: _diseaseId,
+                                //validator: _validateDropDown,
+                                items: medicineList,
+                                dropDownMenuItems: medicineList.map((item) {
+                                  return item.name;
+                                }).toList(),
+                                menuMode: true,
+                                onChanged: (value) {
+                                  print(value.id);
+                                  if (value != null) {
+                                    _medicineId = value.id;
+                                  } else {
+                                    _medicineId = null;
+                                  }
+
+                                  if (_medicineId == '941') {
+                                    setStateMedicine(() {
+                                      _isotherMedicineVisible = true;
+                                    });
+                                  } else {
+                                    setStateMedicine(() {
+                                      _isotherMedicineVisible = false;
+                                    });
+                                  }
+
+                                  print(_isotherMedicineVisible);
+                                },
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.blue)),
+                              ),
+                              const SizedBox(height: 10.0),
+                              Visibility(
+                                visible: _isotherMedicineVisible,
+                                child: TextFormField(
+                                  controller: _otherMedicineController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Outro Medicameneto',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(
+                                              8.0)), // Raio dos cantos da borda
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 1.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        height: 60,
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Fechar'),
+                            ),
+                            const SizedBox(width: 10.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                setStateMedicine(() {
+                                  _typeRegister = 'C';
+                                  _registerMedicine(context).then((value) {});
+                                  Navigator.of(context).pop();
+                                });
+                              },
+                              child: const Text('Cadastrar'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showAllergies(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              child: Container(
+                width: 450,
+                height: 250,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8.5),
+                        decoration: const BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior esquerdo
+                            topRight: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior direito
+                          ),
+                        ),
+                        height: 40, // Altura desejada
+                        width:
+                            double.infinity, // Ocupa todo o espaço horizontal
+                        child: Row(
+                          children: [
+                            IconButton(
+                              iconSize: 16,
+                              icon: const Icon(Icons.close),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            const Text(
+                              'Alergias',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: 'Montserrat',
+                                //fontWeight: FontWeight.w600,
+                                color: Colors.white, // Cor do texto em branco
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextFormField(
+                          controller: _allergyController,
+                          decoration: const InputDecoration(
+                            labelText: 'Qual Alergia?',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  8.0)), // Raio dos cantos da borda
+                              borderSide:
+                                  BorderSide(color: Colors.black, width: 1.0),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        height: 60,
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Fechar'),
+                            ),
+                            const SizedBox(width: 10.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                setState(() {
+                                  _typeRegister = 'C';
+                                  _registerAllergy(context).then((value) {});
                                   Navigator.of(context).pop();
                                 });
                               },
