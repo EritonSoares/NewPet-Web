@@ -259,6 +259,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_titled_container:
+    dependency: "direct main"
+    description:
+      name: flutter_titled_container
+      sha256: c459ae7218fbaea15158173285570a43b6878889ad6f4a3f16e3a3e3bdbccb24
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.7"
   flutter_web_plugins:
     dependency: transitive
     description: flutter

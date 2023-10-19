@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:custom_searchable_dropdown/custom_searchable_dropdown.dart';
+import 'package:flutter_titled_container/flutter_titled_container.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -77,6 +78,7 @@ int? _petDiseaseId;
 String? _medicineId;
 int? _petMedicineId;
 int? _petAllergyId;
+bool? _complaint;
 late String? _state;
 late String? _city;
 late final String _neighborhood;
@@ -110,6 +112,7 @@ bool isFaceToFaceConsultation = false;
 bool isHealthProgram = false;
 bool isAgeReal = false;
 bool _continuousUse = false;
+bool _isComplaint = false;
 List<RaceModel> raceList = [];
 List<CoatModel> coatList = [];
 List<CityModel> listCity = [];
@@ -3067,7 +3070,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                 dropdownHintText: 'Procurar uma Doença',
                                 label: 'Selecione uma Doença',
                                 hint: 'Selecione uma Doença',
-                                prefixIcon: Icon(Icons.search),
+                                prefixIcon: const Icon(Icons.search),
                                 //value: _diseaseId,
                                 //validator: _validateDropDown,
                                 items: diseaseList
@@ -3237,7 +3240,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                 dropdownHintText: 'Procurar um Medicamento',
                                 label: 'Selecione um Medicamento',
                                 hint: 'Selecione um Medicamento',
-                                prefixIcon: Icon(Icons.search),
+                                prefixIcon: const Icon(Icons.search),
                                 //value: _diseaseId,
                                 //validator: _validateDropDown,
                                 items: medicineList,
@@ -3455,12 +3458,311 @@ class SymptomPage extends StatefulWidget {
 }
 
 class _SymptomPage extends State<SymptomPage> {
+
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Sintomas",
-        style: TextStyle(fontSize: 24.0),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Sintomas',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(
+            height: 10.0,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: double.infinity,
+              height: 70,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Colors.grey,
+                ),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 10.0),
+                  const Expanded(
+                    flex: 2,
+                    child: Text(
+                      'Alguma queixa no momento?',
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _isComplaint = true;
+                        _complaint = true;
+                      });
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                          if (_complaint != null && _complaint!) {
+                            return Colors.green; // Cor quando ativo
+                          }
+                          return Colors.blue; // Cor padrão
+                        },
+                      ),
+                    ),
+                    child: const Text('Sim'),
+                  ),
+                  const SizedBox(width: 5.0),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _isComplaint = false;
+                        _complaint = false;
+                      });
+                    },
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
+                        (Set<MaterialState> states) {
+                          if (_complaint != null && !_complaint!) {
+                            return Colors.green; // Cor quando ativo
+                          }
+                          return Colors.blue; // Cor padrão
+                        },
+                      ),
+                    ),
+                    child: const Text('Não'),
+                  ),
+                  const SizedBox(width: 10.0),
+                ],
+              ),
+            ),
+          ),
+          /*
+          TitledContainer(
+            titleColor: Colors.grey,
+            title: ' Alguma queixa?  ',
+            textAlign: TextAlignTitledContainer.Left,
+            fontSize: 12.0,
+            backgroundColor: Colors.white,
+            child: Container(
+              width: double.infinity,
+              height: 70,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Colors.grey,
+                ),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(10.0),
+                ),
+              ),
+              child: const Center(
+                child: Text(
+                  'Center Align text',
+                  style: TextStyle(fontSize: 28.0),
+                ),
+              ),
+            ),
+          ),
+          */
+          const SizedBox(height: 10.0),
+          Visibility(
+            visible: _isComplaint,
+            child: Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: ListView(
+                  children: [
+                    Stack(
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 230,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border.all(
+                                color:
+                                    const Color.fromARGB(255, 206, 205, 205)),
+                            borderRadius: BorderRadius.circular(5.0),
+                          ),
+                          //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                          child: Column(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8.5),
+                                decoration: const BoxDecoration(
+                                  color: Colors.blueAccent,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(
+                                        5.0), // Arredonda apenas o canto superior esquerdo
+                                    topRight: Radius.circular(
+                                        5.0), // Arredonda apenas o canto superior direito
+                                  ),
+                                ),
+                                height: 40, // Altura desejada
+                                width: double
+                                    .infinity, // Ocupa todo o espaço horizontal
+                                child: const Text(
+                                  'Sintomas',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontFamily: 'Montserrat',
+                                    //fontWeight: FontWeight.w600,
+                                    color:
+                                        Colors.white, // Cor do texto em branco
+                                  ),
+                                ),
+                              ),
+                              // colocar lista
+
+                              FutureBuilder<List<dynamic>>(
+                                  future: null, //_fetchPetDiseaes(),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    } else if (snapshot.hasError) {
+                                      return Center(
+                                        child: Text('Error: ${snapshot.error}'),
+                                      );
+                                    } else {
+                                      // final List<dynamic> data = snapshot.data!;
+
+                                      return Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: ListView.builder(
+                                            itemCount: PetDiseaseData()
+                                                .petDiseaseList
+                                                .length,
+                                            itemBuilder: (context, index) {
+                                              final petDisease =
+                                                  PetDiseaseData()
+                                                      .petDiseaseList[index];
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Container(
+                                                  height:
+                                                      50, // Defina a altura desejada para o card
+                                                  width: double
+                                                      .infinity, // Defina a largura desejada para o card
+
+                                                  // Estilize o card com o BoxDecoration ou o Card widget
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.5),
+                                                        spreadRadius: 2,
+                                                        blurRadius: 5,
+                                                        offset:
+                                                            const Offset(0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      //print(petVaccine.);
+                                                      _petDiseaseId = petDisease
+                                                          .petDiseaseId;
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              /*
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: const Icon(
+                                                                  Icons
+                                                                      .health_and_safety,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  size: 50),
+                                                            ),
+                                                            */
+                                                              Container(
+                                                                alignment: Alignment
+                                                                    .centerRight,
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          0.0),
+                                                                  child: Text(
+                                                                    petDisease
+                                                                        .name!,
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            18),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  }),
+                            ],
+                          ),
+                        ),
+                        Positioned(
+                          bottom:
+                              10, // Define a posição do botão a partir do fundo
+                          right:
+                              10, // Define a posição do botão a partir da direita
+                          child: ElevatedButton(
+                            onPressed: () {
+                              //_showChronicDisease(context);
+                            },
+                            child: const Icon(Icons.add),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
