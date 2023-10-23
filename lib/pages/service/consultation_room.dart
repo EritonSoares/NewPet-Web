@@ -103,6 +103,7 @@ final TextEditingController _otherChronicDiseaseController =
     TextEditingController();
 final TextEditingController _otherMedicineController = TextEditingController();
 final TextEditingController _allergyController = TextEditingController();
+final TextEditingController _complaintController = TextEditingController();
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 String? _typeRegister;
 bool isWelcome = false;
@@ -135,6 +136,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   late List<Widget> _pages;
   late int _currentPageIndex;
   late String? _token, _channel, _crmv;
+  bool _isEnabledVirtualBackgroundImage = false;
 
   bool isJoined = false,
       enabledAudio = true,
@@ -306,10 +308,42 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     }
   }
 
+  Future<void> _enableVirtualBackground() async {
+    VirtualBackgroundSource virtualBackgroundSource;
+    //virtualBackgroundSource = VirtualBackgroundSource(
+    //    backgroundSourceType: VirtualBackgroundSourceType.Img,
+    //    source: "shared/images/logo.jpg");
+    virtualBackgroundSource = VirtualBackgroundSource(
+        backgroundSourceType: VirtualBackgroundSourceType.Blur,
+        blurDegree: VirtualBackgroundBlurDegree.High);
+
+    //virtualBackgroundSource.backgroundSourceType =  VirtualBackgroundSourceType.Color;
+    //virtualBackgroundSource.color = 0x0000FF;
+
+    //await _engine.enableVirtualBackground(true, virtualBackgroundSource);
+    /*
+    await _engine.enableVirtualBackground(
+        !_isEnabledVirtualBackgroundImage,
+        VirtualBackgroundSource(
+            backgroundSourceType: VirtualBackgroundSourceType.Img,
+            source: 'shared/images/logo.jpg'));
+    */        
+
+    await _engine.enableVirtualBackground(
+        !_isEnabledVirtualBackgroundImage,
+        VirtualBackgroundSource(
+            backgroundSourceType: VirtualBackgroundSourceType.Blur,
+        blurDegree: VirtualBackgroundBlurDegree.High));            
+    setState(() {
+      _isEnabledVirtualBackgroundImage = !_isEnabledVirtualBackgroundImage;
+    });
+  }
+
   Future<void> _initEngine() async {
     await html.window.navigator.getUserMedia(audio: true, video: true);
     //await <Permission>[Permission.microphone, Permission.camera].request();
     _engine = await RtcEngine.create(appId);
+
     await _engine.enableVideo();
 
     _engine.setEventHandler(
@@ -656,7 +690,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                       cursor: SystemMouseCursors.click,
                       child: GestureDetector(
                         onTap: () {
-                          _startScreenShare();
+                          //_startScreenShare();
+                          _enableVirtualBackground();
                         },
                         child: Container(
                           height: 48,
@@ -3458,7 +3493,6 @@ class SymptomPage extends StatefulWidget {
 }
 
 class _SymptomPage extends State<SymptomPage> {
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3469,7 +3503,7 @@ class _SymptomPage extends State<SymptomPage> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Sintomas',
+              Text('Sintoma(s)',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 3,
                   style: TextStyle(fontSize: 30)),
@@ -3533,7 +3567,7 @@ class _SymptomPage extends State<SymptomPage> {
                       backgroundColor: MaterialStateProperty.resolveWith<Color>(
                         (Set<MaterialState> states) {
                           if (_complaint != null && !_complaint!) {
-                            return Colors.green; // Cor quando ativo
+                            return Colors.red; // Cor quando ativo
                           }
                           return Colors.blue; // Cor padrão
                         },
@@ -3582,6 +3616,21 @@ class _SymptomPage extends State<SymptomPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: ListView(
                   children: [
+                    TextFormField(
+                      style: const TextStyle(fontSize: 15.0),
+                      controller: _complaintController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(8.0)), // Raio dos cantos da borda
+                          borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 1.0), // Cor e largura da borda
+                        ),
+                        labelText: 'Informe a Queixa',
+                      ),
+                    ),
+                    const SizedBox(height: 10.0),
                     Stack(
                       children: [
                         Container(
