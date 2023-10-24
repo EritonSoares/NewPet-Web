@@ -119,7 +119,28 @@ List<CoatModel> coatList = [];
 List<CityModel> listCity = [];
 List<DiseaseModel> diseaseList = [];
 List<MedicineModel> medicineList = [];
-// Cor inicial
+int? appetitId;
+int? waterIntakeId;
+int? urineStainingId;
+int? urineVolumeId;
+int? stoolColoringId;
+int? stoolConsistencyId;
+int? noseTypeId;
+int? noseTemperatureId;
+int? hotEarId;
+int? restlessId;
+int? gasesId;
+int? tightBellyId;
+int? touchPainId;
+int? walksBentOverId;
+int? gumTongueId;
+int? conjunctivaId;
+int? dullHaierId;
+int? abnormalPlacementId;
+int? hairFailureId;
+int? brittleHairId;
+int? bodyStateId;
+int? bodyScoreId;
 
 class ConsultationRoomPage extends StatefulWidget {
   const ConsultationRoomPage({super.key});
@@ -192,11 +213,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         const UpdateRegistrationDataPage(),
         const VaccineRegistrationPage(),
         const ChronicHealthConditionPage(),
-        const SymptomPage(),
         const AnamnesisPage(),
-        const Quiz3Page(),
-        const Quiz4Page(),
-        const IaPage(),
         const RecommendationPage(),
         const FinalClassificationPage(),
         const HealthProgramPage(),
@@ -327,13 +344,13 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         VirtualBackgroundSource(
             backgroundSourceType: VirtualBackgroundSourceType.Img,
             source: 'shared/images/logo.jpg'));
-    */        
+    */
 
     await _engine.enableVirtualBackground(
         !_isEnabledVirtualBackgroundImage,
         VirtualBackgroundSource(
             backgroundSourceType: VirtualBackgroundSourceType.Blur,
-        blurDegree: VirtualBackgroundBlurDegree.High));            
+            blurDegree: VirtualBackgroundBlurDegree.High));
     setState(() {
       _isEnabledVirtualBackgroundImage = !_isEnabledVirtualBackgroundImage;
     });
@@ -3483,16 +3500,150 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
   }
 }
 
-class SymptomPage extends StatefulWidget {
-  const SymptomPage({
+class AnamnesisPage extends StatefulWidget {
+  const AnamnesisPage({
     Key? key,
   }) : super(key: key);
 
   @override
-  _SymptomPage createState() => _SymptomPage();
+  _AnamnesisPage createState() => _AnamnesisPage();
 }
 
-class _SymptomPage extends State<SymptomPage> {
+class _AnamnesisPage extends State<AnamnesisPage> {
+  final Map<String, String> appetiteList = {
+    '1': 'Abaixo do Normal',
+    '2': 'Normal',
+    '3': 'Acima do Normal',
+  };
+
+  final Map<String, String> waterIntakeList = {
+    '1': 'Normal',
+    '2': 'Pouca',
+    '3': 'Excessiva',
+  };
+
+  final Map<String, String> urineStainingList = {
+    '1': 'Normal',
+    '2': 'Concentrada',
+  };
+
+  final Map<String, String> urineVolumeList = {
+    '1': 'Abaixo do Normal',
+    '2': 'Normal',
+    '3': 'Acima do Normal',
+  };
+
+  final Map<String, String> stoolColoringList = {
+    '1': 'Marrom',
+    '2': 'Preta',
+    '3': 'Amarela',
+    '4': 'Avermelhada',
+  };
+
+  final Map<String, String> stoolConsistencyList = {
+    '1': 'Líquida',
+    '2': 'Pastosa sem Formato',
+    '3': 'pastosa com Formato',
+    '4': 'Seca',
+  };
+
+  final Map<String, String> noseTypeList = {
+    '1': 'Seco',
+    '2': 'Úmido',
+  };
+
+  final Map<String, String> noseTemperatureList = {
+    '1': 'Quente',
+    '2': 'Frio',
+  };
+
+  final Map<String, String> hotEarList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> restlessList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> gasesList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> tightBellyList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> touchPainList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> walksBentOverList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> gumTongueList = {
+    '1': 'Pálida',
+    '2': 'Vermelha',
+    '3': 'Azul',
+  };
+
+  final Map<String, String> conjunctivaList = {
+    '1': 'Hipocorada',
+    '2': 'Normocorada',
+    '3': 'Hipercorada',
+  };
+
+  final Map<String, String> dullHairList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> adbnormalPlacementList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> hairFailureList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> brittleHairList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
+  final Map<String, String> bodyStateList = {
+    '1': 'Excessivamente Magro',
+    '2': 'Magro',
+    '3': 'Normal',
+    '4': 'Sobrepeso',
+    '5': 'Muito Sobrepeso',
+  };
+
+  final Map<String, String> bodyScoreList = {
+    '1': 'Emaciado',
+    '2': 'Muito Magro',
+    '3': 'Magro',
+    '4': 'Ideal',
+    '5': 'Sobrepeso',
+    '6': 'Obesidade',
+    '7': 'Obesidade Grave',
+  };
+  
+  String? _validateDropDown(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Selecione uma opção';
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -3503,7 +3654,7 @@ class _SymptomPage extends State<SymptomPage> {
           const Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Sintoma(s)',
+              Text('Anamnese Clínica',
                   overflow: TextOverflow.ellipsis,
                   maxLines: 3,
                   style: TextStyle(fontSize: 30)),
@@ -3613,197 +3764,61 @@ class _SymptomPage extends State<SymptomPage> {
             visible: _isComplaint,
             child: Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView(
+                padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                child: Column(
                   children: [
-                    TextFormField(
-                      style: const TextStyle(fontSize: 15.0),
-                      controller: _complaintController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(8.0)), // Raio dos cantos da borda
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 1.0), // Cor e largura da borda
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 15.0),
+                        controller: _complaintController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Informe a Queixa',
                         ),
-                        labelText: 'Informe a Queixa',
                       ),
                     ),
                     const SizedBox(height: 10.0),
-                    Stack(
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: 230,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                                color:
-                                    const Color.fromARGB(255, 206, 205, 205)),
-                            borderRadius: BorderRadius.circular(5.0),
-                          ),
-                          //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
-                          child: Column(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(8.5),
-                                decoration: const BoxDecoration(
-                                  color: Colors.blueAccent,
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(
-                                        5.0), // Arredonda apenas o canto superior esquerdo
-                                    topRight: Radius.circular(
-                                        5.0), // Arredonda apenas o canto superior direito
-                                  ),
-                                ),
-                                height: 40, // Altura desejada
-                                width: double
-                                    .infinity, // Ocupa todo o espaço horizontal
-                                child: const Text(
-                                  'Sintomas',
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontFamily: 'Montserrat',
-                                    //fontWeight: FontWeight.w600,
-                                    color:
-                                        Colors.white, // Cor do texto em branco
-                                  ),
-                                ),
+                    Expanded(
+                      child: Container(
+                        width: double.maxFinite,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 206, 205, 205)),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                        child: DefaultTabController(
+                          length: 3, // Número de abas
+                          child: Scaffold(
+                            appBar: AppBar(
+                              toolbarHeight: 0,
+                              bottom: const TabBar(
+                                tabs: [
+                                  Tab(text: 'Questionário'),
+                                  Tab(text: 'Sintoma'),
+                                  Tab(text: 'IA'),
+                                ],
                               ),
-                              // colocar lista
-
-                              FutureBuilder<List<dynamic>>(
-                                  future: null, //_fetchPetDiseaes(),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                        child: CircularProgressIndicator(),
-                                      );
-                                    } else if (snapshot.hasError) {
-                                      return Center(
-                                        child: Text('Error: ${snapshot.error}'),
-                                      );
-                                    } else {
-                                      // final List<dynamic> data = snapshot.data!;
-
-                                      return Expanded(
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: ListView.builder(
-                                            itemCount: PetDiseaseData()
-                                                .petDiseaseList
-                                                .length,
-                                            itemBuilder: (context, index) {
-                                              final petDisease =
-                                                  PetDiseaseData()
-                                                      .petDiseaseList[index];
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                  height:
-                                                      50, // Defina a altura desejada para o card
-                                                  width: double
-                                                      .infinity, // Defina a largura desejada para o card
-
-                                                  // Estilize o card com o BoxDecoration ou o Card widget
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    boxShadow: [
-                                                      BoxShadow(
-                                                        color: Colors.grey
-                                                            .withOpacity(0.5),
-                                                        spreadRadius: 2,
-                                                        blurRadius: 5,
-                                                        offset:
-                                                            const Offset(0, 3),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  child: InkWell(
-                                                    onTap: () {
-                                                      //print(petVaccine.);
-                                                      _petDiseaseId = petDisease
-                                                          .petDiseaseId;
-                                                    },
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              8.0),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .end,
-                                                        children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              /*
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: const Icon(
-                                                                  Icons
-                                                                      .health_and_safety,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 50),
-                                                            ),
-                                                            */
-                                                              Container(
-                                                                alignment: Alignment
-                                                                    .centerRight,
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(
-                                                                          0.0),
-                                                                  child: Text(
-                                                                    petDisease
-                                                                        .name!,
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  }),
-                            ],
+                            ),
+                            body: TabBarView(
+                              children: [
+                                _questionaryTab(),
+                                Text('Teste'),////SintomaTab(),
+                                Text('Teste'),////IATab(),
+                              ],
+                            ),
                           ),
                         ),
-                        Positioned(
-                          bottom:
-                              10, // Define a posição do botão a partir do fundo
-                          right:
-                              10, // Define a posição do botão a partir da direita
-                          child: ElevatedButton(
-                            onPressed: () {
-                              //_showChronicDisease(context);
-                            },
-                            child: const Icon(Icons.add),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                     const SizedBox(height: 10.0),
                   ],
@@ -3815,87 +3830,185 @@ class _SymptomPage extends State<SymptomPage> {
       ),
     );
   }
-}
 
-class AnamnesisPage extends StatefulWidget {
-  const AnamnesisPage({
-    Key? key,
-  }) : super(key: key);
+  Widget _questionaryTab() {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(5, 15, 10, 0),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                // Use o Expanded para limitar a largura do DropdownButtonFormField
+                child: DropdownButtonFormField<String>(
+                  validator: _validateDropDown,
+                  isDense: true,
+                  onChanged: (value) {
+                    setState(() {
+                      appetitId = int.parse(value!);
+                    });
+                  },
+                  items: appetiteList.keys.map((key) {
+                    return DropdownMenuItem<String>(
+                      value: key,
+                      child: Text(appetiteList[key]!),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      labelText: 'Como Está o Apetite e Alimentação?'),
+                  value: (appetitId == null ? null : appetitId.toString()),
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  validator: _validateDropDown,
+                  isDense: true,
+                  onChanged: (value) {
+                    setState(() {
+                      waterIntakeId = int.parse(value!);
+                    });
+                  },
+                  items: waterIntakeList.keys.map((key) {
+                    return DropdownMenuItem<String>(
+                      value: key,
+                      child: Text(waterIntakeList[key]!),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      labelText: 'Como está a ingestão de água?'),
+                  value: (waterIntakeId == null ? null : waterIntakeId.toString()),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                // Use o Expanded para limitar a largura do DropdownButtonFormField
+                child: DropdownButtonFormField<String>(
+                  validator: _validateDropDown,
+                  isDense: true,
+                  onChanged: (value) {
+                    setState(() {
+                      urineStainingId = int.parse(value!);
+                    });
+                  },
+                  items: urineStainingList.keys.map((key) {
+                    return DropdownMenuItem<String>(
+                      value: key,
+                      child: Text(urineStainingList[key]!),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      labelText: 'Qual a coloração da Urina?'),
+                  value: (urineStainingId == null ? null : urineStainingId.toString()),
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  validator: _validateDropDown,
+                  isDense: true,
+                  onChanged: (value) {
+                    setState(() {
+                      urineVolumeId = int.parse(value!);
+                    });
+                  },
+                  items: urineVolumeList.keys.map((key) {
+                    return DropdownMenuItem<String>(
+                      value: key,
+                      child: Text(urineVolumeList[key]!),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      labelText: 'Qual o volume de urina?'),
+                  value: (urineVolumeId == null ? null : urineVolumeId.toString()),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Row(
+            children: [
+              Expanded(
+                // Use o Expanded para limitar a largura do DropdownButtonFormField
+                child: DropdownButtonFormField<String>(
+                  validator: _validateDropDown,
+                  isDense: true,
+                  onChanged: (value) {
+                    setState(() {
+                      stoolColoringId = int.parse(value!);
+                    });
+                  },
+                  items: stoolColoringList.keys.map((key) {
+                    return DropdownMenuItem<String>(
+                      value: key,
+                      child: Text(stoolColoringList[key]!),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      labelText: 'Qual a coloração das fezes?'),
+                  value: (stoolColoringId == null ? null : stoolColoringId.toString()),
+                ),
+              ),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: DropdownButtonFormField<String>(
+                  validator: _validateDropDown,
+                  isDense: true,
+                  onChanged: (value) {
+                    setState(() {
+                      stoolConsistencyId = int.parse(value!);
+                    });
+                  },
+                  items: stoolConsistencyList.keys.map((key) {
+                    return DropdownMenuItem<String>(
+                      value: key,
+                      child: Text(stoolConsistencyList[key]!),
+                    );
+                  }).toList(),
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      labelText: 'Qual é a consistência das fezes?'),
+                  value: (stoolConsistencyId == null ? null : stoolConsistencyId.toString()),
+                ),
+              ),
+            ],
+          ),
 
-  @override
-  _AnamnesisPage createState() => _AnamnesisPage();
-}
-
-class _AnamnesisPage extends State<AnamnesisPage> {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Anamnese",
-        style: TextStyle(fontSize: 24.0),
-      ),
-    );
-  }
-}
-
-class Quiz3Page extends StatefulWidget {
-  const Quiz3Page({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  _Quiz3Page createState() => _Quiz3Page();
-}
-
-class _Quiz3Page extends State<Quiz3Page> {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Questionário 3",
-        style: TextStyle(fontSize: 24.0),
-      ),
-    );
-  }
-}
-
-class Quiz4Page extends StatefulWidget {
-  const Quiz4Page({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  _Quiz4Page createState() => _Quiz4Page();
-}
-
-class _Quiz4Page extends State<Quiz4Page> {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Questionário 4",
-        style: TextStyle(fontSize: 24.0),
-      ),
-    );
-  }
-}
-
-class IaPage extends StatefulWidget {
-  const IaPage({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  _IaPage createState() => _IaPage();
-}
-
-class _IaPage extends State<IaPage> {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Inteligência Artificial",
-        style: TextStyle(fontSize: 24.0),
+          // proximas perguntas
+        ],
       ),
     );
   }
