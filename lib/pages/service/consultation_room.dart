@@ -19,14 +19,20 @@ import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
 import 'package:petner_web/models/diseaseModel.dart';
+import 'package:petner_web/models/healthProgramModel.dart';
 import 'package:petner_web/models/medicineModel.dart';
 import 'package:petner_web/models/petAllergyModel.dart';
 import 'package:petner_web/models/petDiseaseModel.dart';
+import 'package:petner_web/models/petHealthProgramModel.dart';
 import 'package:petner_web/models/petMedicineModel.dart';
+import 'package:petner_web/models/petSericeHistoryModel.dart';
+import 'package:petner_web/models/petSymptomModel.dart';
 import 'package:petner_web/models/petVaccineCardModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
+import 'package:petner_web/models/symptomModel.dart';
 import 'package:petner_web/models/vaccineDoseModel.dart';
+import 'package:petner_web/shared/data/anexoServiceHistoryData.dart';
 import 'package:petner_web/shared/data/bodyScoreData.dart';
 import 'package:petner_web/shared/data/cityData.dart';
 import 'package:petner_web/shared/data/coatData.dart';
@@ -34,21 +40,27 @@ import 'package:petner_web/shared/data/diseaseData.dart';
 import 'package:petner_web/shared/data/environmentData.dart';
 import 'package:petner_web/shared/data/foodData.dart';
 import 'package:petner_web/shared/data/genderData.dart';
+import 'package:petner_web/shared/data/healthProgramData.dart';
 import 'package:petner_web/shared/data/medicineData.dart';
 import 'package:petner_web/shared/data/petAllergyData.dart';
 import 'package:petner_web/shared/data/petDiseaseData.dart';
+import 'package:petner_web/shared/data/petHealthProgramData.dart';
 import 'package:petner_web/shared/data/petMedicineData.dart';
+import 'package:petner_web/shared/data/petServiceHIstoryData.dart';
+import 'package:petner_web/shared/data/petSymptomData.dart';
 import 'package:petner_web/shared/data/petVaccinationCardData.dart';
 import 'package:petner_web/shared/data/petVaccineData.dart';
 import 'package:petner_web/shared/data/raceData.dart';
 import 'package:petner_web/shared/data/sizeData.dart';
 import 'package:petner_web/shared/data/specieData.dart';
 import 'package:petner_web/shared/data/stateData.dart';
+import 'package:petner_web/shared/data/symptomData.dart';
 import 'package:petner_web/shared/data/temperamentData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
 import 'package:petner_web/shared/data/vaccineDoseData.dart';
 import 'package:petner_web/utils/functions.dart';
 import 'package:petner_web/utils/functionsRest.dart';
+import 'package:petner_web/utils/routes.dart';
 
 const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 //const token = "006a12600dd0e80435ca0a1efc4660cbe6bIABA0Ug4bFpjYxdjWXx//De36mr93wxw9jsOjttA0Li+BEwKp+vpr4RpIgBOqzEBnUoEZQQAAQAtBwNlAgAtBwNlAwAtBwNlBAAtBwNl";
@@ -72,12 +84,15 @@ int? _sizeId;
 int? _coatId;
 int? _petVaccineId;
 int? _vaccineId;
+int? _serviceHistoryId;
 String? _vaccineDoseId;
 String? _diseaseId;
 int? _petDiseaseId;
 String? _medicineId;
 int? _petMedicineId;
 int? _petAllergyId;
+int? _symptomId;
+int? _petSymptomId;
 bool? _complaint;
 late String? _state;
 late String? _city;
@@ -86,6 +101,7 @@ late int? _bodyScoreId;
 late final int _productId;
 final TextEditingController _tutorNameController = TextEditingController();
 final TextEditingController _petNameController = TextEditingController();
+final TextEditingController _petPlanController = TextEditingController();
 final TextEditingController _petNickNameController = TextEditingController();
 final TextEditingController _raceController = TextEditingController();
 final TextEditingController _specieController = TextEditingController();
@@ -102,8 +118,11 @@ final TextEditingController _lotController = TextEditingController();
 final TextEditingController _otherChronicDiseaseController =
     TextEditingController();
 final TextEditingController _otherMedicineController = TextEditingController();
+final TextEditingController _otherSymptomController = TextEditingController();
 final TextEditingController _allergyController = TextEditingController();
 final TextEditingController _complaintController = TextEditingController();
+final TextEditingController _finalGuidelinesController =
+    TextEditingController();
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 String? _typeRegister;
 bool isWelcome = false;
@@ -114,11 +133,15 @@ bool isHealthProgram = false;
 bool isAgeReal = false;
 bool _continuousUse = false;
 bool _isComplaint = false;
+bool _isQuestionComplaintVisible = false;
+bool _isCheckOut = false;
 List<RaceModel> raceList = [];
 List<CoatModel> coatList = [];
 List<CityModel> listCity = [];
 List<DiseaseModel> diseaseList = [];
 List<MedicineModel> medicineList = [];
+List<SymptomModel> symptomList = [];
+List<HealthProgramModel> healthProgramList = [];
 int? appetitId;
 int? waterIntakeId;
 int? urineStainingId;
@@ -135,12 +158,14 @@ int? touchPainId;
 int? walksBentOverId;
 int? gumTongueId;
 int? conjunctivaId;
-int? dullHaierId;
+int? hairLossId;
+int? dullHairId;
 int? abnormalPlacementId;
 int? hairFailureId;
 int? brittleHairId;
 int? bodyStateId;
 int? bodyScoreId;
+int? finalClassificationId;
 
 class ConsultationRoomPage extends StatefulWidget {
   const ConsultationRoomPage({super.key});
@@ -178,10 +203,26 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       {3: 'Consulta'},
       {4: 'Tele Orientação'},
       {5: 'Acompanhamento de Evolução'},
+      {6: 'Finalização'},
     ];
 
+    _validateTypeService();
+
+    //DESCOMENTAR PARA ATIVAR A CHAMADA DE VÍDEO
+    //_initEngine();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _dispose();
+  }
+
+  void _validateTypeService() {
     _currentPageIndex = 0;
     if (_selectedTypeService == 1) {
+      _isQuestionComplaintVisible = true;
+      _isComplaint = false;
       _pages = [
         WelcomePage(
           updateCheckboxWelcome: (bool newValue) {
@@ -214,21 +255,33 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         const VaccineRegistrationPage(),
         const ChronicHealthConditionPage(),
         const AnamnesisPage(),
-        const RecommendationPage(),
-        const FinalClassificationPage(),
         const HealthProgramPage(),
-        const DocumentAvaliablePage(),
+        const RecommendationPage(),
+        //const FinalClassificationPage(),
+        //const DocumentAvaliablePage(),
       ];
+    } else if (_selectedTypeService == 4) {
+      _isQuestionComplaintVisible = false;
+      _isComplaint = true;
+      _pages = [
+        const RiskClassificationPage(),
+        const UpdateRegistrationDataPage(),
+        const VaccineRegistrationPage(),
+        const ChronicHealthConditionPage(),
+        const ServiceHistoryPage(),
+        const HealthProgramPagePet(),
+        const AnamnesisPage(),
+        const FinalGuidelinesPage(),
+      ];
+
+      _screningController.text = _serviceQueue.screeningName!;
+    } else if (_selectedTypeService == 6) {
+      _pages = [
+        const CheckoutPage(),
+      ];
+
+      _screningController.text = _serviceQueue.screeningName!;
     }
-
-    //DESCOMENTAR PARA ATIVAR A CHAMADA DE VÍDEO
-    //_initEngine();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _dispose();
   }
 
   Future<void> _roomConfiguration() async {
@@ -240,26 +293,76 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   Future<void> _getQueue() async {
     String? serviceQueue = await UserPreferences.getQueue();
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
+
+    print(serviceQueue!);
+
+    print(_serviceQueue.tutorName!);
+    print(_serviceQueue.petName!);
+    print(_serviceQueue.plan);
+    print(_serviceQueue.petNickName!);
+    print(_serviceQueue.raceName!);
+    print(_serviceQueue.specieName!);
+    print(_serviceQueue.genderName!);
+    print(_serviceQueue.productName!);
+    print(_serviceQueue.age!);
+    print(_serviceQueue.genderId!);
+    print(_serviceQueue.foodId!);
+    print(_serviceQueue.sizeId);
+    print(_serviceQueue.temperamentId);
+    print(_serviceQueue.castrated!);
+    print(_serviceQueue.environmentId);
+    print(_serviceQueue.specieId!);
+    print(_serviceQueue.raceId!);
+    print(_serviceQueue.coatId);
+    print(_serviceQueue.bodyScoreId);
+    print(_serviceQueue.state);
+    print(_serviceQueue.city);
+
+    print(1);
     _tutorNameController.text = _serviceQueue.tutorName!;
+    print(2);
     _petNameController.text = _serviceQueue.petName!;
+    print(3);
+    if (_serviceQueue.plan!.length > 0) {
+      _petPlanController.text = _serviceQueue.plan!;
+    }
+    print(4);
     _petNickNameController.text = _serviceQueue.petNickName!;
+    print(5);
     _raceController.text = _serviceQueue.raceName!;
+    print(6);
     _specieController.text = _serviceQueue.specieName!;
+    print(7);
     _genderController.text = _serviceQueue.genderName!;
+    print(8);
     _productController.text = _serviceQueue.productName!;
+    print(9);
     _ageController.text = _serviceQueue.age!;
+    print(10);
     _genderId = _serviceQueue.genderId!;
+    print(11);
     _foodId = _serviceQueue.foodId!;
+    print(12);
     _sizeId = _serviceQueue.sizeId;
+    print(13);
     _temperamentId = _serviceQueue.temperamentId;
+    print(14);
     _castrated = _serviceQueue.castrated!;
+    print(15);
     _environmentId = _serviceQueue.environmentId;
+    print(16);
     _specieId = _serviceQueue.specieId!;
+    print(17);
     _raceId = _serviceQueue.raceId!;
+    print(18);
     _coatId = _serviceQueue.coatId;
+    print(19);
     _bodyScoreId = _serviceQueue.bodyScoreId;
+    print(20);
     _state = _serviceQueue.state;
+    print(21);
     _city = _serviceQueue.city;
+    print(22);
 
     final jsonRace = await UserPreferences.getRace();
     RaceData().raceList = (jsonDecode(jsonRace!) as List<dynamic>)
@@ -296,6 +399,22 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     medicineList = MedicineData()
         .medicineList
         .where((medicines) => medicines.specieId == _specieId)
+        .toList();
+
+    final jsonSymptom = await UserPreferences.getSymptom();
+    SymptomData().symptomList = (jsonDecode(jsonSymptom!) as List<dynamic>)
+        .map((e) => SymptomModel.fromJson(e))
+        .toList();
+    symptomList = SymptomData().symptomList;
+
+    final jsonHealthProgram = await UserPreferences.getMedicine();
+    HealthProgramData().healthProgramList =
+        (jsonDecode(jsonHealthProgram!) as List<dynamic>)
+            .map((e) => HealthProgramModel.fromJson(e))
+            .toList();
+    healthProgramList = HealthProgramData()
+        .healthProgramList
+        .where((healthPrograms) => healthPrograms.specieId == _specieId)
         .toList();
   }
 
@@ -473,6 +592,63 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                 color: Colors.white, // Cor da coluna direita
                 child: Column(
                   children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            style: const TextStyle(fontSize: 15.0),
+                            enabled: false,
+                            controller: _tutorNameController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    8.0)), // Raio dos cantos da borda
+                                borderSide: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.0), // Cor e largura da borda
+                              ),
+                              labelText: 'Tutor',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Expanded(
+                          child: TextFormField(
+                            style: const TextStyle(fontSize: 15.0),
+                            enabled: false,
+                            controller: _petNameController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    8.0)), // Raio dos cantos da borda
+                                borderSide: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.0), // Cor e largura da borda
+                              ),
+                              labelText: 'Pet',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Expanded(
+                          child: TextFormField(
+                            style: const TextStyle(fontSize: 15.0),
+                            enabled: false,
+                            controller: _petPlanController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    8.0)), // Raio dos cantos da borda
+                                borderSide: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.0), // Cor e largura da borda
+                              ),
+                              labelText: 'Plano',
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                     DropdownButtonFormField<int>(
                       decoration: const InputDecoration(
                         labelText: 'Tipo de Ficha', // Texto no decoration
@@ -482,6 +658,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                         if (newCode != null) {
                           setState(() {
                             _selectedTypeService = newCode;
+                            _validateTypeService();
                           });
                         }
                       },
@@ -506,74 +683,80 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                       ),
                     ),
                     const SizedBox(height: 10.0),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Visibility(
-                          visible: _currentPageIndex == 0
-                              ? false
-                              : true, // Controla a visibilidade do botão
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Lógica para ir para a página anterior
-                              if (_currentPageIndex > 0) {
-                                setState(() {
-                                  _currentPageIndex--;
-                                });
-                              }
-                            },
-                            child: const Text('Anterior'),
-                          ),
-                        ),
-                        Visibility(
-                          visible: _currentPageIndex == 0
-                              ? true
-                              : false, // Controla a visibilidade do botão
-                          child: const Text('           '),
-                        ),
-                        Expanded(
-                          child: Center(
-                            child: Text(
-                              '${_currentPageIndex + 1} de ${_pages.length}',
-                              style: const TextStyle(fontSize: 16.0),
+                    Visibility(
+                      visible: !_isCheckOut, // Controla a visibilidade do botão
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Visibility(
+                            visible: _currentPageIndex == 0
+                                ? false
+                                : true, // Controla a visibilidade do botão
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Lógica para ir para a página anterior
+                                if (_currentPageIndex > 0) {
+                                  setState(() {
+                                    _currentPageIndex--;
+                                  });
+                                }
+                              },
+                              child: const Text('Anterior'),
                             ),
                           ),
-                        ),
-                        Visibility(
-                          visible: _currentPageIndex == _pages.length - 1
-                              ? false
-                              : true, // Controla a visibilidade do botão
-                          child: ElevatedButton(
-                            onPressed: () {
-                              if (_currentPageIndex == 0) {
-                                if (_validateFields()) {
+                          Visibility(
+                            visible: _currentPageIndex == 0
+                                ? true
+                                : false, // Controla a visibilidade do botão
+                            child: const Text('           '),
+                          ),
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                '${_currentPageIndex + 1} de ${_pages.length}',
+                                style: const TextStyle(fontSize: 16.0),
+                              ),
+                            ),
+                          ),
+                          Visibility(
+                            visible: _currentPageIndex == _pages.length - 1
+                                ? false
+                                : true, // Controla a visibilidade do botão
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (_currentPageIndex == 0) {
+                                  if (_validateFields()) {
+                                    if (_currentPageIndex < _pages.length - 1) {
+                                      setState(() {
+                                        _currentPageIndex++;
+                                      });
+                                    }
+                                  }
+                                } else {
                                   if (_currentPageIndex < _pages.length - 1) {
                                     setState(() {
                                       _currentPageIndex++;
                                     });
                                   }
                                 }
-                              } else {
-                                if (_currentPageIndex < _pages.length - 1) {
-                                  setState(() {
-                                    _currentPageIndex++;
-                                  });
-                                }
-                              }
-                            },
-                            child: const Text('Próximo'),
+                              },
+                              child: const Text('Próximo'),
+                            ),
                           ),
-                        ),
-                        Visibility(
-                          visible: _currentPageIndex == _pages.length - 1
-                              ? true
-                              : false, // Controla a visibilidade do botão
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            child: const Text('Finalizar'),
+                          Visibility(
+                            visible: (_currentPageIndex == _pages.length - 1 &&
+                                    !_isCheckOut)
+                                ? true
+                                : false, // Controla a visibilidade do botão
+                            child: ElevatedButton(
+                              onPressed: () {
+                                _showFinishService(context);
+                              },
+                              child: const Text('Finalizar'),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -582,6 +765,65 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showFinishService(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  'Finalizar o Atendimento?',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _isCheckOut = false;
+                        });
+                        Navigator.of(context)
+                            .pop(false); // Passa false se não finalizar
+                      },
+                      child: const Text('Não'),
+                    ),
+                    const SizedBox(width: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        setState(() {
+                          _isCheckOut = true;
+                          _selectedTypeService = 6;
+                          _validateTypeService();
+                        });
+                        Navigator.of(context)
+                            .pop(true); // Passa true se finalizar
+                      },
+                      child: const Text('Sim'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -759,214 +1001,235 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  void _validateInputs() {
+    final form = _formKey.currentState;
+    if (form!.validate()) {}
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text('Boas-Vindas', style: TextStyle(fontSize: 30)),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          TextFormField(
-            style: const TextStyle(fontSize: 15.0),
-            enabled: false,
-            controller: _tutorNameController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                    Radius.circular(8.0)), // Raio dos cantos da borda
-                borderSide: BorderSide(
-                    color: Colors.black, width: 1.0), // Cor e largura da borda
-              ),
-              labelText: 'Tutor',
+    return Form(
+      key: _formKey,
+      autovalidateMode: AutovalidateMode.always, // Autovalidação ativada
+      child: ListView(
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Boas-Vindas', style: TextStyle(fontSize: 30)),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  enabled: false,
+                  controller: _tutorNameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Tutor',
+                  ),
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 15.0),
+                        enabled: false,
+                        controller: _petNameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Pet',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 15.0),
+                        enabled: false,
+                        controller: _petNickNameController,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Este campo não pode ser vazio';
+                          }
+                          return null;
+                        },
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Apelido',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 15.0),
+                        enabled: false,
+                        controller: _specieController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Espécie',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      flex: 2,
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 15.0),
+                        enabled: false,
+                        controller: _raceController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Raça',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  enabled: false,
+                  controller: _productController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Produto Contratado',
+                  ),
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isWelcome,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          isWelcome = newValue!;
+                        });
+                        widget.updateCheckboxWelcome(newValue!);
+                      },
+                    ),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          isWelcome = !isWelcome;
+                        });
+                        widget.updateCheckboxWelcome(isWelcome);
+                      },
+                      child: const Text('Mensagem de Boas-Vindas'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isCompany,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          isCompany = newValue!;
+                        });
+                        widget.updateCheckboxCompany(newValue ?? false);
+                      },
+                    ),
+                    const Text('Informações sobre a Petner'),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isProduct,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          isProduct = newValue!;
+                        });
+                        widget.updateCheckboxProduct(newValue ?? false);
+                      },
+                    ),
+                    const Text('Informações sobre o Prouto Contratado'),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isFaceToFaceConsultation,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          isFaceToFaceConsultation = newValue!;
+                        });
+                        widget.updateCheckboxFaceToFaceConsultation(
+                            newValue ?? false);
+                      },
+                    ),
+                    const Text('Informações sobre a Consulta Presencial'),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Checkbox(
+                      value: isHealthProgram,
+                      onChanged: (bool? newValue) {
+                        setState(() {
+                          isHealthProgram = newValue!;
+                        });
+                        widget.updateCheckboxHealthProgram(newValue ?? false);
+                      },
+                    ),
+                    const Text('Informações gerais sobre Programas de Saúde'),
+                  ],
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  enabled: false,
-                  controller: _petNameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Pet',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  enabled: false,
-                  controller: _petNickNameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Apelido',
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  enabled: false,
-                  controller: _specieController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Espécie',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                flex: 2,
-                child: TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  enabled: false,
-                  controller: _raceController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Raça',
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          TextFormField(
-            style: const TextStyle(fontSize: 15.0),
-            enabled: false,
-            controller: _productController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                    Radius.circular(8.0)), // Raio dos cantos da borda
-                borderSide: BorderSide(
-                    color: Colors.black, width: 1.0), // Cor e largura da borda
-              ),
-              labelText: 'Produto Contratado',
-            ),
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Checkbox(
-                value: isWelcome,
-                onChanged: (bool? newValue) {
-                  setState(() {
-                    isWelcome = newValue!;
-                  });
-                  widget.updateCheckboxWelcome(newValue!);
-                },
-              ),
-              InkWell(
-                onTap: () {
-                  setState(() {
-                    isWelcome = !isWelcome;
-                  });
-                  widget.updateCheckboxWelcome(isWelcome);
-                },
-                child: const Text('Mensagem de Boas-Vindas'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Checkbox(
-                value: isCompany,
-                onChanged: (bool? newValue) {
-                  setState(() {
-                    isCompany = newValue!;
-                  });
-                  widget.updateCheckboxCompany(newValue ?? false);
-                },
-              ),
-              const Text('Informações sobre a Petner'),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Checkbox(
-                value: isProduct,
-                onChanged: (bool? newValue) {
-                  setState(() {
-                    isProduct = newValue!;
-                  });
-                  widget.updateCheckboxProduct(newValue ?? false);
-                },
-              ),
-              const Text('Informações sobre o Prouto Contratado'),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Checkbox(
-                value: isFaceToFaceConsultation,
-                onChanged: (bool? newValue) {
-                  setState(() {
-                    isFaceToFaceConsultation = newValue!;
-                  });
-                  widget
-                      .updateCheckboxFaceToFaceConsultation(newValue ?? false);
-                },
-              ),
-              const Text('Informações sobre a Consulta Presencial'),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Checkbox(
-                value: isHealthProgram,
-                onChanged: (bool? newValue) {
-                  setState(() {
-                    isHealthProgram = newValue!;
-                  });
-                  widget.updateCheckboxHealthProgram(newValue ?? false);
-                },
-              ),
-              const Text('Informações gerais sobre Programas de Saúde'),
-            ],
           ),
         ],
       ),
@@ -1013,191 +1276,195 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return ListView(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Conferência e Atualização de Dados',
-                  style: TextStyle(fontSize: 30)),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          TextFormField(
-            style: const TextStyle(fontSize: 15.0),
-            //enabled: false,
-            controller: _tutorNameController,
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.all(
-                    Radius.circular(8.0)), // Raio dos cantos da borda
-                borderSide: BorderSide(
-                    color: Colors.black, width: 1.0), // Cor e largura da borda
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Conferência e Atualização de Dados',
+                      style: TextStyle(fontSize: 30)),
+                ],
               ),
-              labelText: 'Tutor',
-            ),
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  //enabled: false,
-                  controller: _petNameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Pet',
+              const SizedBox(height: 10.0),
+              TextFormField(
+                style: const TextStyle(fontSize: 15.0),
+                //enabled: false,
+                controller: _tutorNameController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(8.0)), // Raio dos cantos da borda
+                    borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 1.0), // Cor e largura da borda
                   ),
+                  labelText: 'Tutor',
                 ),
               ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  //enabled: false,
-                  controller: _petNickNameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Apelido',
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: speciesDropdown(),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                flex: 3,
-                child: racesDropdown(),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                flex: 1,
-                child: sizeDropdown(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: gendersDropDown(),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                flex: 4,
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: TextFormField(
-                        style: const TextStyle(fontSize: 15.0),
-                        //enabled: false,
-                        controller: _ageController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Raio dos cantos da borda
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0), // Cor e largura da borda
-                          ),
-                          labelText: 'Idade',
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 15.0),
+                      //enabled: false,
+                      controller: _petNameController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(8.0)), // Raio dos cantos da borda
+                          borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 1.0), // Cor e largura da borda
                         ),
+                        labelText: 'Pet',
                       ),
                     ),
-                    Expanded(
-                      flex: 0,
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            value: isAgeReal,
-                            onChanged: (bool? newValue) {
-                              setState(() {
-                                isAgeReal = newValue!;
-                              });
-                            },
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 15.0),
+                      //enabled: false,
+                      controller: _petNickNameController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(8.0)), // Raio dos cantos da borda
+                          borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 1.0), // Cor e largura da borda
+                        ),
+                        labelText: 'Apelido',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: speciesDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 3,
+                    child: racesDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 1,
+                    child: sizeDropdown(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: gendersDropDown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 4,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: TextFormField(
+                            style: const TextStyle(fontSize: 15.0),
+                            //enabled: false,
+                            controller: _ageController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    8.0)), // Raio dos cantos da borda
+                                borderSide: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.0), // Cor e largura da borda
+                              ),
+                              labelText: 'Idade',
+                            ),
                           ),
-                          const Text('Idade Real?'),
-                        ],
-                      ),
+                        ),
+                        Expanded(
+                          flex: 0,
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                value: isAgeReal,
+                                onChanged: (bool? newValue) {
+                                  setState(() {
+                                    isAgeReal = newValue!;
+                                  });
+                                },
+                              ),
+                              const Text('Idade Real?'),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Expanded(
-                flex: 1,
-                child: coatsDropdown(),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                flex: 1,
-                child: temperamentDropdown(),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                flex: 0,
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: _castrated,
-                      onChanged: (bool? newValue) {
-                        setState(() {
-                          _castrated = newValue!;
-                        });
-                      },
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: coatsDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 1,
+                    child: temperamentDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 0,
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _castrated,
+                          onChanged: (bool? newValue) {
+                            setState(() {
+                              _castrated = newValue!;
+                            });
+                          },
+                        ),
+                        const Text('Castrado?'),
+                      ],
                     ),
-                    const Text('Castrado?'),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: environmentDropdown(),
+              const SizedBox(height: 10.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: environmentDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: foodDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: bodyScoreDropdown(),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: foodDropdown(),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: bodyScoreDropdown(),
-              ),
-            ],
-          ),
+              /*
           const SizedBox(height: 10.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1212,8 +1479,11 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
               const SizedBox(width: 10.0),
             ],
           ),
-        ],
-      ),
+          */
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -2692,6 +2962,9 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                             10, // Define a posição do botão a partir da direita
                         child: ElevatedButton(
                           onPressed: () {
+                            setState(() {
+                              _isotherChronicDiseaseVisible = false;
+                            });
                             _showChronicDisease(context);
                           },
                           child: const Icon(Icons.add),
@@ -2863,6 +3136,9 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         child: ElevatedButton(
                           onPressed: () {
                             // Adicionar ação de "Adicionar" aqui
+                            setState(() {
+                              _isotherMedicineVisible = false;
+                            });
                             _showMedicine(context);
                           },
                           child: const Icon(Icons.add),
@@ -3058,7 +3334,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
             return Dialog(
               child: Container(
                 width: 450,
-                height: 250,
+                height: 700,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5.0),
@@ -3510,6 +3786,8 @@ class AnamnesisPage extends StatefulWidget {
 }
 
 class _AnamnesisPage extends State<AnamnesisPage> {
+  bool _isotherSimptomVisible = false;
+
   final Map<String, String> appetiteList = {
     '1': 'Abaixo do Normal',
     '2': 'Normal',
@@ -3599,12 +3877,17 @@ class _AnamnesisPage extends State<AnamnesisPage> {
     '3': 'Hipercorada',
   };
 
+  final Map<String, String> hairLossList = {
+    '1': 'Sim',
+    '2': 'Não',
+  };
+
   final Map<String, String> dullHairList = {
     '1': 'Sim',
     '2': 'Não',
   };
 
-  final Map<String, String> adbnormalPlacementList = {
+  final Map<String, String> abnormalPlacementList = {
     '1': 'Sim',
     '2': 'Não',
   };
@@ -3636,7 +3919,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
     '6': 'Obesidade',
     '7': 'Obesidade Grave',
   };
-  
+
   String? _validateDropDown(String? value) {
     if (value == null || value.isEmpty) {
       return 'Selecione uma opção';
@@ -3644,151 +3927,158 @@ class _AnamnesisPage extends State<AnamnesisPage> {
     return null;
   }
 
+  Future<List<dynamic>> _fetchPetSymptoms() async {
+    List<PetSymptomModel> petSymptomList;
+    petSymptomList = await petSymptomListApi(
+        _serviceQueue.petId.toString(), _serviceQueue.queueId.toString());
+
+    return petSymptomList;
+  }
+
+  Future<int?> _registerSymptom(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerSymptomApi(
+          _typeRegister,
+          _serviceQueue.petId.toString(),
+          _serviceQueue.queueId.toString(),
+          _symptomId.toString(),
+          _otherSymptomController.text);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterSymptom'];
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return 4;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    return ListView(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Anamnese Clínica',
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 3,
-                  style: TextStyle(fontSize: 30)),
-            ],
-          ),
-          const SizedBox(
-            height: 10.0,
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: double.infinity,
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.grey,
-                ),
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(width: 10.0),
-                  const Expanded(
-                    flex: 2,
-                    child: Text(
-                      'Alguma queixa no momento?',
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isComplaint = true;
-                        _complaint = true;
-                      });
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          if (_complaint != null && _complaint!) {
-                            return Colors.green; // Cor quando ativo
-                          }
-                          return Colors.blue; // Cor padrão
-                        },
-                      ),
-                    ),
-                    child: const Text('Sim'),
-                  ),
-                  const SizedBox(width: 5.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _isComplaint = false;
-                        _complaint = false;
-                      });
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                        (Set<MaterialState> states) {
-                          if (_complaint != null && !_complaint!) {
-                            return Colors.red; // Cor quando ativo
-                          }
-                          return Colors.blue; // Cor padrão
-                        },
-                      ),
-                    ),
-                    child: const Text('Não'),
-                  ),
-                  const SizedBox(width: 10.0),
+                  Text('Anamnese Clínica',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 3,
+                      style: TextStyle(fontSize: 30)),
                 ],
               ),
-            ),
-          ),
-          /*
-          TitledContainer(
-            titleColor: Colors.grey,
-            title: ' Alguma queixa?  ',
-            textAlign: TextAlignTitledContainer.Left,
-            fontSize: 12.0,
-            backgroundColor: Colors.white,
-            child: Container(
-              width: double.infinity,
-              height: 70,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.grey,
-                ),
-                borderRadius: const BorderRadius.all(
-                  Radius.circular(10.0),
-                ),
-              ),
-              child: const Center(
-                child: Text(
-                  'Center Align text',
-                  style: TextStyle(fontSize: 28.0),
-                ),
-              ),
-            ),
-          ),
-          */
-          const SizedBox(height: 10.0),
-          Visibility(
-            visible: _isComplaint,
-            child: Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
-                      child: TextFormField(
-                        style: const TextStyle(fontSize: 15.0),
-                        controller: _complaintController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Raio dos cantos da borda
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0), // Cor e largura da borda
-                          ),
-                          labelText: 'Informe a Queixa',
-                        ),
+              Visibility(
+                visible: _isQuestionComplaintVisible,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: double.infinity,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.grey,
+                      ),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(10.0),
                       ),
                     ),
-                    const SizedBox(height: 10.0),
-                    Expanded(
-                      child: Container(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(width: 10.0),
+                        const Expanded(
+                          flex: 2,
+                          child: Text(
+                            'Alguma queixa no momento?',
+                          ),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isComplaint = true;
+                              _complaint = true;
+                            });
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                                if (_complaint != null && _complaint!) {
+                                  return Colors.green; // Cor quando ativo
+                                }
+                                return Colors.blue; // Cor padrão
+                              },
+                            ),
+                          ),
+                          child: const Text('Sim'),
+                        ),
+                        const SizedBox(width: 5.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isComplaint = false;
+                              _complaint = false;
+                            });
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                                if (_complaint != null && !_complaint!) {
+                                  return Colors.red; // Cor quando ativo
+                                }
+                                return Colors.blue; // Cor padrão
+                              },
+                            ),
+                          ),
+                          child: const Text('Não'),
+                        ),
+                        const SizedBox(width: 10.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              Visibility(
+                visible: _isComplaint,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                        child: TextFormField(
+                          style: const TextStyle(fontSize: 15.0),
+                          controller: _complaintController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  8.0)), // Raio dos cantos da borda
+                              borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0), // Cor e largura da borda
+                            ),
+                            labelText: 'Informe a Queixa',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10.0),
+                      Container(
                         width: double.maxFinite,
-                        height: 200,
+                        height: 500,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
@@ -3812,204 +4102,1033 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                             body: TabBarView(
                               children: [
                                 _questionaryTab(),
-                                Text('Teste'),////SintomaTab(),
-                                Text('Teste'),////IATab(),
+                                _symptomTab(), //Text('Teste'), ////SintomaTab(),
+                                const Text('Teste'), ////IATab(),
                               ],
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10.0),
-                  ],
+                      const SizedBox(height: 10.0),
+                    ],
+                  ),
                 ),
               ),
-            ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget _questionaryTab() {
-    return Padding(
-      padding: EdgeInsets.fromLTRB(5, 15, 10, 0),
-      child: Column(
-        children: [
-          Row(
+    return ListView(
+      children: <Widget>[
+        Padding(
+          padding: const EdgeInsets.fromLTRB(5, 15, 10, 0),
+          child: Column(
             children: [
-              Expanded(
-                // Use o Expanded para limitar a largura do DropdownButtonFormField
-                child: DropdownButtonFormField<String>(
-                  validator: _validateDropDown,
-                  isDense: true,
-                  onChanged: (value) {
-                    setState(() {
-                      appetitId = int.parse(value!);
-                    });
-                  },
-                  items: appetiteList.keys.map((key) {
-                    return DropdownMenuItem<String>(
-                      value: key,
-                      child: Text(appetiteList[key]!),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      labelText: 'Como Está o Apetite e Alimentação?'),
-                  value: (appetitId == null ? null : appetitId.toString()),
-                ),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          appetitId = int.parse(value!);
+                        });
+                      },
+                      items: appetiteList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(appetiteList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Como Está o Apetite e Alimentação?'),
+                      value: (appetitId == null ? null : appetitId.toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          waterIntakeId = int.parse(value!);
+                        });
+                      },
+                      items: waterIntakeList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(waterIntakeList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Como está a ingestão de água?'),
+                      value: (waterIntakeId == null
+                          ? null
+                          : waterIntakeId.toString()),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  validator: _validateDropDown,
-                  isDense: true,
-                  onChanged: (value) {
-                    setState(() {
-                      waterIntakeId = int.parse(value!);
-                    });
-                  },
-                  items: waterIntakeList.keys.map((key) {
-                    return DropdownMenuItem<String>(
-                      value: key,
-                      child: Text(waterIntakeList[key]!),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      labelText: 'Como está a ingestão de água?'),
-                  value: (waterIntakeId == null ? null : waterIntakeId.toString()),
-                ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          urineStainingId = int.parse(value!);
+                        });
+                      },
+                      items: urineStainingList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(urineStainingList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Qual a coloração da Urina?'),
+                      value: (urineStainingId == null
+                          ? null
+                          : urineStainingId.toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          urineVolumeId = int.parse(value!);
+                        });
+                      },
+                      items: urineVolumeList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(urineVolumeList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Qual o volume de urina?'),
+                      value: (urineVolumeId == null
+                          ? null
+                          : urineVolumeId.toString()),
+                    ),
+                  ),
+                ],
               ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          stoolColoringId = int.parse(value!);
+                        });
+                      },
+                      items: stoolColoringList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(stoolColoringList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Qual a coloração das fezes?'),
+                      value: (stoolColoringId == null
+                          ? null
+                          : stoolColoringId.toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          stoolConsistencyId = int.parse(value!);
+                        });
+                      },
+                      items: stoolConsistencyList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(stoolConsistencyList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Qual é a consistência das fezes?'),
+                      value: (stoolConsistencyId == null
+                          ? null
+                          : stoolConsistencyId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          noseTypeId = int.parse(value!);
+                        });
+                      },
+                      items: noseTypeList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(noseTypeList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'O nariz do PET está seco?'),
+                      value:
+                          (noseTypeId == null ? null : noseTypeId.toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          noseTemperatureId = int.parse(value!);
+                        });
+                      },
+                      items: noseTemperatureList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(noseTemperatureList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'O nariz está quente ou frio?'),
+                      value: (noseTemperatureId == null
+                          ? null
+                          : noseTemperatureId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          hotEarId = int.parse(value!);
+                        });
+                      },
+                      items: hotEarList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(hotEarList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'A orelha do pet está quente?'),
+                      value: (hotEarId == null ? null : hotEarId.toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          restlessId = int.parse(value!);
+                        });
+                      },
+                      items: restlessList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(restlessList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'O pet está irrequieto?'),
+                      value:
+                          (restlessId == null ? null : restlessId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          gasesId = int.parse(value!);
+                        });
+                      },
+                      items: gasesList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(gasesList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'O pet está soltando muitos gases?'),
+                      value: (gasesId == null ? null : gasesId.toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          tightBellyId = int.parse(value!);
+                        });
+                      },
+                      items: tightBellyList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(tightBellyList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Apresenta barriga enrijecida?'),
+                      value: (tightBellyId == null
+                          ? null
+                          : tightBellyId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          touchPainId = int.parse(value!);
+                        });
+                      },
+                      items: touchPainList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(touchPainList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Apresenta dor ao toque?'),
+                      value:
+                          (touchPainId == null ? null : touchPainId.toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          walksBentOverId = int.parse(value!);
+                        });
+                      },
+                      items: walksBentOverList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(walksBentOverList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Apresenta andar curvado?'),
+                      value: (walksBentOverId == null
+                          ? null
+                          : walksBentOverId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          gumTongueId = int.parse(value!);
+                        });
+                      },
+                      items: gumTongueList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(gumTongueList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText:
+                              'Inspeção através da câmera: Língua, gengiva'),
+                      value:
+                          (gumTongueId == null ? null : gumTongueId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          conjunctivaId = int.parse(value!);
+                        });
+                      },
+                      items: conjunctivaList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(conjunctivaList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Inspeção através da câmera: conjuntiva'),
+                      value: (conjunctivaId == null
+                          ? null
+                          : conjunctivaId.toString()),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          hairLossId = int.parse(value!);
+                        });
+                      },
+                      items: hairLossList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(hairLossList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Apresenta queda de pelo fora do comum?'),
+                      value:
+                          (hairLossId == null ? null : hairLossId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          dullHairId = int.parse(value!);
+                        });
+                      },
+                      items: dullHairList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(dullHairList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Apresenta pelo sem brilho?'),
+                      value:
+                          (dullHairId == null ? null : dullHairId.toString()),
+                    ),
+                  ),
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          hairFailureId = int.parse(value!);
+                        });
+                      },
+                      items: hairFailureList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(hairFailureList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Apresenta alguma falha no pelo?'),
+                      value: (hairFailureId == null
+                          ? null
+                          : hairFailureId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          abnormalPlacementId = int.parse(value!);
+                        });
+                      },
+                      items: abnormalPlacementList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(abnormalPlacementList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText:
+                              'Apresenta coloração fora do normal em alguma área?'),
+                      value: (abnormalPlacementId == null
+                          ? null
+                          : abnormalPlacementId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          brittleHairId = int.parse(value!);
+                        });
+                      },
+                      items: brittleHairList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(brittleHairList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText: 'Apresenta pelo quebradiço?'),
+                      value: (brittleHairId == null
+                          ? null
+                          : brittleHairId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          bodyStateId = int.parse(value!);
+                        });
+                      },
+                      items: bodyStateList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(bodyStateList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText:
+                              'Qual a sua avaliação do estado corporal do seu pet?'),
+                      value:
+                          (bodyStateId == null ? null : bodyStateId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    // Use o Expanded para limitar a largura do DropdownButtonFormField
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
+                          bodyScoreId = int.parse(value!);
+                        });
+                      },
+                      items: bodyScoreList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(bodyScoreList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
+                          labelText:
+                              'Inspeção através da câmera: Score corporal'),
+                      value:
+                          (bodyScoreId == null ? null : bodyScoreId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              // proximas perguntas
             ],
           ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Expanded(
-                // Use o Expanded para limitar a largura do DropdownButtonFormField
-                child: DropdownButtonFormField<String>(
-                  validator: _validateDropDown,
-                  isDense: true,
-                  onChanged: (value) {
-                    setState(() {
-                      urineStainingId = int.parse(value!);
-                    });
-                  },
-                  items: urineStainingList.keys.map((key) {
-                    return DropdownMenuItem<String>(
-                      value: key,
-                      child: Text(urineStainingList[key]!),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      labelText: 'Qual a coloração da Urina?'),
-                  value: (urineStainingId == null ? null : urineStainingId.toString()),
-                ),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  validator: _validateDropDown,
-                  isDense: true,
-                  onChanged: (value) {
-                    setState(() {
-                      urineVolumeId = int.parse(value!);
-                    });
-                  },
-                  items: urineVolumeList.keys.map((key) {
-                    return DropdownMenuItem<String>(
-                      value: key,
-                      child: Text(urineVolumeList[key]!),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      labelText: 'Qual o volume de urina?'),
-                  value: (urineVolumeId == null ? null : urineVolumeId.toString()),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10.0),
-          Row(
-            children: [
-              Expanded(
-                // Use o Expanded para limitar a largura do DropdownButtonFormField
-                child: DropdownButtonFormField<String>(
-                  validator: _validateDropDown,
-                  isDense: true,
-                  onChanged: (value) {
-                    setState(() {
-                      stoolColoringId = int.parse(value!);
-                    });
-                  },
-                  items: stoolColoringList.keys.map((key) {
-                    return DropdownMenuItem<String>(
-                      value: key,
-                      child: Text(stoolColoringList[key]!),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      labelText: 'Qual a coloração das fezes?'),
-                  value: (stoolColoringId == null ? null : stoolColoringId.toString()),
-                ),
-              ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: DropdownButtonFormField<String>(
-                  validator: _validateDropDown,
-                  isDense: true,
-                  onChanged: (value) {
-                    setState(() {
-                      stoolConsistencyId = int.parse(value!);
-                    });
-                  },
-                  items: stoolConsistencyList.keys.map((key) {
-                    return DropdownMenuItem<String>(
-                      value: key,
-                      child: Text(stoolConsistencyList[key]!),
-                    );
-                  }).toList(),
-                  decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                      labelText: 'Qual é a consistência das fezes?'),
-                  value: (stoolConsistencyId == null ? null : stoolConsistencyId.toString()),
-                ),
-              ),
-            ],
-          ),
+        ),
+      ],
+    );
+  }
 
-          // proximas perguntas
-        ],
-      ),
+  Widget _symptomTab() {
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 230,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color.fromARGB(255, 206, 205, 205)),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+          child: Column(
+            children: [
+              const SizedBox(width: 10.0),
+              FutureBuilder<List<dynamic>>(
+                  future: _fetchPetSymptoms(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else {
+                      // final List<dynamic> data = snapshot.data!;
+
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            itemCount: PetSymptomData().petSymptomList.length,
+                            itemBuilder: (context, index) {
+                              final petSymptom =
+                                  PetSymptomData().petSymptomList[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  height:
+                                      50, // Defina a altura desejada para o card
+                                  width: double
+                                      .infinity, // Defina a largura desejada para o card
+
+                                  // Estilize o card com o BoxDecoration ou o Card widget
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      //print(petVaccine.);
+                                      _petSymptomId = petSymptom.petSymptomId;
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              /*
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: const Icon(
+                                                                  Icons
+                                                                      .health_and_safety,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  size: 50),
+                                                            ),
+                                                            */
+                                              Container(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(0.0),
+                                                  child: Text(
+                                                    petSymptom.name!,
+                                                    style: const TextStyle(
+                                                        fontSize: 18),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                  }),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 10, // Define a posição do botão a partir do fundo
+          right: 10, // Define a posição do botão a partir da direita
+          child: ElevatedButton(
+            onPressed: () {
+              // Adicionar ação de "Adicionar" aqui
+              setState(() {
+                _isotherSimptomVisible = false;
+              });
+              _showSymptom(context);
+            },
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showSymptom(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, StateSetter setStateMedicine) {
+            return Dialog(
+              child: Container(
+                width: 450,
+                height: 250,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8.5),
+                        decoration: const BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior esquerdo
+                            topRight: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior direito
+                          ),
+                        ),
+                        height: 40, // Altura desejada
+                        width:
+                            double.infinity, // Ocupa todo o espaço horizontal
+                        child: Row(
+                          children: [
+                            IconButton(
+                              iconSize: 16,
+                              icon: const Icon(Icons.close),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            const Text(
+                              'Sintomas',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: 'Montserrat',
+                                //fontWeight: FontWeight.w600,
+                                color: Colors.white, // Cor do texto em branco
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView(
+                            children: <Widget>[
+                              CustomSearchableDropDown(
+                                dropdownHintText: 'Procurar um Sintoma',
+                                label: 'Selecione um Sintoma',
+                                hint: 'Selecione um Sintoma',
+                                prefixIcon: const Icon(Icons.search),
+                                //value: _diseaseId,
+                                //validator: _validateDropDown,
+                                items: symptomList,
+                                dropDownMenuItems: symptomList.map((item) {
+                                  return item.name;
+                                }).toList(),
+                                menuMode: true,
+                                onChanged: (value) {
+                                  print(value.id);
+                                  if (value != null) {
+                                    _symptomId = int.parse(value.id);
+                                  } else {
+                                    _symptomId = null;
+                                  }
+                                  if (_symptomId == 93) {
+                                    setStateMedicine(() {
+                                      _isotherSimptomVisible = true;
+                                    });
+                                  } else {
+                                    setStateMedicine(() {
+                                      _isotherSimptomVisible = false;
+                                    });
+                                  }
+
+                                  print(_isotherSimptomVisible);
+                                },
+                                decoration: BoxDecoration(
+                                    border: Border.all(color: Colors.blue)),
+                              ),
+                              const SizedBox(height: 10.0),
+                              Visibility(
+                                visible: _isotherSimptomVisible,
+                                child: TextFormField(
+                                  controller: _otherSymptomController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Outro Sintoma',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(
+                                              8.0)), // Raio dos cantos da borda
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 1.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        height: 60,
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Fechar'),
+                            ),
+                            const SizedBox(width: 10.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                setStateMedicine(() {
+                                  _typeRegister = 'C';
+                                  _registerSymptom(context).then((value) {});
+                                  Navigator.of(context).pop();
+                                });
+                              },
+                              child: const Text('Cadastrar'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }
@@ -4068,32 +5187,1075 @@ class HealthProgramPage extends StatefulWidget {
 class _HealthProgramPage extends State<HealthProgramPage> {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Programa de Saúde Disponíveis",
-        style: TextStyle(fontSize: 24.0),
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Programas de Saúde',
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 3,
+                  style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(height: 10.0),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ListView(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    height: 230,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                          color: const Color.fromARGB(255, 206, 205, 205)),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(8.5),
+                          decoration: const BoxDecoration(
+                            color: Colors.blueAccent,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(
+                                  5.0), // Arredonda apenas o canto superior esquerdo
+                              topRight: Radius.circular(
+                                  5.0), // Arredonda apenas o canto superior direito
+                            ),
+                          ),
+                          height: 40, // Altura desejada
+                          width:
+                              double.infinity, // Ocupa todo o espaço horizontal
+                          child: const Text(
+                            'Disponíveis',
+                            style: TextStyle(
+                              fontSize: 15,
+                              fontFamily: 'Montserrat',
+                              //fontWeight: FontWeight.w600,
+                              color: Colors.white, // Cor do texto em branco
+                            ),
+                          ),
+                        ),
+                        // colocar lista
+
+                        FutureBuilder<List<dynamic>>(
+                            future: null, //_fetchPetDiseaes(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                  child: Text('Error: ${snapshot.error}'),
+                                );
+                              } else {
+                                // final List<dynamic> data = snapshot.data!;
+
+                                return Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ListView.builder(
+                                      itemCount: PetDiseaseData()
+                                          .petDiseaseList
+                                          .length,
+                                      itemBuilder: (context, index) {
+                                        final petDisease = PetDiseaseData()
+                                            .petDiseaseList[index];
+                                        return Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            height:
+                                                50, // Defina a altura desejada para o card
+                                            width: double
+                                                .infinity, // Defina a largura desejada para o card
+
+                                            // Estilize o card com o BoxDecoration ou o Card widget
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.grey
+                                                      .withOpacity(0.5),
+                                                  spreadRadius: 2,
+                                                  blurRadius: 5,
+                                                  offset: const Offset(0, 3),
+                                                ),
+                                              ],
+                                            ),
+                                            child: InkWell(
+                                              onTap: () {
+                                                //print(petVaccine.);
+                                                _petDiseaseId =
+                                                    petDisease.petDiseaseId;
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        /*
+                                                        Container(
+                                                          alignment: Alignment
+                                                              .centerRight,
+                                                          child: const Icon(
+                                                              Icons
+                                                                  .health_and_safety,
+                                                              color: Colors
+                                                                  .black,
+                                                              size: 50),
+                                                        ),
+                                                        */
+                                                        Container(
+                                                          alignment: Alignment
+                                                              .centerRight,
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .all(0.0),
+                                                            child: Text(
+                                                              petDisease.name!,
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          18),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                              }
+                            }),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 10.0),
+                  Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        height: 230,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 206, 205, 205)),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8.5),
+                              decoration: const BoxDecoration(
+                                color: Colors.blueAccent,
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(
+                                      5.0), // Arredonda apenas o canto superior esquerdo
+                                  topRight: Radius.circular(
+                                      5.0), // Arredonda apenas o canto superior direito
+                                ),
+                              ),
+                              height: 40, // Altura desejada
+                              width: double
+                                  .infinity, // Ocupa todo o espaço horizontal
+                              child: const Text(
+                                'Adicionado(s) ao Pet',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontFamily: 'Montserrat',
+                                  //fontWeight: FontWeight.w600,
+                                  color: Colors.white, // Cor do texto em branco
+                                ),
+                              ),
+                            ),
+                            FutureBuilder<List<dynamic>>(
+                                future: null, //_fetchPetMedicines(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                      child: Text('Error: ${snapshot.error}'),
+                                    );
+                                  } else {
+                                    // final List<dynamic> data = snapshot.data!;
+
+                                    return Expanded(
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: ListView.builder(
+                                          itemCount: PetMedicineData()
+                                              .petMedicineList
+                                              .length,
+                                          itemBuilder: (context, index) {
+                                            final petMedicine =
+                                                PetMedicineData()
+                                                    .petMedicineList[index];
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Container(
+                                                height:
+                                                    50, // Defina a altura desejada para o card
+                                                width: double
+                                                    .infinity, // Defina a largura desejada para o card
+
+                                                // Estilize o card com o BoxDecoration ou o Card widget
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.circular(10),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.grey
+                                                          .withOpacity(0.5),
+                                                      spreadRadius: 2,
+                                                      blurRadius: 5,
+                                                      offset:
+                                                          const Offset(0, 3),
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    //print(petVaccine.);
+                                                    _petMedicineId = petMedicine
+                                                        .petMedicineId;
+                                                  },
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            8.0),
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            /*
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: const Icon(
+                                                                  Icons
+                                                                      .health_and_safety,
+                                                                  color: Colors
+                                                                      .black,
+                                                                  size: 50),
+                                                            ),
+                                                            */
+                                                            Container(
+                                                              alignment: Alignment
+                                                                  .centerRight,
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                        .all(
+                                                                        0.0),
+                                                                child: Text(
+                                                                  petMedicine
+                                                                      .name!,
+                                                                  style: const TextStyle(
+                                                                      fontSize:
+                                                                          18),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-class DocumentAvaliablePage extends StatefulWidget {
-  const DocumentAvaliablePage({
+class RiskClassificationPage extends StatefulWidget {
+  const RiskClassificationPage({
     Key? key,
   }) : super(key: key);
 
   @override
-  _DocumentAvaliablePage createState() => _DocumentAvaliablePage();
+  _RiskClassificationPage createState() => _RiskClassificationPage();
 }
 
-class _DocumentAvaliablePage extends State<DocumentAvaliablePage> {
+class _RiskClassificationPage extends State<RiskClassificationPage> {
   @override
   Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Aviso de Documentos Disponíveis",
-        style: TextStyle(fontSize: 24.0),
+    return ListView(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Classificação de Risco Preliminar',
+                      style: TextStyle(fontSize: 30)),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    _serviceQueue.queueType == 0
+                        ? 'Emergência'
+                        : (_serviceQueue.queueType == 1
+                            ? 'Consulta Agendada'
+                            : 'Consulta'),
+                    style: TextStyle(
+                        fontSize: 30,
+                        color: _serviceQueue.queueType == 0
+                            ? Colors.red
+                            : (_serviceQueue.queueType == 1
+                                ? Colors.yellow
+                                : Colors.blue)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              TextFormField(
+                style: const TextStyle(fontSize: 15.0),
+                enabled: false,
+                controller: _screningController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(8.0)), // Raio dos cantos da borda
+                    borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 1.0), // Cor e largura da borda
+                  ),
+                  labelText: 'Sintoma',
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              const Text(
+                'Triagem',
+                style: TextStyle(color: Colors.grey),
+              ),
+              Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _serviceQueue.screeningList!.length,
+                      itemBuilder: (context, subindex) {
+                        return Padding(
+                          // ignore: prefer_const_constructors
+                          padding: EdgeInsets.all(1),
+                          child: SizedBox(
+                            height: 55, // Defina a altura desejada para o card
+                            width: double.infinity,
+                            child: ListTile(
+                              title: Text(
+                                  '${subindex + 1}- ${_serviceQueue.screeningList![subindex].question!}'),
+                              subtitle: Text(
+                                  'R: ${_serviceQueue.screeningList![subindex].answer!}'),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ServiceHistoryPage extends StatefulWidget {
+  const ServiceHistoryPage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _ServiceHistoryPage createState() => _ServiceHistoryPage();
+}
+
+class _ServiceHistoryPage extends State<ServiceHistoryPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    _fetchPetServiceHistory();
+  }
+
+  Future<List<dynamic>> _fetchPetServiceHistory() async {
+    List<PetServiceHistoryModel> petServiceHistoryList;
+    petServiceHistoryList =
+        await petServiceHistoryListApi(_serviceQueue.petId.toString());
+
+    return petServiceHistoryList;
+  }
+
+  Future<List<dynamic>> _fetchAnexoServiceHistory() async {
+    return AnexoServiceHistoryData().anexoServiceHistoryList =
+        PetServiceHistoryData().getAnexodByServiceFormId(_serviceHistoryId!);
+  }
+
+  void _openAnexo(String url) {
+    html.AnchorElement(href: url)
+      ..target = 'blank'
+      ..click();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Histórico de Atendimentos', style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(width: 10.0),
+          FutureBuilder<List<dynamic>>(
+              future: _fetchPetServiceHistory(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                } else {
+                  // final List<dynamic> data = snapshot.data!;
+
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView.builder(
+                        itemCount: PetServiceHistoryData()
+                            .petServiceHistoryList
+                            .length,
+                        itemBuilder: (context, index) {
+                          final petServiceHistory = PetServiceHistoryData()
+                              .petServiceHistoryList[index];
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              height:
+                                  150, // Defina a altura desejada para o card
+                              width: double
+                                  .infinity, // Defina a largura desejada para o card
+
+                              // Estilize o card com o BoxDecoration ou o Card widget
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  //print(petVaccine.);
+                                  //_petServiceFormId = petServiceHistory.serviceFormId;
+                                  //_vaccineId = petVaccine.vaccineId;
+                                  //_showVaccineDoseList(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Container(
+                                              alignment: Alignment.topRight,
+                                              child: Text(
+                                                petServiceHistory
+                                                        .servicedByPetner
+                                                    ? '(Relalizado Pela Petner)'
+                                                    : '',
+                                                style: const TextStyle(
+                                                    fontSize: 12,
+                                                    color: Colors.red),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            alignment: Alignment.centerRight,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Data: ${petServiceHistory.serviceFormDate}',
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            petServiceHistory.servicedByPetner
+                                                ? 'Queixa Inicial: ${petServiceHistory.screeningName}'
+                                                : 'Tipo do Evento: ${petServiceHistory.typeServiceForm}',
+                                            style:
+                                                const TextStyle(fontSize: 18),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10.0),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                              'Veterinário: ${petServiceHistory.veterinary}'),
+                                          const SizedBox(width: 10.0),
+                                          Text(
+                                              'Crmv: ${petServiceHistory.crmv}'),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 10.0),
+                                      Visibility(
+                                        visible:
+                                            petServiceHistory.servicedByPetner,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                                'Diagnóstico: ${petServiceHistory.diagnostic}'),
+                                            const SizedBox(width: 10.0),
+                                            Text(petServiceHistory
+                                                        .exameList!.length ==
+                                                    0
+                                                ? 'Nenhum Exame Solicitado'
+                                                : 'Foram Solicitados Exames'),
+                                            const SizedBox(width: 10.0),
+                                            Text(petServiceHistory
+                                                        .medicineList!.length ==
+                                                    0
+                                                ? 'Sem Prescrição de Medicamento'
+                                                : 'Com Prescrição de Medicamento'),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10.0),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              _serviceHistoryId =
+                                                  petServiceHistory
+                                                      .serviceFormId;
+                                              _showAnexo(context);
+                                              print('Texto clicado!');
+                                            },
+                                            child: Text(
+                                              petServiceHistory.attachment
+                                                  ? 'Existem Anexos (clique aqui)'
+                                                  : '',
+                                              style: const TextStyle(
+                                                decoration:
+                                                    TextDecoration.underline,
+                                                color: Colors.blue,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }
+              }),
+        ],
       ),
+    );
+  }
+
+  void _showAnexo(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          child: Container(
+            width: 600.0,
+            height: 300.0,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(5.0),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.5),
+                  spreadRadius: 5,
+                  blurRadius: 7,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8.5),
+                  decoration: const BoxDecoration(
+                    color: Colors.blueAccent,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(
+                          5.0), // Arredonda apenas o canto superior esquerdo
+                      topRight: Radius.circular(
+                          5.0), // Arredonda apenas o canto superior direito
+                    ),
+                  ),
+                  height: 40, // Altura desejada
+                  width: double.infinity, // Ocupa todo o espaço horizontal
+                  child: Row(
+                    children: [
+                      IconButton(
+                        iconSize: 16,
+                        icon: const Icon(Icons.close),
+                        color: Colors.white,
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      const Text(
+                        'Anexo(s)',
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontFamily: 'Montserrat',
+                          //fontWeight: FontWeight.w600,
+                          color: Colors.white, // Cor do texto em branco
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16.0),
+                FutureBuilder<List<dynamic>>(
+                    future: _fetchAnexoServiceHistory(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error: ${snapshot.error}'),
+                        );
+                      } else {
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: ListView.builder(
+                              itemCount: AnexoServiceHistoryData()
+                                  .anexoServiceHistoryList
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final anexo = AnexoServiceHistoryData()
+                                    .anexoServiceHistoryList[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(0.0),
+                                  child: InkWell(
+                                    onTap: () {},
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(0.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            alignment: Alignment.topLeft,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  _openAnexo(anexo.url);
+                                                },
+                                                child: Text(
+                                                  'Arquivo: ${anexo.fileName}',
+                                                  style: const TextStyle(
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                    color: Colors.blue,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        );
+                      }
+                    }),
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  height: 60,
+                  width: double.infinity,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {},
+                        child: const Text('Adicionar Dose'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class HealthProgramPagePet extends StatefulWidget {
+  const HealthProgramPagePet({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _HealthProgramPagePet createState() => _HealthProgramPagePet();
+}
+
+class _HealthProgramPagePet extends State<HealthProgramPagePet> {
+  @override
+  void initState() {
+    super.initState();
+
+    _fetchPetHealthProgram();
+  }
+
+  Future<List<dynamic>> _fetchPetHealthProgram() async {
+    List<PetHealthProgramModel> petHealthProgramList;
+    petHealthProgramList =
+        await petHealthProgramListApi(_serviceQueue.petId.toString());
+
+    return petHealthProgramList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Programas de Saúde do Pet', style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(width: 10.0),
+          FutureBuilder<List<dynamic>>(
+              future: _fetchPetHealthProgram(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                } else if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                } else {
+                  // final List<dynamic> data = snapshot.data!;
+
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: ListView.builder(
+                        itemCount:
+                            PetHealthProgramData().petHealthProgramList.length,
+                        itemBuilder: (context, index) {
+                          final petHealthProgram = PetHealthProgramData()
+                              .petHealthProgramList[index];
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              height:
+                                  150, // Defina a altura desejada para o card
+                              width: double
+                                  .infinity, // Defina a largura desejada para o card
+
+                              // Estilize o card com o BoxDecoration ou o Card widget
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(10),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: InkWell(
+                                onTap: () {
+                                  //print(petVaccine.);
+                                  //_petServiceFormId = petHealthProgram.serviceFormId;
+                                  //_vaccineId = petVaccine.vaccineId;
+                                  //_showVaccineDoseList(context);
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            alignment: Alignment.centerRight,
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              child: Text(
+                                                'Descrição: ${petHealthProgram.name}',
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                }
+              }),
+        ],
+      ),
+    );
+  }
+}
+
+class FinalGuidelinesPage extends StatefulWidget {
+  const FinalGuidelinesPage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _FinalGuidelinesPage createState() => _FinalGuidelinesPage();
+}
+
+class _FinalGuidelinesPage extends State<FinalGuidelinesPage> {
+  final Map<String, String> finalClassificationList = {
+    '1': 'Baixo Risco',
+    '2': 'Emergência',
+  };
+
+  @override
+  void initState() {
+    super.initState();
+
+    _fetchPetHealthProgram();
+  }
+
+  Future<List<dynamic>> _fetchPetHealthProgram() async {
+    List<PetHealthProgramModel> petHealthProgramList;
+    petHealthProgramList =
+        await petHealthProgramListApi(_serviceQueue.petId.toString());
+
+    return petHealthProgramList;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Orientações Finais', style: TextStyle(fontSize: 30)),
+            ],
+          ),
+          const SizedBox(width: 10.0),
+          DropdownButtonFormField<String>(
+            //validator: _validateDropDown,
+            isDense: true,
+            onChanged: (value) {
+              setState(() {
+                appetitId = int.parse(value!);
+              });
+            },
+            items: finalClassificationList.keys.map((key) {
+              return DropdownMenuItem<String>(
+                value: key,
+                child: Text(finalClassificationList[key]!),
+              );
+            }).toList(),
+            decoration: InputDecoration(
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                filled: true,
+                fillColor: Colors.white,
+                labelText: 'Classificação Final?'),
+            value: (finalClassificationId == null
+                ? null
+                : finalClassificationId.toString()),
+          ),
+          const SizedBox(height: 10.0),
+          Container(
+            height: 500,
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.black,
+                width: 1.0,
+              ),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: TextFormField(
+              keyboardType: TextInputType.multiline,
+              maxLines: null,
+              style: const TextStyle(fontSize: 15.0),
+              controller: _finalGuidelinesController,
+              decoration: const InputDecoration(
+                border:
+                    InputBorder.none, // Remova a borda padrão do TextFormField
+                labelText: 'Orientações Finais',
+                contentPadding: EdgeInsets.all(8.0), // Adicione espaço interno
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CheckoutPage extends StatefulWidget {
+  const CheckoutPage({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _CheckoutPage createState() => _CheckoutPage();
+}
+
+class _CheckoutPage extends State<CheckoutPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ElevatedButton(
+          onPressed: () {
+            setState(() {
+              Navigator.of(Routes.navigatorKey!.currentContext!)
+                  .pushReplacementNamed('/serviceQuery');
+            });
+          },
+          child: Text('Voltar a Fila de Atendimento')),
     );
   }
 }

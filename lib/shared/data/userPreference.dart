@@ -75,6 +75,19 @@ class UserPreferences {
   /****************************************************************************************/
 
   /****************************************************************************************/
+  /* Listagem de Sintoma  */
+  static Future<void> saveSymptom(String symptom) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('symptom', symptom);
+  }
+
+  static Future<String?> getSymptom() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('symptom');
+  }
+  /****************************************************************************************/
+
+  /****************************************************************************************/
   /* Listagem de Doença  */
   static Future<void> saveMedicine(String medicine) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -88,7 +101,20 @@ class UserPreferences {
   /****************************************************************************************/
 
   /****************************************************************************************/
-  /* Listagem de Pelagem  */
+  /* Listagem de Programas de Sa[ude]  */
+  static Future<void> saveHealthProgram(String healthProgram) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('healthProgram', healthProgram);
+  }
+
+  static Future<String?> getHealthProgram() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('healthProgram');
+  }
+  /****************************************************************************************/
+
+  /****************************************************************************************/
+  /* Sala de Consulta  */
   static Future<void> saveRoom(String token, String channel) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
@@ -136,6 +162,7 @@ class UserPreferences {
   /* Dados do agendamento  */
   static Future<void> saveQueue(String queue) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('queue');
     await prefs.setString('queue', queue);
   }
 

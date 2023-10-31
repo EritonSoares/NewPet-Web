@@ -487,6 +487,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       } else if (roomToken == '-2') {
                         print('erro 2');
                       } else {
+                        print(serviceQueueList[index].toJson());
                         UserPreferences.saveRoom(roomToken,
                             serviceQueueList[index].queueId.toString());
                         UserPreferences.saveQueue(
