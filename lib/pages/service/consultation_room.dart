@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:custom_searchable_dropdown/custom_searchable_dropdown.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter_titled_container/flutter_titled_container.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -935,7 +936,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       );
     } else {
       return const Text(
-        'Please wait for remote user to join',
+        //'Please wait for remote user to join',
+        'Por favor aguarde o Tutor entrar na sala.',
         textAlign: TextAlign.center,
       );
     }
@@ -3309,7 +3311,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                              color: const Color.fromARGB(255, 206, 205, 205)),
+                              color:
+                                  const Color.fromARGB(255, 206, 205, 205)),
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
@@ -3335,7 +3338,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                   fontSize: 15,
                                   fontFamily: 'Montserrat',
                                   //fontWeight: FontWeight.w600,
-                                  color: Colors.white, // Cor do texto em branco
+                                  color:
+                                      Colors.white, // Cor do texto em branco
                                 ),
                               ),
                             ),
@@ -3359,96 +3363,104 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                     return Expanded(
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: ListView.builder(
-                                          itemCount: PetDiseaseData()
-                                              .petDiseaseList
-                                              .length,
-                                          itemBuilder: (context, index) {
-                                            final petDisease = PetDiseaseData()
-                                                .petDiseaseList[index];
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                height:
-                                                    50, // Defina a altura desejada para o card
-                                                width: double
-                                                    .infinity, // Defina a largura desejada para o card
+                                        child: Scrollbar(
+                                          thumbVisibility: true,
+                                          child: ListView.builder(
+                                            itemCount: PetDiseaseData()
+                                                .petDiseaseList
+                                                .length,
+                                            itemBuilder: (context, index) {
+                                              final petDisease =
+                                                  PetDiseaseData()
+                                                      .petDiseaseList[index];
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Container(
+                                                  height:
+                                                      50, // Defina a altura desejada para o card
+                                                  width: double
+                                                      .infinity, // Defina a largura desejada para o card
 
-                                                // Estilize o card com o BoxDecoration ou o Card widget
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.grey
-                                                          .withOpacity(0.5),
-                                                      spreadRadius: 2,
-                                                      blurRadius: 5,
-                                                      offset:
-                                                          const Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    //print(petVaccine.);
-                                                    _petDiseaseId =
-                                                        petDisease.petDiseaseId;
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            /*
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: const Icon(
-                                                                  Icons
-                                                                      .health_and_safety,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 50),
-                                                            ),
-                                                            */
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        0.0),
-                                                                child: Text(
-                                                                  petDisease
-                                                                      .name!,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          18),
+                                                  // Estilize o card com o BoxDecoration ou o Card widget
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.5),
+                                                        spreadRadius: 2,
+                                                        blurRadius: 5,
+                                                        offset: const Offset(
+                                                            0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      //print(petVaccine.);
+                                                      _petDiseaseId =
+                                                          petDisease
+                                                              .petDiseaseId;
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets
+                                                              .all(8.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              /*
+                                                          Container(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: const Icon(
+                                                                Icons
+                                                                    .health_and_safety,
+                                                                color: Colors
+                                                                    .black,
+                                                                size: 50),
+                                                          ),
+                                                          */
+                                                              Container(
+                                                                alignment:
+                                                                    Alignment
+                                                                        .centerRight,
+                                                                child:
+                                                                    Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          0.0),
+                                                                  child: Text(
+                                                                    petDisease
+                                                                        .name!,
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            18),
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            );
-                                          },
+                                              );
+                                            },
+                                          ),
                                         ),
                                       ),
                                     );
@@ -3483,7 +3495,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                              color: const Color.fromARGB(255, 206, 205, 205)),
+                              color:
+                                  const Color.fromARGB(255, 206, 205, 205)),
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
@@ -3509,7 +3522,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                   fontSize: 15,
                                   fontFamily: 'Montserrat',
                                   //fontWeight: FontWeight.w600,
-                                  color: Colors.white, // Cor do texto em branco
+                                  color:
+                                      Colors.white, // Cor do texto em branco
                                 ),
                               ),
                             ),
@@ -3531,7 +3545,9 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                     return Expanded(
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: ListView.builder(
+                                        child: Scrollbar(
+                                          thumbVisibility: true,
+                                          child :ListView.builder(
                                           itemCount: PetMedicineData()
                                               .petMedicineList
                                               .length,
@@ -3552,7 +3568,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius:
-                                                      BorderRadius.circular(10),
+                                                      BorderRadius.circular(
+                                                          10),
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.grey
@@ -3567,8 +3584,9 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     //print(petVaccine.);
-                                                    _petMedicineId = petMedicine
-                                                        .petMedicineId;
+                                                    _petMedicineId =
+                                                        petMedicine
+                                                            .petMedicineId;
                                                   },
                                                   child: Padding(
                                                     padding:
@@ -3585,17 +3603,17 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                   .start,
                                                           children: [
                                                             /*
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: const Icon(
-                                                                  Icons
-                                                                      .health_and_safety,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 50),
-                                                            ),
-                                                            */
+                                                          Container(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: const Icon(
+                                                                Icons
+                                                                    .health_and_safety,
+                                                                color: Colors
+                                                                    .black,
+                                                                size: 50),
+                                                          ),
+                                                          */
                                                             Container(
                                                               alignment: Alignment
                                                                   .centerRight,
@@ -3622,7 +3640,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                               ),
                                             );
                                           },
-                                        ),
+                                        ),),
                                       ),
                                     );
                                   }
@@ -3657,7 +3675,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                              color: const Color.fromARGB(255, 206, 205, 205)),
+                              color:
+                                  const Color.fromARGB(255, 206, 205, 205)),
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
@@ -3683,7 +3702,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                   fontSize: 15,
                                   fontFamily: 'Montserrat',
                                   //fontWeight: FontWeight.w600,
-                                  color: Colors.white, // Cor do texto em branco
+                                  color:
+                                      Colors.white, // Cor do texto em branco
                                 ),
                               ),
                             ),
@@ -3710,8 +3730,9 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                               .petAllergyList
                                               .length,
                                           itemBuilder: (context, index) {
-                                            final petAllergy = PetAllergyData()
-                                                .petAllergyList[index];
+                                            final petAllergy =
+                                                PetAllergyData()
+                                                    .petAllergyList[index];
                                             return Padding(
                                               padding:
                                                   const EdgeInsets.all(8.0),
@@ -3725,7 +3746,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius:
-                                                      BorderRadius.circular(10),
+                                                      BorderRadius.circular(
+                                                          10),
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.grey
@@ -3740,8 +3762,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     //print(petVaccine.);
-                                                    _petAllergyId =
-                                                        petAllergy.petAllergyId;
+                                                    _petAllergyId = petAllergy
+                                                        .petAllergyId;
                                                   },
                                                   child: Padding(
                                                     padding:
@@ -3758,17 +3780,17 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                   .start,
                                                           children: [
                                                             /*
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: const Icon(
-                                                                  Icons
-                                                                      .health_and_safety,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 50),
-                                                            ),
-                                                            */
+                                                          Container(
+                                                            alignment: Alignment
+                                                                .centerRight,
+                                                            child: const Icon(
+                                                                Icons
+                                                                    .health_and_safety,
+                                                                color: Colors
+                                                                    .black,
+                                                                size: 50),
+                                                          ),
+                                                          */
                                                             Container(
                                                               alignment: Alignment
                                                                   .centerRight,
@@ -3836,7 +3858,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
             return Dialog(
               child: Container(
                 width: 450,
-                height: 700,
+                height: 250,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5.0),
@@ -3896,34 +3918,32 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: ListView(
                             children: <Widget>[
-                              CustomSearchableDropDown(
-                                dropdownHintText: 'Procurar uma Doença',
-                                label: 'Selecione uma Doença',
-                                hint: 'Selecione uma Doença',
-                                prefixIcon: const Icon(Icons.search),
-                                //value: _diseaseId,
-                                //validator: _validateDropDown,
-                                items: diseaseList
+                              DropdownSearch<DiseaseModel>(
+                                popupProps: const PopupProps.menu(
+                                  showSearchBox: true,
+                                ),
+                                dropdownDecoratorProps: DropDownDecoratorProps(
+                                  dropdownSearchDecoration: InputDecoration(
+                                    labelText: "Doenças",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                ),
+                                items: DiseaseData()
+                                    .diseaseList
                                     .where((diseases) =>
                                         diseases.chronic == true ||
                                         diseases.id == '171')
                                     .toList(),
-                                dropDownMenuItems: diseaseList
-                                    .where((diseases) =>
-                                        diseases.chronic == true ||
-                                        diseases.id == '171')
-                                    .map((item) {
-                                  return item.name;
-                                }).toList(),
-                                menuMode: true,
+                                itemAsString: (DiseaseModel disease) =>
+                                    disease.name,
                                 onChanged: (value) {
-                                  //print(value.name);
                                   if (value != null) {
                                     _diseaseId = value.id;
                                   } else {
                                     _diseaseId = null;
                                   }
-
                                   if (_diseaseId == '171') {
                                     setState(() {
                                       _isotherChronicDiseaseVisible = true;
@@ -3934,8 +3954,6 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                     });
                                   }
                                 },
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.blue)),
                               ),
                               const SizedBox(height: 10.0),
                               Visibility(
@@ -4066,18 +4084,21 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: ListView(
                             children: <Widget>[
-                              CustomSearchableDropDown(
-                                dropdownHintText: 'Procurar um Medicamento',
-                                label: 'Selecione um Medicamento',
-                                hint: 'Selecione um Medicamento',
-                                prefixIcon: const Icon(Icons.search),
-                                //value: _diseaseId,
-                                //validator: _validateDropDown,
-                                items: medicineList,
-                                dropDownMenuItems: medicineList.map((item) {
-                                  return item.name;
-                                }).toList(),
-                                menuMode: true,
+                              DropdownSearch<MedicineModel>(
+                                popupProps: const PopupProps.menu(
+                                  showSearchBox: true,
+                                ),
+                                dropdownDecoratorProps: DropDownDecoratorProps(
+                                  dropdownSearchDecoration: InputDecoration(
+                                    labelText: "Medicamentos",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                ),
+                                items: MedicineData().medicineList,
+                                itemAsString: (MedicineModel medicine) =>
+                                    medicine.name,
                                 onChanged: (value) {
                                   //print(value.id);
                                   if (value != null) {
@@ -4098,8 +4119,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
 
                                   //print(_isotherMedicineVisible);
                                 },
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.blue)),
+                                //decoration: BoxDecoration(
+                                //    border: Border.all(color: Colors.blue)),
                               ),
                               const SizedBox(height: 10.0),
                               Visibility(
@@ -4652,7 +4673,9 @@ class _AnamnesisPage extends State<AnamnesisPage> {
   }
 
   Widget _questionaryTab() {
-    return ListView(
+    return Scrollbar(
+      thumbVisibility: true,
+      child: ListView(
       children: <Widget>[
         Padding(
           padding: const EdgeInsets.fromLTRB(5, 15, 10, 0),
@@ -5367,7 +5390,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
           ),
         ),
       ],
-    );
+    ),);
   }
 
   Widget _symptomTab() {
@@ -5512,7 +5535,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
             return Dialog(
               child: Container(
                 width: 450,
-                height: 700,
+                height: 250,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5.0),
@@ -5572,18 +5595,22 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: ListView(
                             children: <Widget>[
-                              CustomSearchableDropDown(
-                                dropdownHintText: 'Procurar um Sintoma',
-                                label: 'Selecione um Sintoma',
-                                hint: 'Selecione um Sintoma',
-                                prefixIcon: const Icon(Icons.search),
-                                //value: _diseaseId,
-                                //validator: _validateDropDown,
-                                items: symptomList,
-                                dropDownMenuItems: symptomList.map((item) {
-                                  return item.name;
-                                }).toList(),
-                                menuMode: true,
+                              DropdownSearch<SymptomModel>(
+                                popupProps: const PopupProps.menu(
+                                  showSearchBox: true,
+                                ),
+                                dropdownDecoratorProps: DropDownDecoratorProps(
+                                  dropdownSearchDecoration: InputDecoration(
+                                    labelText: "Sintomas",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                ),
+                                items: SymptomData()
+                                    .symptomList,
+                                itemAsString: (SymptomModel symptom) =>
+                                    symptom.name,
                                 onChanged: (value) {
                                   //print(value.id);
                                   if (value != null) {
@@ -5603,9 +5630,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
 
                                   //print(_isotherSimptomVisible);
                                 },
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.blue)),
-                              ),
+                              ),                      
                               const SizedBox(height: 10.0),
                               Visibility(
                                 visible: _isotherSimptomVisible,
@@ -5826,7 +5851,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                   child: Container(
                     color: Colors.black
                         .withOpacity(0.5), // Fundo escuro semitransparente
-                    child: Center(
+                    child: const Center(
                       child: CircularProgressIndicator(),
                     ),
                   ),
