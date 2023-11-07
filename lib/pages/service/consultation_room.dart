@@ -178,6 +178,9 @@ int? bodyStateId;
 int? bodyScoreId;
 int? finalClassificationId;
 String _textValidation = '';
+int seconds = 0;
+int minutes = 0;
+int hours = 0;
 
 class ConsultationRoomPage extends StatefulWidget {
   const ConsultationRoomPage({super.key});
@@ -196,12 +199,13 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   late int _currentPageIndex;
   late String? _token, _channel, _crmv;
   bool _isEnabledVirtualBackgroundImage = false;
-
   bool isJoined = false,
       enabledAudio = true,
       enableCamera = true,
       shareScreen = false;
   int? _remoteUid;
+  String? formattedTime =
+        '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
   @override
   void initState() {
@@ -218,6 +222,27 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       {5: 'Acompanhamento de Evolução'},
       {6: 'Finalização'},
     ];
+
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          seconds++;
+          print(seconds);
+          if (seconds == 60) {
+            seconds = 0;
+            minutes++;
+          }
+          if (minutes == 60) {
+            minutes = 0;
+            hours++;
+          }
+
+          formattedTime =
+        '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+        });
+        print(formattedTime);
+      }
+    });
 
     _validateTypeService();
 
@@ -935,9 +960,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         channelId: '.......',
       );
     } else {
-      return const Text(
+      return Text(
         //'Please wait for remote user to join',
-        'Por favor aguarde o Tutor entrar na sala.',
+        'Por favor aguarde o Tutor entrar na sala. - $formattedTime',
         textAlign: TextAlign.center,
       );
     }
@@ -3311,8 +3336,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                              color:
-                                  const Color.fromARGB(255, 206, 205, 205)),
+                              color: const Color.fromARGB(255, 206, 205, 205)),
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
@@ -3338,8 +3362,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                   fontSize: 15,
                                   fontFamily: 'Montserrat',
                                   //fontWeight: FontWeight.w600,
-                                  color:
-                                      Colors.white, // Cor do texto em branco
+                                  color: Colors.white, // Cor do texto em branco
                                 ),
                               ),
                             ),
@@ -3394,22 +3417,21 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                             .withOpacity(0.5),
                                                         spreadRadius: 2,
                                                         blurRadius: 5,
-                                                        offset: const Offset(
-                                                            0, 3),
+                                                        offset:
+                                                            const Offset(0, 3),
                                                       ),
                                                     ],
                                                   ),
                                                   child: InkWell(
                                                     onTap: () {
                                                       //print(petVaccine.);
-                                                      _petDiseaseId =
-                                                          petDisease
-                                                              .petDiseaseId;
+                                                      _petDiseaseId = petDisease
+                                                          .petDiseaseId;
                                                     },
                                                     child: Padding(
                                                       padding:
-                                                          const EdgeInsets
-                                                              .all(8.0),
+                                                          const EdgeInsets.all(
+                                                              8.0),
                                                       child: Column(
                                                         crossAxisAlignment:
                                                             CrossAxisAlignment
@@ -3433,11 +3455,9 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                           ),
                                                           */
                                                               Container(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .centerRight,
-                                                                child:
-                                                                    Padding(
+                                                                alignment: Alignment
+                                                                    .centerRight,
+                                                                child: Padding(
                                                                   padding:
                                                                       const EdgeInsets
                                                                           .all(
@@ -3495,8 +3515,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                              color:
-                                  const Color.fromARGB(255, 206, 205, 205)),
+                              color: const Color.fromARGB(255, 206, 205, 205)),
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
@@ -3522,8 +3541,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                   fontSize: 15,
                                   fontFamily: 'Montserrat',
                                   //fontWeight: FontWeight.w600,
-                                  color:
-                                      Colors.white, // Cor do texto em branco
+                                  color: Colors.white, // Cor do texto em branco
                                 ),
                               ),
                             ),
@@ -3547,62 +3565,62 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                         padding: const EdgeInsets.all(8.0),
                                         child: Scrollbar(
                                           thumbVisibility: true,
-                                          child :ListView.builder(
-                                          itemCount: PetMedicineData()
-                                              .petMedicineList
-                                              .length,
-                                          itemBuilder: (context, index) {
-                                            final petMedicine =
-                                                PetMedicineData()
-                                                    .petMedicineList[index];
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                height:
-                                                    50, // Defina a altura desejada para o card
-                                                width: double
-                                                    .infinity, // Defina a largura desejada para o card
+                                          child: ListView.builder(
+                                            itemCount: PetMedicineData()
+                                                .petMedicineList
+                                                .length,
+                                            itemBuilder: (context, index) {
+                                              final petMedicine =
+                                                  PetMedicineData()
+                                                      .petMedicineList[index];
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Container(
+                                                  height:
+                                                      50, // Defina a altura desejada para o card
+                                                  width: double
+                                                      .infinity, // Defina a largura desejada para o card
 
-                                                // Estilize o card com o BoxDecoration ou o Card widget
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.grey
-                                                          .withOpacity(0.5),
-                                                      spreadRadius: 2,
-                                                      blurRadius: 5,
-                                                      offset:
-                                                          const Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    //print(petVaccine.);
-                                                    _petMedicineId =
-                                                        petMedicine
-                                                            .petMedicineId;
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            /*
+                                                  // Estilize o card com o BoxDecoration ou o Card widget
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.5),
+                                                        spreadRadius: 2,
+                                                        blurRadius: 5,
+                                                        offset:
+                                                            const Offset(0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      //print(petVaccine.);
+                                                      _petMedicineId =
+                                                          petMedicine
+                                                              .petMedicineId;
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              /*
                                                           Container(
                                                             alignment: Alignment
                                                                 .centerRight,
@@ -3614,33 +3632,34 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                 size: 50),
                                                           ),
                                                           */
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        0.0),
-                                                                child: Text(
-                                                                  petMedicine
-                                                                      .name!,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          18),
+                                                              Container(
+                                                                alignment: Alignment
+                                                                    .centerRight,
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(
+                                                                          0.0),
+                                                                  child: Text(
+                                                                    petMedicine
+                                                                        .name!,
+                                                                    style: const TextStyle(
+                                                                        fontSize:
+                                                                            18),
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            );
-                                          },
-                                        ),),
+                                              );
+                                            },
+                                          ),
+                                        ),
                                       ),
                                     );
                                   }
@@ -3675,8 +3694,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                         decoration: BoxDecoration(
                           color: Colors.white,
                           border: Border.all(
-                              color:
-                                  const Color.fromARGB(255, 206, 205, 205)),
+                              color: const Color.fromARGB(255, 206, 205, 205)),
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
@@ -3702,8 +3720,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                   fontSize: 15,
                                   fontFamily: 'Montserrat',
                                   //fontWeight: FontWeight.w600,
-                                  color:
-                                      Colors.white, // Cor do texto em branco
+                                  color: Colors.white, // Cor do texto em branco
                                 ),
                               ),
                             ),
@@ -3730,9 +3747,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                               .petAllergyList
                                               .length,
                                           itemBuilder: (context, index) {
-                                            final petAllergy =
-                                                PetAllergyData()
-                                                    .petAllergyList[index];
+                                            final petAllergy = PetAllergyData()
+                                                .petAllergyList[index];
                                             return Padding(
                                               padding:
                                                   const EdgeInsets.all(8.0),
@@ -3746,8 +3762,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                 decoration: BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius:
-                                                      BorderRadius.circular(
-                                                          10),
+                                                      BorderRadius.circular(10),
                                                   boxShadow: [
                                                     BoxShadow(
                                                       color: Colors.grey
@@ -3762,8 +3777,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     //print(petVaccine.);
-                                                    _petAllergyId = petAllergy
-                                                        .petAllergyId;
+                                                    _petAllergyId =
+                                                        petAllergy.petAllergyId;
                                                   },
                                                   child: Padding(
                                                     padding:
@@ -4676,721 +4691,727 @@ class _AnamnesisPage extends State<AnamnesisPage> {
     return Scrollbar(
       thumbVisibility: true,
       child: ListView(
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.fromLTRB(5, 15, 10, 0),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          appetitId = int.parse(value!);
-                        });
-                      },
-                      items: appetiteList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(appetiteList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Como Está o Apetite e Alimentação?(*)'),
-                      value: (appetitId == null ? null : appetitId.toString()),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          waterIntakeId = int.parse(value!);
-                        });
-                      },
-                      items: waterIntakeList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(waterIntakeList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Como está a ingestão de água?(*)'),
-                      value: (waterIntakeId == null
-                          ? null
-                          : waterIntakeId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          urineStainingId = int.parse(value!);
-                        });
-                      },
-                      items: urineStainingList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(urineStainingList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Qual a coloração da Urina?(*)'),
-                      value: (urineStainingId == null
-                          ? null
-                          : urineStainingId.toString()),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          urineVolumeId = int.parse(value!);
-                        });
-                      },
-                      items: urineVolumeList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(urineVolumeList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Qual o volume de urina?(*)'),
-                      value: (urineVolumeId == null
-                          ? null
-                          : urineVolumeId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          stoolColoringId = int.parse(value!);
-                        });
-                      },
-                      items: stoolColoringList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(stoolColoringList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Qual a coloração das fezes?(*)'),
-                      value: (stoolColoringId == null
-                          ? null
-                          : stoolColoringId.toString()),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          stoolConsistencyId = int.parse(value!);
-                        });
-                      },
-                      items: stoolConsistencyList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(stoolConsistencyList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Qual é a consistência das fezes?(*)'),
-                      value: (stoolConsistencyId == null
-                          ? null
-                          : stoolConsistencyId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          noseTypeId = int.parse(value!);
-                        });
-                      },
-                      items: noseTypeList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(noseTypeList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'O nariz do PET está seco?(*)'),
-                      value:
-                          (noseTypeId == null ? null : noseTypeId.toString()),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          noseTemperatureId = int.parse(value!);
-                        });
-                      },
-                      items: noseTemperatureList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(noseTemperatureList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'O nariz está quente ou frio?(*)'),
-                      value: (noseTemperatureId == null
-                          ? null
-                          : noseTemperatureId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          hotEarId = int.parse(value!);
-                        });
-                      },
-                      items: hotEarList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(hotEarList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'A orelha do pet está quente?(*)'),
-                      value: (hotEarId == null ? null : hotEarId.toString()),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          restlessId = int.parse(value!);
-                        });
-                      },
-                      items: restlessList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(restlessList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'O pet está irrequieto?'),
-                      value:
-                          (restlessId == null ? null : restlessId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          gasesId = int.parse(value!);
-                        });
-                      },
-                      items: gasesList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(gasesList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'O pet está soltando muitos gases?(*)'),
-                      value: (gasesId == null ? null : gasesId.toString()),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          tightBellyId = int.parse(value!);
-                        });
-                      },
-                      items: tightBellyList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(tightBellyList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Apresenta barriga enrijecida?(*)'),
-                      value: (tightBellyId == null
-                          ? null
-                          : tightBellyId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          touchPainId = int.parse(value!);
-                        });
-                      },
-                      items: touchPainList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(touchPainList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Apresenta dor ao toque?(*)'),
-                      value:
-                          (touchPainId == null ? null : touchPainId.toString()),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          walksBentOverId = int.parse(value!);
-                        });
-                      },
-                      items: walksBentOverList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(walksBentOverList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Apresenta andar curvado?(*)'),
-                      value: (walksBentOverId == null
-                          ? null
-                          : walksBentOverId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          gumTongueId = int.parse(value!);
-                        });
-                      },
-                      items: gumTongueList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(gumTongueList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText:
-                              'Inspeção através da câmera: Língua, gengiva(*)'),
-                      value:
-                          (gumTongueId == null ? null : gumTongueId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          conjunctivaId = int.parse(value!);
-                        });
-                      },
-                      items: conjunctivaList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(conjunctivaList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText:
-                              'Inspeção através da câmera: conjuntiva(*)'),
-                      value: (conjunctivaId == null
-                          ? null
-                          : conjunctivaId.toString()),
-                    ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          hairLossId = int.parse(value!);
-                        });
-                      },
-                      items: hairLossList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(hairLossList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText:
-                              'Apresenta queda de pelo fora do comum?(*)'),
-                      value:
-                          (hairLossId == null ? null : hairLossId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          dullHairId = int.parse(value!);
-                        });
-                      },
-                      items: dullHairList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(dullHairList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Apresenta pelo sem brilho?'),
-                      value:
-                          (dullHairId == null ? null : dullHairId.toString()),
-                    ),
-                  ),
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          hairFailureId = int.parse(value!);
-                        });
-                      },
-                      items: hairFailureList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(hairFailureList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Apresenta alguma falha no pelo?(*)'),
-                      value: (hairFailureId == null
-                          ? null
-                          : hairFailureId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          brittleHairId = int.parse(value!);
-                        });
-                      },
-                      items: brittleHairList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(brittleHairList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText: 'Apresenta pelo quebradiço?'),
-                      value: (brittleHairId == null
-                          ? null
-                          : brittleHairId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          abnormalPlacementId = int.parse(value!);
-                        });
-                      },
-                      items: abnormalPlacementList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(abnormalPlacementList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        labelText:
-                            'Apresenta coloração fora do normal em alguma área?(*)',
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(5, 15, 10, 0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            appetitId = int.parse(value!);
+                          });
+                        },
+                        items: appetiteList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(appetiteList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Como Está o Apetite e Alimentação?(*)'),
+                        value:
+                            (appetitId == null ? null : appetitId.toString()),
                       ),
-                      value: (abnormalPlacementId == null
-                          ? null
-                          : abnormalPlacementId.toString()),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          bodyStateId = int.parse(value!);
-                        });
-                      },
-                      items: bodyStateList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(bodyStateList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            waterIntakeId = int.parse(value!);
+                          });
+                        },
+                        items: waterIntakeList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(waterIntakeList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Como está a ingestão de água?(*)'),
+                        value: (waterIntakeId == null
+                            ? null
+                            : waterIntakeId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            urineStainingId = int.parse(value!);
+                          });
+                        },
+                        items: urineStainingList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(urineStainingList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Qual a coloração da Urina?(*)'),
+                        value: (urineStainingId == null
+                            ? null
+                            : urineStainingId.toString()),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            urineVolumeId = int.parse(value!);
+                          });
+                        },
+                        items: urineVolumeList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(urineVolumeList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Qual o volume de urina?(*)'),
+                        value: (urineVolumeId == null
+                            ? null
+                            : urineVolumeId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            stoolColoringId = int.parse(value!);
+                          });
+                        },
+                        items: stoolColoringList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(stoolColoringList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Qual a coloração das fezes?(*)'),
+                        value: (stoolColoringId == null
+                            ? null
+                            : stoolColoringId.toString()),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            stoolConsistencyId = int.parse(value!);
+                          });
+                        },
+                        items: stoolConsistencyList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(stoolConsistencyList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Qual é a consistência das fezes?(*)'),
+                        value: (stoolConsistencyId == null
+                            ? null
+                            : stoolConsistencyId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            noseTypeId = int.parse(value!);
+                          });
+                        },
+                        items: noseTypeList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(noseTypeList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'O nariz do PET está seco?(*)'),
+                        value:
+                            (noseTypeId == null ? null : noseTypeId.toString()),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            noseTemperatureId = int.parse(value!);
+                          });
+                        },
+                        items: noseTemperatureList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(noseTemperatureList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'O nariz está quente ou frio?(*)'),
+                        value: (noseTemperatureId == null
+                            ? null
+                            : noseTemperatureId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            hotEarId = int.parse(value!);
+                          });
+                        },
+                        items: hotEarList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(hotEarList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'A orelha do pet está quente?(*)'),
+                        value: (hotEarId == null ? null : hotEarId.toString()),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            restlessId = int.parse(value!);
+                          });
+                        },
+                        items: restlessList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(restlessList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'O pet está irrequieto?'),
+                        value:
+                            (restlessId == null ? null : restlessId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            gasesId = int.parse(value!);
+                          });
+                        },
+                        items: gasesList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(gasesList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'O pet está soltando muitos gases?(*)'),
+                        value: (gasesId == null ? null : gasesId.toString()),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            tightBellyId = int.parse(value!);
+                          });
+                        },
+                        items: tightBellyList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(tightBellyList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Apresenta barriga enrijecida?(*)'),
+                        value: (tightBellyId == null
+                            ? null
+                            : tightBellyId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            touchPainId = int.parse(value!);
+                          });
+                        },
+                        items: touchPainList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(touchPainList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Apresenta dor ao toque?(*)'),
+                        value: (touchPainId == null
+                            ? null
+                            : touchPainId.toString()),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            walksBentOverId = int.parse(value!);
+                          });
+                        },
+                        items: walksBentOverList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(walksBentOverList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Apresenta andar curvado?(*)'),
+                        value: (walksBentOverId == null
+                            ? null
+                            : walksBentOverId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            gumTongueId = int.parse(value!);
+                          });
+                        },
+                        items: gumTongueList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(gumTongueList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText:
+                                'Inspeção através da câmera: Língua, gengiva(*)'),
+                        value: (gumTongueId == null
+                            ? null
+                            : gumTongueId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            conjunctivaId = int.parse(value!);
+                          });
+                        },
+                        items: conjunctivaList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(conjunctivaList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText:
+                                'Inspeção através da câmera: conjuntiva(*)'),
+                        value: (conjunctivaId == null
+                            ? null
+                            : conjunctivaId.toString()),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            hairLossId = int.parse(value!);
+                          });
+                        },
+                        items: hairLossList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(hairLossList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText:
+                                'Apresenta queda de pelo fora do comum?(*)'),
+                        value:
+                            (hairLossId == null ? null : hairLossId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            dullHairId = int.parse(value!);
+                          });
+                        },
+                        items: dullHairList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(dullHairList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Apresenta pelo sem brilho?'),
+                        value:
+                            (dullHairId == null ? null : dullHairId.toString()),
+                      ),
+                    ),
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            hairFailureId = int.parse(value!);
+                          });
+                        },
+                        items: hairFailureList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(hairFailureList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Apresenta alguma falha no pelo?(*)'),
+                        value: (hairFailureId == null
+                            ? null
+                            : hairFailureId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            brittleHairId = int.parse(value!);
+                          });
+                        },
+                        items: brittleHairList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(brittleHairList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText: 'Apresenta pelo quebradiço?'),
+                        value: (brittleHairId == null
+                            ? null
+                            : brittleHairId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            abnormalPlacementId = int.parse(value!);
+                          });
+                        },
+                        items: abnormalPlacementList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(abnormalPlacementList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           filled: true,
                           fillColor: Colors.white,
                           labelText:
-                              'Qual a sua avaliação do estado corporal do seu pet?(*)'),
-                      value:
-                          (bodyStateId == null ? null : bodyStateId.toString()),
+                              'Apresenta coloração fora do normal em alguma área?(*)',
+                        ),
+                        value: (abnormalPlacementId == null
+                            ? null
+                            : abnormalPlacementId.toString()),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    // Use o Expanded para limitar a largura do DropdownButtonFormField
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          bodyScoreId = int.parse(value!);
-                        });
-                      },
-                      items: bodyScoreList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(bodyScoreList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText:
-                              'Inspeção através da câmera: Score corporal(*)'),
-                      value:
-                          (bodyScoreId == null ? null : bodyScoreId.toString()),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            bodyStateId = int.parse(value!);
+                          });
+                        },
+                        items: bodyStateList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(bodyStateList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText:
+                                'Qual a sua avaliação do estado corporal do seu pet?(*)'),
+                        value: (bodyStateId == null
+                            ? null
+                            : bodyStateId.toString()),
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              // proximas perguntas
-            ],
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      // Use o Expanded para limitar a largura do DropdownButtonFormField
+                      child: DropdownButtonFormField<String>(
+                        validator: _validateDropDown,
+                        isDense: true,
+                        onChanged: (value) {
+                          setState(() {
+                            bodyScoreId = int.parse(value!);
+                          });
+                        },
+                        items: bodyScoreList.keys.map((key) {
+                          return DropdownMenuItem<String>(
+                            value: key,
+                            child: Text(bodyScoreList[key]!),
+                          );
+                        }).toList(),
+                        decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            filled: true,
+                            fillColor: Colors.white,
+                            labelText:
+                                'Inspeção através da câmera: Score corporal(*)'),
+                        value: (bodyScoreId == null
+                            ? null
+                            : bodyScoreId.toString()),
+                      ),
+                    ),
+                  ],
+                ),
+                // proximas perguntas
+              ],
+            ),
           ),
-        ),
-      ],
-    ),);
+        ],
+      ),
+    );
   }
 
   Widget _symptomTab() {
@@ -5607,8 +5628,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                     ),
                                   ),
                                 ),
-                                items: SymptomData()
-                                    .symptomList,
+                                items: SymptomData().symptomList,
                                 itemAsString: (SymptomModel symptom) =>
                                     symptom.name,
                                 onChanged: (value) {
@@ -5630,7 +5650,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
 
                                   //print(_isotherSimptomVisible);
                                 },
-                              ),                      
+                              ),
                               const SizedBox(height: 10.0),
                               Visibility(
                                 visible: _isotherSimptomVisible,
