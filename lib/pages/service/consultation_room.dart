@@ -18,6 +18,7 @@ import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
 import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
+import 'package:petner_web/models/consultChatGPTModel.dart';
 import 'package:petner_web/models/diseaseModel.dart';
 import 'package:petner_web/models/healthProgramModel.dart';
 import 'package:petner_web/models/medicineModel.dart';
@@ -36,6 +37,7 @@ import 'package:petner_web/shared/data/anexoServiceHistoryData.dart';
 import 'package:petner_web/shared/data/bodyScoreData.dart';
 import 'package:petner_web/shared/data/cityData.dart';
 import 'package:petner_web/shared/data/coatData.dart';
+import 'package:petner_web/shared/data/consultChatGPTData.dart';
 import 'package:petner_web/shared/data/diseaseData.dart';
 import 'package:petner_web/shared/data/environmentData.dart';
 import 'package:petner_web/shared/data/foodData.dart';
@@ -76,7 +78,7 @@ late int? _environmentId;
 late int? _foodId;
 late int _specieId;
 late final String _bithDay;
-late final String _age;
+String? _age;
 late final int _ageType;
 String? _genderId;
 int? _raceId;
@@ -88,12 +90,17 @@ int? _serviceHistoryId;
 String? _vaccineDoseId;
 String? _diseaseId;
 int? _petDiseaseId;
+int? _healthProgramId;
 String? _medicineId;
 int? _petMedicineId;
 int? _petAllergyId;
 int? _symptomId;
 int? _petSymptomId;
+int? _chatGPTId;
 bool? _complaint;
+String? _veterinaryId;
+String? _veterinary;
+String? _crmv;
 late String? _state;
 late String? _city;
 late final String _neighborhood;
@@ -123,14 +130,17 @@ final TextEditingController _allergyController = TextEditingController();
 final TextEditingController _complaintController = TextEditingController();
 final TextEditingController _finalGuidelinesController =
     TextEditingController();
+final TextEditingController _birthdayController = TextEditingController();
 final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+final GlobalKey<FormState> _formKeyUpdateRegistrationDataPage =
+    GlobalKey<FormState>();
 String? _typeRegister;
 bool isWelcome = false;
 bool isProduct = false;
 bool isCompany = false;
 bool isFaceToFaceConsultation = false;
 bool isHealthProgram = false;
-bool isAgeReal = false;
+bool _isAgeReal = false;
 bool _continuousUse = false;
 bool _isComplaint = false;
 bool _isQuestionComplaintVisible = false;
@@ -141,7 +151,7 @@ List<CityModel> listCity = [];
 List<DiseaseModel> diseaseList = [];
 List<MedicineModel> medicineList = [];
 List<SymptomModel> symptomList = [];
-List<HealthProgramModel> healthProgramList = [];
+//List<HealthProgramModel> healthProgramList = [];
 int? appetitId;
 int? waterIntakeId;
 int? urineStainingId;
@@ -166,6 +176,7 @@ int? brittleHairId;
 int? bodyStateId;
 int? bodyScoreId;
 int? finalClassificationId;
+String _textValidation = '';
 
 class ConsultationRoomPage extends StatefulWidget {
   const ConsultationRoomPage({super.key});
@@ -180,6 +191,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   int _selectedTypeService = 1;
   late List<Map<int, String>> consultaOptions;
   late List<Widget> _pages;
+  late List<bool Function()> _validationFunctions;
   late int _currentPageIndex;
   late String? _token, _channel, _crmv;
   bool _isEnabledVirtualBackgroundImage = false;
@@ -208,8 +220,10 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
     _validateTypeService();
 
-    //DESCOMENTAR PARA ATIVAR A CHAMADA DE VÍDEO
-    //_initEngine();
+    _isCheckOut = false;
+
+    //Descomentar PARA ATIVAR A CHAMADA DE VÍDEO
+    _initEngine();
   }
 
   @override
@@ -256,9 +270,18 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         const ChronicHealthConditionPage(),
         const AnamnesisPage(),
         const HealthProgramPage(),
-        const RecommendationPage(),
+        const FinalGuidelinesPage(),
         //const FinalClassificationPage(),
         //const DocumentAvaliablePage(),
+      ];
+      _validationFunctions = [
+        _validateWelcome,
+        _validateUpdateRegistrationData,
+        _validateNothing,
+        _validateNothing,
+        _validateAnamnesisPage,
+        _validateNothing,
+        _validateFinalGuidelines,
       ];
     } else if (_selectedTypeService == 4) {
       _isQuestionComplaintVisible = false;
@@ -274,6 +297,17 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         const FinalGuidelinesPage(),
       ];
 
+      _validationFunctions = [
+        _validateNothing,
+        _validateUpdateRegistrationData,
+        _validateNothing,
+        _validateNothing,
+        _validateNothing,
+        _validateNothing,
+        _validateAnamnesisPage,
+        _validateFinalGuidelines,
+      ];
+
       _screningController.text = _serviceQueue.screeningName!;
     } else if (_selectedTypeService == 6) {
       _pages = [
@@ -282,6 +316,408 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
       _screningController.text = _serviceQueue.screeningName!;
     }
+  }
+
+  bool _validateNothing() {
+    print('nothing');
+    return true;
+  }
+
+  bool _validateWelcome() {
+    bool validation = true;
+
+    _textValidation = '';
+
+    if (!isWelcome) {
+      _textValidation += 'Mensagem de Boas-Vindas\n';
+      validation = false;
+    }
+
+    if (!isCompany) {
+      _textValidation += 'Informações sobre a Petner\n';
+      validation = false;
+    }
+
+    if (!isProduct) {
+      _textValidation += 'Informações sobre o Prouto Contratado\n';
+      validation = false;
+    }
+
+    if (!isFaceToFaceConsultation) {
+      _textValidation += 'Informações sobre a Consulta Presencial\n';
+      validation = false;
+    }
+
+    if (!isHealthProgram) {
+      _textValidation += 'Informações gerais sobre Programas de Saúde\n';
+      validation = false;
+    }
+
+    return validation;
+  }
+
+  bool _validateUpdateRegistrationData() {
+    //print('sssssssssssssssssssssss');
+    bool validation = true;
+
+    _textValidation = '';
+
+    if (_tutorNameController.text.isEmpty) {
+      _textValidation += 'Nome Tutor\n';
+      validation = false;
+    }
+
+    if (_petNameController.text.isEmpty) {
+      _textValidation += 'Nome do Pet\n';
+      validation = false;
+    }
+
+    if (_birthdayController.text.isEmpty) {
+      _textValidation += 'Data de Nascimento\n';
+      validation = false;
+    }
+
+    if (_sizeId == null) {
+      _textValidation += 'Porte\n';
+      validation = false;
+    }
+
+    if (_coatId == null) {
+      _textValidation += 'Pelagem\n';
+      validation = false;
+    }
+
+    if (_temperamentId == null) {
+      _textValidation += 'Temperamento\n';
+      validation = false;
+    }
+
+    if (_environmentId == null) {
+      _textValidation += 'Ambiente que vive\n';
+      validation = false;
+    }
+
+    if (_foodId == null) {
+      _textValidation += 'Alimentação\n';
+      validation = false;
+    }
+
+    if (_bodyScoreId == null) {
+      _textValidation += 'Score Corporal\n';
+      validation = false;
+    }
+
+    if (validation) {
+      _fetchRegisterPet(
+        _serviceQueue.petId,
+        _petNameController.text,
+        _petNickNameController.text,
+        _specieId,
+        _raceId!,
+        _genderId!,
+        _birthdayController.text,
+        _sizeId!,
+        _coatId!,
+        _temperamentId!,
+        _environmentId!,
+        _foodId!,
+        _bodyScoreId!,
+        _isAgeReal,
+        _castrated,
+      );
+    }
+
+    return validation;
+  }
+
+  Future<void> _fetchRegisterPet(
+    int? petId,
+    String? petName,
+    String? petNickName,
+    int? specieId,
+    int? raceId,
+    String? genderId,
+    String? birthday,
+    int? sizeId,
+    int? coatId,
+    int? temperamentId,
+    int? environmentId,
+    int? foodId,
+    int? bodyScore,
+    bool? birthType,
+    bool? castrated,
+  ) async {
+    Map<String, dynamic> responseData = await registerPetApi(
+      'U',
+      petId!,
+      _serviceQueue.tutorId!,
+      petName!.trim(),
+      petNickName!.trim(),
+      specieId.toString(),
+      raceId.toString(),
+      genderId!,
+      birthday!,
+      '',
+      foodId.toString(),
+      temperamentId.toString(),
+      environmentId.toString(),
+      '0',
+      sizeId.toString(),
+      coatId.toString(),
+      bodyScore.toString(),
+      birthType!,
+      castrated!,
+      '',
+      '',
+    );
+  }
+
+  bool _validateAnamnesisPage() {
+    bool validation = true;
+
+    if (_isComplaint) {
+      _textValidation = '';
+
+      if (_complaintController.text.isEmpty) {
+        _textValidation += 'Informe a Queixa\n';
+        validation = false;
+      }
+
+      if (appetitId == null) {
+        _textValidation += 'Como Está o Apetite e Alimentação?\n';
+        validation = false;
+      }
+
+      if (waterIntakeId == null) {
+        _textValidation += 'Como está a ingestão de água?\n';
+        validation = false;
+      }
+
+      if (urineStainingId == null) {
+        _textValidation += 'Qual a coloração da Urina?\n';
+        validation = false;
+      }
+
+      if (urineVolumeId == null) {
+        _textValidation += 'Qual o volume de urina?\n';
+        validation = false;
+      }
+
+      if (stoolColoringId == null) {
+        _textValidation += 'Qual a coloração das fezes?\n';
+        validation = false;
+      }
+
+      if (stoolConsistencyId == null) {
+        _textValidation += 'Qual é a consistência das fezes?\n';
+        validation = false;
+      }
+
+      if (noseTypeId == null) {
+        _textValidation += 'O nariz do PET está seco?\n';
+        validation = false;
+      }
+
+      if (noseTemperatureId == null) {
+        _textValidation += 'O nariz está quente ou frio?\n';
+        validation = false;
+      }
+
+      if (hotEarId == null) {
+        _textValidation += 'A orelha do pet está quente?\n';
+        validation = false;
+      }
+
+      if (gasesId == null) {
+        _textValidation += 'O pet está soltando muitos gases?\n';
+        validation = false;
+      }
+
+      if (tightBellyId == null) {
+        _textValidation += 'Apresenta barriga enrijecida?\n';
+        validation = false;
+      }
+
+      if (touchPainId == null) {
+        _textValidation += 'Apresenta dor ao toque?\n';
+        validation = false;
+      }
+
+      if (walksBentOverId == null) {
+        _textValidation += 'Apresenta andar curvado?\n';
+        validation = false;
+      }
+
+      if (conjunctivaId == null) {
+        _textValidation += 'Inspeção através da câmera: conjuntiva\n';
+        validation = false;
+      }
+
+      if (gumTongueId == null) {
+        _textValidation += 'Inspeção através da câmera: Língua, gengiva\n';
+        validation = false;
+      }
+
+      if (hairLossId == null) {
+        _textValidation += 'Apresenta queda de pelo fora do comum?\n';
+        validation = false;
+      }
+
+      if (abnormalPlacementId == null) {
+        _textValidation +=
+            'Apresenta coloração fora do normal em alguma área?\n';
+        validation = false;
+      }
+
+      if (bodyStateId == null) {
+        _textValidation +=
+            'Qual a sua avaliação do estado corporal do seu pet?\n';
+        validation = false;
+      }
+
+      if (bodyScoreId == null) {
+        _textValidation += 'Inspeção através da câmera: Score corporal\n';
+        validation = false;
+      }
+
+      if (PetSymptomData().petSymptomList.isEmpty) {
+        _textValidation += 'Inserir possíveis Sintomas na aba SINTOMA\n';
+        validation = false;
+      }
+    } else {
+      _textValidation = '';
+      if (_complaint == null) {
+        _textValidation += 'Selecionar Sim ou Não na pergunta\n';
+        validation = false;
+      }
+    }
+
+    if (validation) {
+      _fetchRegisterAnamnese(
+        _serviceQueue.queueId,
+        _complaintController.text,
+        appetitId,
+        waterIntakeId,
+        urineStainingId,
+        urineVolumeId,
+        stoolColoringId,
+        stoolConsistencyId,
+        noseTypeId,
+        noseTemperatureId,
+        hotEarId,
+        gasesId,
+        tightBellyId,
+        touchPainId,
+        walksBentOverId,
+        conjunctivaId,
+        gumTongueId,
+        hairLossId,
+        hairFailureId,
+        abnormalPlacementId,
+        bodyStateId,
+        bodyScoreId,
+        restlessId,
+        dullHairId,
+        brittleHairId,
+      );
+    }
+
+    return validation;
+  }
+
+  Future<void> _fetchRegisterAnamnese(
+    int? queueId,
+    String? complaint,
+    int? appetit,
+    int? waterIntake,
+    int? urineStaining,
+    int? urineVolume,
+    int? stoolColoring,
+    int? stoolConsistency,
+    int? noseType,
+    int? noseTemperature,
+    int? hotEar,
+    int? gases,
+    int? tightBelly,
+    int? touchPain,
+    int? walksBentOver,
+    int? conjunctivaId,
+    int? gumTongueId,
+    int? hairLossId,
+    int? hairFailureId,
+    int? abnormalPlacementId,
+    int? bodyStateId,
+    int? bodyScoreId,
+    int? restlessId,
+    int? dullHairId,
+    int? brittleHairId,
+  ) async {
+    Map<String, dynamic> responseData = await registerAnamneseApi(
+      queueId,
+      complaint,
+      appetit,
+      waterIntake,
+      urineStaining,
+      urineVolume,
+      stoolColoring,
+      stoolConsistency,
+      noseType,
+      noseTemperature,
+      hotEar,
+      gases,
+      tightBelly,
+      touchPain,
+      walksBentOver,
+      conjunctivaId,
+      gumTongueId,
+      hairLossId,
+      hairFailureId,
+      abnormalPlacementId,
+      bodyStateId,
+      bodyScoreId,
+      restlessId,
+      dullHairId,
+      brittleHairId,
+    );
+  }
+
+  bool _validateFinalGuidelines() {
+    bool validation = true;
+
+    _textValidation = '';
+
+    //print(finalClassificationId);
+    if (finalClassificationId == null) {
+      _textValidation += 'Classificação Final\n';
+      validation = false;
+    }
+
+    if (_finalGuidelinesController.text.isEmpty) {
+      _textValidation += 'Orientações Finais\n';
+      validation = false;
+    }
+
+    if (validation) {
+      _fetchRegisterFinalGuidelines(
+        _serviceQueue.queueId,
+        finalClassificationId.toString(),
+        _finalGuidelinesController.text,
+      );
+    }
+
+    return validation;
+  }
+
+  Future<void> _fetchRegisterFinalGuidelines(
+    int? queueId,
+    String? finalClassificationId,
+    String? finalGuideliness,
+  ) async {
+    Map<String, dynamic> responseData = await registerFinalGuidelinesApi(
+      queueId,
+      finalClassificationId,
+      finalGuideliness,
+    );
   }
 
   Future<void> _roomConfiguration() async {
@@ -294,75 +730,31 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     String? serviceQueue = await UserPreferences.getQueue();
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
 
-    print(serviceQueue!);
-
-    print(_serviceQueue.tutorName!);
-    print(_serviceQueue.petName!);
-    print(_serviceQueue.plan);
-    print(_serviceQueue.petNickName!);
-    print(_serviceQueue.raceName!);
-    print(_serviceQueue.specieName!);
-    print(_serviceQueue.genderName!);
-    print(_serviceQueue.productName!);
-    print(_serviceQueue.age!);
-    print(_serviceQueue.genderId!);
-    print(_serviceQueue.foodId!);
-    print(_serviceQueue.sizeId);
-    print(_serviceQueue.temperamentId);
-    print(_serviceQueue.castrated!);
-    print(_serviceQueue.environmentId);
-    print(_serviceQueue.specieId!);
-    print(_serviceQueue.raceId!);
-    print(_serviceQueue.coatId);
-    print(_serviceQueue.bodyScoreId);
-    print(_serviceQueue.state);
-    print(_serviceQueue.city);
-
-    print(1);
     _tutorNameController.text = _serviceQueue.tutorName!;
-    print(2);
     _petNameController.text = _serviceQueue.petName!;
-    print(3);
     if (_serviceQueue.plan!.length > 0) {
       _petPlanController.text = _serviceQueue.plan!;
     }
-    print(4);
+
     _petNickNameController.text = _serviceQueue.petNickName!;
-    print(5);
+    _birthdayController.text = _serviceQueue.birthDay!;
     _raceController.text = _serviceQueue.raceName!;
-    print(6);
     _specieController.text = _serviceQueue.specieName!;
-    print(7);
     _genderController.text = _serviceQueue.genderName!;
-    print(8);
     _productController.text = _serviceQueue.productName!;
-    print(9);
     _ageController.text = _serviceQueue.age!;
-    print(10);
     _genderId = _serviceQueue.genderId!;
-    print(11);
     _foodId = _serviceQueue.foodId!;
-    print(12);
     _sizeId = _serviceQueue.sizeId;
-    print(13);
     _temperamentId = _serviceQueue.temperamentId;
-    print(14);
     _castrated = _serviceQueue.castrated!;
-    print(15);
     _environmentId = _serviceQueue.environmentId;
-    print(16);
     _specieId = _serviceQueue.specieId!;
-    print(17);
     _raceId = _serviceQueue.raceId!;
-    print(18);
     _coatId = _serviceQueue.coatId;
-    print(19);
     _bodyScoreId = _serviceQueue.bodyScoreId;
-    print(20);
     _state = _serviceQueue.state;
-    print(21);
     _city = _serviceQueue.city;
-    print(22);
 
     final jsonRace = await UserPreferences.getRace();
     RaceData().raceList = (jsonDecode(jsonRace!) as List<dynamic>)
@@ -407,6 +799,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         .toList();
     symptomList = SymptomData().symptomList;
 
+/*
     final jsonHealthProgram = await UserPreferences.getMedicine();
     HealthProgramData().healthProgramList =
         (jsonDecode(jsonHealthProgram!) as List<dynamic>)
@@ -416,6 +809,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         .healthProgramList
         .where((healthPrograms) => healthPrograms.specieId == _specieId)
         .toList();
+*/
   }
 
   Future<void> _dispose() async {
@@ -573,10 +967,10 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
               flex: 6, // 70% do espaço disponível
               child: Container(
                 color: Colors.white, // Cor da coluna esquerda
-                child: const Column(
+                child: Column(
                   children: [
                     // Descomentar para funcionar Vídeo
-                    //_videoConsultation(),
+                    _videoConsultation(),
                   ],
                 ),
               ),
@@ -724,6 +1118,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                                 : true, // Controla a visibilidade do botão
                             child: ElevatedButton(
                               onPressed: () {
+                                /*
                                 if (_currentPageIndex == 0) {
                                   if (_validateFields()) {
                                     if (_currentPageIndex < _pages.length - 1) {
@@ -738,6 +1133,16 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                                       _currentPageIndex++;
                                     });
                                   }
+                                }*/
+
+                                if (_validationFunctions[_currentPageIndex]()) {
+                                  if (_currentPageIndex < _pages.length - 1) {
+                                    setState(() {
+                                      _currentPageIndex++;
+                                    });
+                                  }
+                                } else {
+                                  _showInfoMessage(context);
                                 }
                               },
                               child: const Text('Próximo'),
@@ -750,7 +1155,11 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                                 : false, // Controla a visibilidade do botão
                             child: ElevatedButton(
                               onPressed: () {
-                                _showFinishService(context);
+                                if (_validationFunctions[_currentPageIndex]()) {
+                                  _showFinishService(context);
+                                } else {
+                                  _showInfoMessage(context);
+                                }
                               },
                               child: const Text('Finalizar'),
                             ),
@@ -827,6 +1236,31 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     );
   }
 
+  void _showInfoMessage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('O(s) campo(s) abaixo é(são) Obrigatório(s)'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_textValidation ??
+                  ''), // Use a variável _textValidation no Text
+              const SizedBox(height: 20), // Espaçamento entre o texto e o botão
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   Widget _videoConsultation() {
     return Expanded(
       child: Stack(
@@ -839,8 +1273,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             bottom: 70,
             right: 0,
             child: Container(
-              height: 240,
-              width: 400,
+              height: 80,
+              width: 130,
               color: Colors.black,
               child: isJoined
                   ? const RtcLocalView.SurfaceView()
@@ -1003,7 +1437,11 @@ class WelcomePage extends StatefulWidget {
 class _WelcomePageState extends State<WelcomePage> {
   void _validateInputs() {
     final form = _formKey.currentState;
-    if (form!.validate()) {}
+    if (form!.validate()) {
+      //print(1);
+    } else {
+      //print(2);
+    }
   }
 
   @override
@@ -1043,24 +1481,6 @@ class _WelcomePageState extends State<WelcomePage> {
                 const SizedBox(height: 10.0),
                 Row(
                   children: [
-                    Expanded(
-                      child: TextFormField(
-                        style: const TextStyle(fontSize: 15.0),
-                        enabled: false,
-                        controller: _petNameController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Raio dos cantos da borda
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0), // Cor e largura da borda
-                          ),
-                          labelText: 'Pet',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10.0),
                     Expanded(
                       child: TextFormField(
                         style: const TextStyle(fontSize: 15.0),
@@ -1179,7 +1599,15 @@ class _WelcomePageState extends State<WelcomePage> {
                         widget.updateCheckboxCompany(newValue ?? false);
                       },
                     ),
-                    const Text('Informações sobre a Petner'),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          isCompany = !isCompany;
+                        });
+                        widget.updateCheckboxCompany(isCompany);
+                      },
+                      child: const Text('Informações sobre a Petner'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10.0),
@@ -1194,7 +1622,16 @@ class _WelcomePageState extends State<WelcomePage> {
                         widget.updateCheckboxProduct(newValue ?? false);
                       },
                     ),
-                    const Text('Informações sobre o Prouto Contratado'),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          isProduct = !isProduct;
+                        });
+                        widget.updateCheckboxProduct(isProduct);
+                      },
+                      child:
+                          const Text('Informações sobre o Produto Contratado'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10.0),
@@ -1210,7 +1647,17 @@ class _WelcomePageState extends State<WelcomePage> {
                             newValue ?? false);
                       },
                     ),
-                    const Text('Informações sobre a Consulta Presencial'),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          isFaceToFaceConsultation = !isFaceToFaceConsultation;
+                        });
+                        widget.updateCheckboxFaceToFaceConsultation(
+                            isFaceToFaceConsultation);
+                      },
+                      child:
+                          const Text('Informações sobre a Consulta Presencial'),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 10.0),
@@ -1225,7 +1672,16 @@ class _WelcomePageState extends State<WelcomePage> {
                         widget.updateCheckboxHealthProgram(newValue ?? false);
                       },
                     ),
-                    const Text('Informações gerais sobre Programas de Saúde'),
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          isHealthProgram = !isHealthProgram;
+                        });
+                        widget.updateCheckboxHealthProgram(isHealthProgram);
+                      },
+                      child: const Text(
+                          'Informações gerais sobre Programas de Saúde'),
+                    ),
                   ],
                 ),
               ],
@@ -1274,197 +1730,243 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
     });
   }
 
+  Future<void> _selectBirthDay(BuildContext context) async {
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        _birthdayController.text = DateFormat('dd/MM/yyyy').format(pickedDate);
+        _ageController.text = calculateAge(pickedDate);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.all(10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Conferência e Atualização de Dados',
-                      style: TextStyle(fontSize: 30)),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              TextFormField(
-                style: const TextStyle(fontSize: 15.0),
-                //enabled: false,
-                controller: _tutorNameController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(8.0)), // Raio dos cantos da borda
-                    borderSide: BorderSide(
-                        color: Colors.black,
-                        width: 1.0), // Cor e largura da borda
-                  ),
-                  labelText: 'Tutor',
+    return Form(
+      key: _formKey,
+      child: ListView(
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.all(10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Conferência e Atualização de Dados',
+                        style: TextStyle(fontSize: 30)),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      style: const TextStyle(fontSize: 15.0),
-                      //enabled: false,
-                      controller: _petNameController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(8.0)), // Raio dos cantos da borda
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 1.0), // Cor e largura da borda
+                const SizedBox(height: 10.0),
+                TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  enabled: false,
+                  controller: _tutorNameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Tutor',
+                  ),
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 15.0),
+                        //enabled: false,
+                        controller: _petNameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Pet',
                         ),
-                        labelText: 'Pet',
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: TextFormField(
-                      style: const TextStyle(fontSize: 15.0),
-                      //enabled: false,
-                      controller: _petNickNameController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(8.0)), // Raio dos cantos da borda
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 1.0), // Cor e largura da borda
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 15.0),
+                        //enabled: false,
+                        controller: _petNickNameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Apelido',
                         ),
-                        labelText: 'Apelido',
                       ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: speciesDropdown(),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    flex: 3,
-                    child: racesDropdown(),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    flex: 1,
-                    child: sizeDropdown(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: gendersDropDown(),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    flex: 4,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextFormField(
-                            style: const TextStyle(fontSize: 15.0),
-                            //enabled: false,
-                            controller: _ageController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    8.0)), // Raio dos cantos da borda
-                                borderSide: BorderSide(
-                                    color: Colors.black,
-                                    width: 1.0), // Cor e largura da borda
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: speciesDropdown(),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      flex: 3,
+                      child: racesDropdown(),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      flex: 1,
+                      child: sizeDropdown(),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: gendersDropDown(),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      flex: 4,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: TextFormField(
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          8.0)), // Raio dos cantos da borda
+                                  borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 1.0), // Cor e largura da borda
+                                ),
+                                labelText: 'Data de Nascimento',
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.calendar_today),
+                                  onPressed: () => _selectBirthDay(context),
+                                ),
                               ),
-                              labelText: 'Idade',
+                              controller: _birthdayController,
+                              readOnly: true,
+                              onTap: () => _selectBirthDay(context),
+                              validator: (input) => input?.isEmpty == true
+                                  ? 'Por favor informar a Data de Nascimento'
+                                  : null,
                             ),
                           ),
-                        ),
-                        Expanded(
-                          flex: 0,
-                          child: Row(
-                            children: [
-                              Checkbox(
-                                value: isAgeReal,
-                                onChanged: (bool? newValue) {
-                                  setState(() {
-                                    isAgeReal = newValue!;
-                                  });
-                                },
+                          const SizedBox(width: 10.0),
+                          Expanded(
+                            flex: 2,
+                            child: TextFormField(
+                              style: const TextStyle(fontSize: 15.0),
+                              enabled: false,
+                              controller: _ageController,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          8.0)), // Raio dos cantos da borda
+                                  borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 1.0), // Cor e largura da borda
+                                ),
+                                labelText: 'Idade',
                               ),
-                              const Text('Idade Real?'),
-                            ],
+                            ),
                           ),
-                        ),
-                      ],
+                          Expanded(
+                            flex: 0,
+                            child: Row(
+                              children: [
+                                Checkbox(
+                                  value: _isAgeReal,
+                                  onChanged: (bool? newValue) {
+                                    setState(() {
+                                      _isAgeReal = newValue!;
+                                    });
+                                  },
+                                ),
+                                const Text('Idade Real?'),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: coatsDropdown(),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    flex: 1,
-                    child: temperamentDropdown(),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    flex: 0,
-                    child: Row(
-                      children: [
-                        Checkbox(
-                          value: _castrated,
-                          onChanged: (bool? newValue) {
-                            setState(() {
-                              _castrated = newValue!;
-                            });
-                          },
-                        ),
-                        const Text('Castrado?'),
-                      ],
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: coatsDropdown(),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: environmentDropdown(),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: foodDropdown(),
-                  ),
-                  const SizedBox(width: 10.0),
-                  Expanded(
-                    child: bodyScoreDropdown(),
-                  ),
-                ],
-              ),
-              /*
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      flex: 1,
+                      child: temperamentDropdown(),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      flex: 0,
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            value: _castrated,
+                            onChanged: (bool? newValue) {
+                              setState(() {
+                                _castrated = newValue!;
+                              });
+                            },
+                          ),
+                          const Text('Castrado?'),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: environmentDropdown(),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: foodDropdown(),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: bodyScoreDropdown(),
+                    ),
+                  ],
+                ),
+                /*
           const SizedBox(height: 10.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1480,10 +1982,11 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
             ],
           ),
           */
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1768,7 +2271,7 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
     return DropdownButtonFormField<String>(
       //validator: _validateDropDown,
       onChanged: (value) {
-        print('city: {$value}');
+        //print('city: {$value}');
         setState(() {
           _city = value!;
         });
@@ -1852,6 +2355,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
     if (form!.validate()) {
       Map<String, dynamic> responseData = await registerVaccineDoseApi(
         _typeRegister,
+        _serviceQueue.queueId.toString(),
         '',
         _applicationDateController.text,
         true,
@@ -2477,7 +2981,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                                         // Ação a ser executada quando um item for selecionado no dropdown
                                         if (selectedValue != null) {
                                           // Faça algo com o valor selecionado
-                                          print(selectedValue);
+                                          //print(selectedValue);
                                         }
                                       },
                                       decoration: InputDecoration(
@@ -2604,8 +3108,6 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                               onPressed: () {
                                 _setState!(() {
                                   _fetchPetVaccinationCard();
-                                  print(
-                                      'y ${PetVaccinationCardData().petVaccinationCardList.length}');
                                 });
                                 Navigator.of(context).pop();
                               },
@@ -3415,7 +3917,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                 }).toList(),
                                 menuMode: true,
                                 onChanged: (value) {
-                                  print(value.name);
+                                  //print(value.name);
                                   if (value != null) {
                                     _diseaseId = value.id;
                                   } else {
@@ -3577,7 +4079,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                 }).toList(),
                                 menuMode: true,
                                 onChanged: (value) {
-                                  print(value.id);
+                                  //print(value.id);
                                   if (value != null) {
                                     _medicineId = value.id;
                                   } else {
@@ -3594,7 +4096,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                     });
                                   }
 
-                                  print(_isotherMedicineVisible);
+                                  //print(_isotherMedicineVisible);
                                 },
                                 decoration: BoxDecoration(
                                     border: Border.all(color: Colors.blue)),
@@ -3788,6 +4290,13 @@ class AnamnesisPage extends StatefulWidget {
 class _AnamnesisPage extends State<AnamnesisPage> {
   bool _isotherSimptomVisible = false;
 
+  void initState() {
+    super.initState();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   final Map<String, String> appetiteList = {
     '1': 'Abaixo do Normal',
     '2': 'Normal',
@@ -3960,6 +4469,26 @@ class _AnamnesisPage extends State<AnamnesisPage> {
     return 4;
   }
 
+  Future<void> _fetchRegisterDeseaseConsultChatGPT(
+      int chatGPTId, bool selected) async {
+    await registerDeseaseConsultChatGPTApi(chatGPTId, selected);
+  }
+
+  Future<List<dynamic>> _fetchListConsultChatGPT() async {
+    List<ConsultChatGPTModel> consultChatGPTList;
+    consultChatGPTList = await listConsultChatGPTApi(_serviceQueue.queueId);
+
+    return consultChatGPTList;
+  }
+
+  Future<void> _fetchConsultChatGPT() async {
+    List<ConsultChatGPTModel> consultChatGPTList;
+    consultChatGPTList = await consultChatGPTApi(_serviceQueue.queueId);
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -4071,7 +4600,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                   color: Colors.black,
                                   width: 1.0), // Cor e largura da borda
                             ),
-                            labelText: 'Informe a Queixa',
+                            labelText: 'Informe a Queixa(*)',
                           ),
                         ),
                       ),
@@ -4103,13 +4632,14 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                               children: [
                                 _questionaryTab(),
                                 _symptomTab(), //Text('Teste'), ////SintomaTab(),
-                                const Text('Teste'), ////IATab(),
+                                _iaTab(context),
                               ],
                             ),
                           ),
                         ),
                       ),
                       const SizedBox(height: 10.0),
+                      const Text('* são campos obrigatórios'),
                     ],
                   ),
                 ),
@@ -4152,7 +4682,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Como Está o Apetite e Alimentação?'),
+                          labelText: 'Como Está o Apetite e Alimentação?(*)'),
                       value: (appetitId == null ? null : appetitId.toString()),
                     ),
                   ),
@@ -4178,7 +4708,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Como está a ingestão de água?'),
+                          labelText: 'Como está a ingestão de água?(*)'),
                       value: (waterIntakeId == null
                           ? null
                           : waterIntakeId.toString()),
@@ -4211,7 +4741,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Qual a coloração da Urina?'),
+                          labelText: 'Qual a coloração da Urina?(*)'),
                       value: (urineStainingId == null
                           ? null
                           : urineStainingId.toString()),
@@ -4239,7 +4769,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Qual o volume de urina?'),
+                          labelText: 'Qual o volume de urina?(*)'),
                       value: (urineVolumeId == null
                           ? null
                           : urineVolumeId.toString()),
@@ -4272,7 +4802,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Qual a coloração das fezes?'),
+                          labelText: 'Qual a coloração das fezes?(*)'),
                       value: (stoolColoringId == null
                           ? null
                           : stoolColoringId.toString()),
@@ -4300,7 +4830,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Qual é a consistência das fezes?'),
+                          labelText: 'Qual é a consistência das fezes?(*)'),
                       value: (stoolConsistencyId == null
                           ? null
                           : stoolConsistencyId.toString()),
@@ -4333,7 +4863,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'O nariz do PET está seco?'),
+                          labelText: 'O nariz do PET está seco?(*)'),
                       value:
                           (noseTypeId == null ? null : noseTypeId.toString()),
                     ),
@@ -4360,7 +4890,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'O nariz está quente ou frio?'),
+                          labelText: 'O nariz está quente ou frio?(*)'),
                       value: (noseTemperatureId == null
                           ? null
                           : noseTemperatureId.toString()),
@@ -4393,7 +4923,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'A orelha do pet está quente?'),
+                          labelText: 'A orelha do pet está quente?(*)'),
                       value: (hotEarId == null ? null : hotEarId.toString()),
                     ),
                   ),
@@ -4451,7 +4981,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'O pet está soltando muitos gases?'),
+                          labelText: 'O pet está soltando muitos gases?(*)'),
                       value: (gasesId == null ? null : gasesId.toString()),
                     ),
                   ),
@@ -4477,7 +5007,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Apresenta barriga enrijecida?'),
+                          labelText: 'Apresenta barriga enrijecida?(*)'),
                       value: (tightBellyId == null
                           ? null
                           : tightBellyId.toString()),
@@ -4510,7 +5040,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Apresenta dor ao toque?'),
+                          labelText: 'Apresenta dor ao toque?(*)'),
                       value:
                           (touchPainId == null ? null : touchPainId.toString()),
                     ),
@@ -4537,7 +5067,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Apresenta andar curvado?'),
+                          labelText: 'Apresenta andar curvado?(*)'),
                       value: (walksBentOverId == null
                           ? null
                           : walksBentOverId.toString()),
@@ -4571,7 +5101,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           filled: true,
                           fillColor: Colors.white,
                           labelText:
-                              'Inspeção através da câmera: Língua, gengiva'),
+                              'Inspeção através da câmera: Língua, gengiva(*)'),
                       value:
                           (gumTongueId == null ? null : gumTongueId.toString()),
                     ),
@@ -4602,7 +5132,8 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Inspeção através da câmera: conjuntiva'),
+                          labelText:
+                              'Inspeção através da câmera: conjuntiva(*)'),
                       value: (conjunctivaId == null
                           ? null
                           : conjunctivaId.toString()),
@@ -4631,7 +5162,8 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Apresenta queda de pelo fora do comum?'),
+                          labelText:
+                              'Apresenta queda de pelo fora do comum?(*)'),
                       value:
                           (hairLossId == null ? null : hairLossId.toString()),
                     ),
@@ -4690,43 +5222,10 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           ),
                           filled: true,
                           fillColor: Colors.white,
-                          labelText: 'Apresenta alguma falha no pelo?'),
+                          labelText: 'Apresenta alguma falha no pelo?(*)'),
                       value: (hairFailureId == null
                           ? null
                           : hairFailureId.toString()),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10.0),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      validator: _validateDropDown,
-                      isDense: true,
-                      onChanged: (value) {
-                        setState(() {
-                          abnormalPlacementId = int.parse(value!);
-                        });
-                      },
-                      items: abnormalPlacementList.keys.map((key) {
-                        return DropdownMenuItem<String>(
-                          value: key,
-                          child: Text(abnormalPlacementList[key]!),
-                        );
-                      }).toList(),
-                      decoration: InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          filled: true,
-                          fillColor: Colors.white,
-                          labelText:
-                              'Apresenta coloração fora do normal em alguma área?'),
-                      value: (abnormalPlacementId == null
-                          ? null
-                          : abnormalPlacementId.toString()),
                     ),
                   ),
                 ],
@@ -4773,6 +5272,40 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                       isDense: true,
                       onChanged: (value) {
                         setState(() {
+                          abnormalPlacementId = int.parse(value!);
+                        });
+                      },
+                      items: abnormalPlacementList.keys.map((key) {
+                        return DropdownMenuItem<String>(
+                          value: key,
+                          child: Text(abnormalPlacementList[key]!),
+                        );
+                      }).toList(),
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                        labelText:
+                            'Apresenta coloração fora do normal em alguma área?(*)',
+                      ),
+                      value: (abnormalPlacementId == null
+                          ? null
+                          : abnormalPlacementId.toString()),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<String>(
+                      validator: _validateDropDown,
+                      isDense: true,
+                      onChanged: (value) {
+                        setState(() {
                           bodyStateId = int.parse(value!);
                         });
                       },
@@ -4789,7 +5322,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           filled: true,
                           fillColor: Colors.white,
                           labelText:
-                              'Qual a sua avaliação do estado corporal do seu pet?'),
+                              'Qual a sua avaliação do estado corporal do seu pet?(*)'),
                       value:
                           (bodyStateId == null ? null : bodyStateId.toString()),
                     ),
@@ -4822,7 +5355,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                           filled: true,
                           fillColor: Colors.white,
                           labelText:
-                              'Inspeção através da câmera: Score corporal'),
+                              'Inspeção através da câmera: Score corporal(*)'),
                       value:
                           (bodyScoreId == null ? null : bodyScoreId.toString()),
                     ),
@@ -4842,7 +5375,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
       children: [
         Container(
           width: double.infinity,
-          height: 230,
+          height: 400,
           decoration: BoxDecoration(
             color: Colors.white,
             border: Border.all(color: const Color.fromARGB(255, 206, 205, 205)),
@@ -4979,7 +5512,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
             return Dialog(
               child: Container(
                 width: 450,
-                height: 250,
+                height: 700,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5.0),
@@ -5052,7 +5585,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                 }).toList(),
                                 menuMode: true,
                                 onChanged: (value) {
-                                  print(value.id);
+                                  //print(value.id);
                                   if (value != null) {
                                     _symptomId = int.parse(value.id);
                                   } else {
@@ -5068,7 +5601,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                     });
                                   }
 
-                                  print(_isotherSimptomVisible);
+                                  //print(_isotherSimptomVisible);
                                 },
                                 decoration: BoxDecoration(
                                     border: Border.all(color: Colors.blue)),
@@ -5131,6 +5664,233 @@ class _AnamnesisPage extends State<AnamnesisPage> {
       },
     );
   }
+
+  Widget _iaTab(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 400,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color.fromARGB(255, 206, 205, 205)),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+          child: Column(
+            children: [
+              const SizedBox(width: 10.0),
+              FutureBuilder<List<dynamic>>(
+                  future: _fetchListConsultChatGPT(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else {
+                      // final List<dynamic> data = snapshot.data!;
+
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            itemCount:
+                                ConsultChatGPTData().consultChatGPTList.length,
+                            itemBuilder: (context, index) {
+                              final chatGPT = ConsultChatGPTData()
+                                  .consultChatGPTList[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  height:
+                                      60, // Defina a altura desejada para o card
+                                  width: double
+                                      .infinity, // Defina a largura desejada para o card
+
+                                  // Estilize o card com o BoxDecoration ou o Card widget
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      //print(petVaccine.);
+                                      _chatGPTId = chatGPT.chatGPTId;
+                                      _showInfoDesease(chatGPT.description);
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+                                                alignment:
+                                                    Alignment.centerRight,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(0.0),
+                                                  child: Row(
+                                                    children: [
+                                                      Text(
+                                                        chatGPT.diseaseName!,
+                                                        style: const TextStyle(
+                                                            fontSize: 18),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ),
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: <Widget>[
+                                                  const Text(
+                                                    'Selecionar',
+                                                    style:
+                                                        TextStyle(fontSize: 10),
+                                                  ),
+                                                  Switch(
+                                                    value: chatGPT.selected,
+                                                    onChanged: (bool value) {
+                                                      print(_chatGPTId);
+                                                      setState(() {
+                                                        _fetchRegisterDeseaseConsultChatGPT(
+                                                            chatGPT.chatGPTId,
+                                                            value);
+                                                      });
+                                                    },
+                                                    activeTrackColor:
+                                                        Colors.lightGreen,
+                                                    activeColor: Colors.green,
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                  }),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 10, // Define a posição do botão a partir do fundo
+          right: 10, // Define a posição do botão a partir da direita
+          child: Stack(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  // Adicionar ação de "Adicionar" aqui
+                  if (PetSymptomData().petSymptomList.isEmpty) {
+                    _showMessageErroIA(
+                        'Deve ser informador pelo menos um Sintoma para efeturar a Consulta.');
+                  } else {
+                    setState(() {
+                      _isLoading = true;
+                      _fetchConsultChatGPT();
+
+                      _fetchListConsultChatGPT();
+                    });
+                  }
+                },
+                child: const Text('Efetuar Consulta IA'),
+              ),
+              if (_isLoading)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.5), // Fundo escuro semitransparente
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showInfoDesease(String description) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Descrição'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                description,
+                softWrap: true,
+              ), // Use a variável _textValidation no Text
+              const SizedBox(height: 20), // Espaçamento entre o texto e o botão
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showMessageErroIA(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Erro'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message,
+                softWrap: true,
+              ), // Use a variável _textValidation no Text
+              const SizedBox(height: 20), // Espaçamento entre o texto e o botão
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 }
 
 class RecommendationPage extends StatefulWidget {
@@ -5185,6 +5945,34 @@ class HealthProgramPage extends StatefulWidget {
 }
 
 class _HealthProgramPage extends State<HealthProgramPage> {
+  Future<List<dynamic>> _fetchHealthProgram() async {
+    List<HealthProgramModel> healthProgramList;
+    healthProgramList =
+        await healthProgramListApi(_serviceQueue.queueId.toString());
+
+    return healthProgramList;
+  }
+
+  Future<List<dynamic>> _fetchPetHealthProgram() async {
+    List<PetHealthProgramModel> petHealthProgramList;
+    petHealthProgramList =
+        await petHealthProgramListApi(_serviceQueue.petId.toString());
+
+    return petHealthProgramList;
+  }
+
+  Future<void> _getVeterinaryCrmv() async {
+    _veterinaryId = (await UserPreferences.getVeterinaryUserId())!;
+    _veterinary = (await UserPreferences.getVeterinaryName())!;
+    _crmv = (await UserPreferences.getVeterinaryCrmv())!;
+  }
+
+  Future<void> _fetchRegisterHealtProgram() async {
+    await _getVeterinaryCrmv();
+    await registerHealthProgramApi(
+        'C', _serviceQueue.queueId, _healthProgramId, _veterinaryId);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -5209,7 +5997,7 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: 230,
+                    height: 400,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       border: Border.all(
@@ -5246,7 +6034,7 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                         // colocar lista
 
                         FutureBuilder<List<dynamic>>(
-                            future: null, //_fetchPetDiseaes(),
+                            future: _fetchHealthProgram(),
                             builder: (context, snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
@@ -5264,12 +6052,13 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: ListView.builder(
-                                      itemCount: PetDiseaseData()
-                                          .petDiseaseList
+                                      itemCount: HealthProgramData()
+                                          .healthProgramList
                                           .length,
                                       itemBuilder: (context, index) {
-                                        final petDisease = PetDiseaseData()
-                                            .petDiseaseList[index];
+                                        final healthProgram =
+                                            HealthProgramData()
+                                                .healthProgramList[index];
                                         return Padding(
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
@@ -5296,8 +6085,11 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                             child: InkWell(
                                               onTap: () {
                                                 //print(petVaccine.);
-                                                _petDiseaseId =
-                                                    petDisease.petDiseaseId;
+                                                _healthProgramId = healthProgram
+                                                    .healthProgramId;
+
+                                                _showInfoHealthProgram(
+                                                    healthProgram.description);
                                               },
                                               child: Padding(
                                                 padding:
@@ -5311,18 +6103,6 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                                           MainAxisAlignment
                                                               .start,
                                                       children: [
-                                                        /*
-                                                        Container(
-                                                          alignment: Alignment
-                                                              .centerRight,
-                                                          child: const Icon(
-                                                              Icons
-                                                                  .health_and_safety,
-                                                              color: Colors
-                                                                  .black,
-                                                              size: 50),
-                                                        ),
-                                                        */
                                                         Container(
                                                           alignment: Alignment
                                                               .centerRight,
@@ -5331,7 +6111,8 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                                                 const EdgeInsets
                                                                     .all(0.0),
                                                             child: Text(
-                                                              petDisease.name!,
+                                                              healthProgram
+                                                                  .action,
                                                               style:
                                                                   const TextStyle(
                                                                       fontSize:
@@ -5396,7 +6177,7 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                               ),
                             ),
                             FutureBuilder<List<dynamic>>(
-                                future: null, //_fetchPetMedicines(),
+                                future: _fetchPetHealthProgram(),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
@@ -5414,13 +6195,14 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
                                         child: ListView.builder(
-                                          itemCount: PetMedicineData()
-                                              .petMedicineList
+                                          itemCount: PetHealthProgramData()
+                                              .petHealthProgramList
                                               .length,
                                           itemBuilder: (context, index) {
-                                            final petMedicine =
-                                                PetMedicineData()
-                                                    .petMedicineList[index];
+                                            final petHealthProgram =
+                                                PetHealthProgramData()
+                                                        .petHealthProgramList[
+                                                    index];
                                             return Padding(
                                               padding:
                                                   const EdgeInsets.all(8.0),
@@ -5449,8 +6231,8 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                                 child: InkWell(
                                                   onTap: () {
                                                     //print(petVaccine.);
-                                                    _petMedicineId = petMedicine
-                                                        .petMedicineId;
+                                                    //_petMedicineId = petMedicine
+                                                    //    .petMedicineId;
                                                   },
                                                   child: Padding(
                                                     padding:
@@ -5466,18 +6248,6 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                                               MainAxisAlignment
                                                                   .start,
                                                           children: [
-                                                            /*
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: const Icon(
-                                                                  Icons
-                                                                      .health_and_safety,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 50),
-                                                            ),
-                                                            */
                                                             Container(
                                                               alignment: Alignment
                                                                   .centerRight,
@@ -5487,8 +6257,8 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                                                         .all(
                                                                         0.0),
                                                                 child: Text(
-                                                                  petMedicine
-                                                                      .name!,
+                                                                  petHealthProgram
+                                                                      .action,
                                                                   style: const TextStyle(
                                                                       fontSize:
                                                                           18),
@@ -5520,6 +6290,48 @@ class _HealthProgramPage extends State<HealthProgramPage> {
           ),
         ],
       ),
+    );
+  }
+
+  void _showInfoHealthProgram(String description) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Descrição'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                description,
+                softWrap: true,
+              ), // Use a variável _textValidation no Text
+              const SizedBox(height: 20), // Espaçamento entre o texto e o botão
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(); // Fecha o diálogo
+                    },
+                    child: const Text('Fechar'),
+                  ),
+                  const SizedBox(width: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      setState(() {
+                        _fetchRegisterHealtProgram();
+                      });
+
+                      Navigator.of(context).pop(); // Fecha o diálogo
+                    },
+                    child: const Text('Adicionar'),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }
@@ -5991,8 +6803,10 @@ class _ServiceHistoryPage extends State<ServiceHistoryPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        onPressed: () {},
-                        child: const Text('Adicionar Dose'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Fechar'),
                       ),
                     ],
                   ),
@@ -6186,7 +7000,7 @@ class _FinalGuidelinesPage extends State<FinalGuidelinesPage> {
             isDense: true,
             onChanged: (value) {
               setState(() {
-                appetitId = int.parse(value!);
+                finalClassificationId = int.parse(value!);
               });
             },
             items: finalClassificationList.keys.map((key) {
@@ -6255,7 +7069,7 @@ class _CheckoutPage extends State<CheckoutPage> {
                   .pushReplacementNamed('/serviceQuery');
             });
           },
-          child: Text('Voltar a Fila de Atendimento')),
+          child: const Text('Voltar a Fila de Atendimento')),
     );
   }
 }

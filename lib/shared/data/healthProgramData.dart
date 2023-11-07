@@ -15,7 +15,7 @@ class HealthProgramData {
 
   HealthProgramModel getHealthProgramById(String index) {
     return healthProgramList
-        .firstWhere((element) => (element.healthProgramid == index));
+        .firstWhere((element) => (element.healthProgramId == index));
   }
 
   List<HealthProgramModel> getHealthProgramBySpecieId(int index) {

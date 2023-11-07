@@ -1,7 +1,7 @@
 // ignore_for_file: file_names
 
 class HealthProgramModel {
-  late final String healthProgramid;
+  late final int? healthProgramId;
   late final String name;
   late final int specieId;
   late final String action;
@@ -13,7 +13,7 @@ class HealthProgramModel {
   late final String frequency;
 
   HealthProgramModel({
-    required this.healthProgramid,
+    required this.healthProgramId,
     required this.name,
     required this.specieId,
     required this.action,
@@ -27,7 +27,7 @@ class HealthProgramModel {
 
   factory HealthProgramModel.fromJson(Map<String, dynamic> json) {
     return HealthProgramModel(
-      healthProgramid: json['healthProgramid'],
+      healthProgramId: json['healthProgramId'],
       name: json['name'],
       specieId: json['specieId'],
       action: json['action'],
@@ -42,7 +42,7 @@ class HealthProgramModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'healthProgramid': healthProgramid,
+      'healthProgramId': healthProgramId,
       'name': name,
       'specieId': specieId,
       'action': action,

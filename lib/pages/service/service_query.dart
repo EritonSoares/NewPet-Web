@@ -35,7 +35,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   late Timer timer;
   late int _index;
   late String roomToken;
-  String? _crmv, _veterinary;
+  String? _crmv, _veterinary, _veterinaryId;
 
   void _queueInformation(int index) {
     setState(() {
@@ -65,17 +65,19 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
     _future = _fetchServiceQueue();
 
     timer = Timer.periodic(const Duration(seconds: 30), (timer) {
-      setState(() {
-        //_queueSelected = false;
-        // Atualize seus dados aqui, por exemplo:
-        if (mounted) {
+      if (mounted) {
+        setState(() {
+          //_queueSelected = false;
+          // Atualize seus dados aqui, por exemplo:
+
           _future = _fetchServiceQueue();
-        }
-      });
+        });
+      }
     });
   }
 
   Future<void> _getVeterinaryCrmv() async {
+    _veterinaryId = (await UserPreferences.getVeterinaryUserId())!;
     _veterinary = (await UserPreferences.getVeterinaryName())!;
     _crmv = (await UserPreferences.getVeterinaryCrmv())!;
   }
@@ -84,8 +86,9 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
     return serviceQueueList = await serviceQueueApi();
   }
 
-  Future<String> _getRTCToken(int petId, int queueId, int crmv) async {
-    final roomToken = await getRTCTokenApi(petId, queueId, crmv);
+  Future<String> _getRTCToken(
+      int petId, int queueId, int crmv, int veterinaryId) async {
+    final roomToken = await getRTCTokenApi(petId, queueId, crmv, veterinaryId);
 
     return roomToken;
   }
@@ -478,7 +481,8 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       roomToken = await _getRTCToken(
                           serviceQueueList[index].petId,
                           serviceQueueList[index].queueId,
-                          int.parse(_crmv!));
+                          int.parse(_crmv!),
+                          int.parse(_veterinaryId!));
 
                       if (roomToken == '0') {
                         print('erro 0');
@@ -487,7 +491,6 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       } else if (roomToken == '-2') {
                         print('erro 2');
                       } else {
-                        print(serviceQueueList[index].toJson());
                         UserPreferences.saveRoom(roomToken,
                             serviceQueueList[index].queueId.toString());
                         UserPreferences.saveQueue(

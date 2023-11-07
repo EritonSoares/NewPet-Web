@@ -4,15 +4,18 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:petner_web/models/ActivityTypeModel.dart';
 import 'package:petner_web/models/coatModel.dart';
+import 'package:petner_web/models/consultChatGPTModel.dart';
 import 'package:petner_web/models/diseaseModel.dart';
 import 'package:petner_web/models/fileTypeModel.dart';
 import 'package:petner_web/models/healthEventFileTypeModel.dart';
 import 'package:petner_web/models/healthEventTypeModel.dart';
+import 'package:petner_web/models/healthProgramModel.dart';
 import 'package:petner_web/models/petActivityModel.dart';
 import 'package:petner_web/models/petAllergyModel.dart';
 import 'package:petner_web/models/petDiseaseModel.dart';
@@ -27,6 +30,8 @@ import 'package:petner_web/models/screeningReasonmodel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/models/speciedModel.dart';
 import 'package:petner_web/shared/data/PetActivityData.dart';
+import 'package:petner_web/shared/data/consultChatGPTData.dart';
+import 'package:petner_web/shared/data/healthProgramData.dart';
 import 'package:petner_web/shared/data/petAllergyData.dart';
 import 'package:petner_web/shared/data/petDiseaseData.dart';
 import 'package:petner_web/shared/data/petHealthProgramData.dart';
@@ -66,7 +71,11 @@ const headerBasic = 'Basic BZpR465EewtRd795gfh\$_dyRE34*%';
 
 Future<Map<String, dynamic>> validateUserApi(
     String email, String password, int typeLogin) async {
-  const url = 'https://adm.petner.com.br/ValidateUser';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/ValidateUser?param=' + randomInt.toString();
+
   String passwordMD5;
   if (typeLogin == 0) {
     passwordMD5 = md5.convert(utf8.encode(password)).toString();
@@ -81,7 +90,6 @@ Future<Map<String, dynamic>> validateUserApi(
     'userType': userType
   };
 
-  print(jsonEncode(validateUser));
   Map<String, dynamic> responseData;
 
   try {
@@ -174,7 +182,11 @@ Future<Map<String, dynamic>> createUserApi(
     String state,
     String city,
     String password) async {
-  const url = 'https://adm.petner.com.br/CreateUser';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/CreateUser?param=' + randomInt.toString();
+
   String passwordMD5 = md5.convert(utf8.encode(password)).toString();
 
   /*
@@ -231,7 +243,11 @@ Future<Map<String, dynamic>> createUserApi(
 }
 
 Future<void> specieListApi() async {
-  const url = 'https://adm.petner.com.br/SpecieList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/SpecieList?param=' + randomInt.toString();
+
   List<SpecieModel> specieList = [];
 
   try {
@@ -265,7 +281,11 @@ Future<void> specieListApi() async {
 }
 
 Future<void> raceListApi([String? specie]) async {
-  const url = 'https://adm.petner.com.br/RaceList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RaceList?param=' + randomInt.toString();
+
   List<RaceModel> raceList = [];
 
   try {
@@ -303,7 +323,11 @@ Future<void> raceListApi([String? specie]) async {
 }
 
 Future<void> coatListApi([String? specie]) async {
-  const url = 'https://adm.petner.com.br/CoatList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/CoatList?param=' + randomInt.toString();
+
   List<CoatModel> coatList = [];
 
   try {
@@ -339,20 +363,32 @@ Future<Map<String, dynamic>> registerPetApi(
   String birthday,
   String age,
   String food,
+  String temperament,
   String environment,
   String weight,
+  String size,
+  String coat,
+  String bodyScore,
+  bool birthType,
+  bool castrated,
   String imageFileName,
   String base64Image,
 ) async {
-  const url = 'https://adm.petner.com.br/RegisterPet';
-  String directoryPath = (await getApplicationDocumentsDirectory()).path;
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RegisterPet?param=' + randomInt.toString();
 
+  //String directoryPath = (await getApplicationDocumentsDirectory()).path;
+
+  /*
   if (base64Image.isEmpty) {
     ByteData byteData = await rootBundle.load('lib/shared/images/logo.jpg');
     List<int> imageData = byteData.buffer.asUint8List();
     base64Image = base64Encode(imageData);
     imageFileName = 'padrao.jpg';
   }
+  */
 
   Map<String, dynamic> petner = {
     'option': option,
@@ -366,7 +402,13 @@ Future<Map<String, dynamic>> registerPetApi(
     'birthday': birthday,
     'food': food,
     'environment': environment,
+    'temperament': temperament,
     'weight': weight,
+    'size': size,
+    'coat': coat,
+    'bodyScore': bodyScore,
+    'birthType': birthType,
+    'castrated': castrated,
     'imageFileName': imageFileName,
     'base64Image': base64Image,
   };
@@ -384,9 +426,6 @@ Future<Map<String, dynamic>> registerPetApi(
     );
 
     if (response.statusCode == 200) {
-      // O usuário foi criado com sucesso
-      //final responseData = response.body;
-      //return responseData;
       responseData = jsonDecode(response.body);
 
       if (option == 'C') {
@@ -404,20 +443,10 @@ Future<Map<String, dynamic>> registerPetApi(
           food: food,
           environment: environment,
           weight: weight,
-          photoName: '$directoryPath/${responseData['petId']}.jpg',
+          photoName: '',
           imageUrl: '',
         );
         PetData().petList.add(petner);
-
-        saveBase64Image(base64Image, petner.photoName);
-      }
-
-      if (option == 'U') {
-        //Criar lista de Pet
-
-        PetData().petList = await petListApi(TutorData().getId().toString());
-
-        PetModel petner = PetData().getPetById(petId.toString());
 
         saveBase64Image(base64Image, petner.photoName);
       }
@@ -439,7 +468,10 @@ Future<Map<String, dynamic>> registerPetApi(
 }
 
 Future<List<PetModel>> petListApi([String? tutorId]) async {
-  const url = 'https://adm.petner.com.br/PetList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/PetList?param=' + randomInt.toString();
   List<PetModel> petList = [];
 
   if (tutorId == null) {
@@ -510,11 +542,14 @@ Future<List<PetModel>> petListApi([String? tutorId]) async {
 }
 
 Future<List<PetVaccineCardModel>> petVaccineCardListApi([String? petId]) async {
-  const url = 'https://adm.petner.com.br/VaccineCardList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/VaccineCardList?param=' + randomInt.toString();
+
   List<PetVaccineCardModel> petVaccineList = [];
 
   Map<String, dynamic> petCode = {'petId': petId};
-  print(petCode);
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -547,7 +582,11 @@ Future<List<PetVaccineCardModel>> petVaccineCardListApi([String? petId]) async {
 
 Future<List<VaccineBrandModel>> vaccineBrandListApi(
     [String? vaccineId, String? specie]) async {
-  const url = 'https://adm.petner.com.br/VaccineBranList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/VaccineBranList?param=' + randomInt.toString();
+
   List<VaccineBrandModel> vaccineBrandList = [];
 
   Map<String, dynamic> jsonSend = {'vaccineId': vaccineId, 'specir': specie};
@@ -584,7 +623,10 @@ Future<List<VaccineBrandModel>> vaccineBrandListApi(
 
 Future<List<VaccineModel>> vaccineListApi(
     [String? petId, String? specie]) async {
-  const url = 'https://adm.petner.com.br/VaccineList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/VaccineList?param=' + randomInt.toString();
   List<VaccineModel> vaccineList = [];
 
   Map<String, dynamic> jsonSend = {'petId': petId, 'specie': specie};
@@ -620,7 +662,10 @@ Future<List<VaccineModel>> vaccineListApi(
 
 Future<Map<String, dynamic>> registerVaccineApi(
     [String? option, String? petId, String? vaccineId]) async {
-  const url = 'https://adm.petner.com.br/RegisterVaccine';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RegisterVaccine?param=' + randomInt.toString();
   Map<String, dynamic> responseData;
 
   Map<String, dynamic> jsonSend = {
@@ -659,7 +704,10 @@ Future<Map<String, dynamic>> registerVaccineApi(
 
 Future<List<VaccineDoseModel>> vaccineDoseListApi(
     [String? petId, String? vaccineId]) async {
-  const url = 'https://adm.petner.com.br/VaccineDoseList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/VaccineDoseList?param=' + randomInt.toString();
   List<VaccineDoseModel> vaccineDoseList = [];
 
   Map<String, dynamic> jsonSend = {'petId': petId, 'vaccineId': vaccineId};
@@ -696,6 +744,7 @@ Future<List<VaccineDoseModel>> vaccineDoseListApi(
 
 Future<Map<String, dynamic>> registerVaccineDoseApi([
   String? option,
+  String? queueId,
   String? vaccineCardId,
   String? applicationDate,
   bool? applied,
@@ -710,7 +759,10 @@ Future<Map<String, dynamic>> registerVaccineDoseApi([
   String? base64Image,
 ]) async {
   String directoryPath = '';
-  const url = 'https://adm.petner.com.br/RegisterVaccineDose';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterVaccineDose?param=' +
+      randomInt.toString();
   Map<String, dynamic>? responseData;
   Map<String, dynamic>? jsonSend;
 
@@ -721,6 +773,7 @@ Future<Map<String, dynamic>> registerVaccineDoseApi([
   if (option == 'C' || option == 'U') {
     jsonSend = {
       'option': option,
+      'queueId': queueId,
       'petId': petId,
       'vaccineCardId': vaccineCardId,
       'applicationDate': applicationDate,
@@ -787,7 +840,10 @@ Future<Map<String, dynamic>> registerVaccineDoseApi([
 }
 
 Future<List<PetTreatmentModel>> petTreatmentListApi([String? petId]) async {
-  const url = 'https://adm.petner.com.br/TreatmentList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/TreatmentList?param=' + randomInt.toString();
   List<PetTreatmentModel> petTreatmentList = [];
 
   Map<String, dynamic> petCode = {'petId': petId};
@@ -844,7 +900,10 @@ Future<Map<String, dynamic>> registerTreatmentApi([
   String? reminder,
 ]) async {
   String directoryPath = (await getApplicationDocumentsDirectory()).path;
-  const url = 'https://adm.petner.com.br/RegisterTreatment';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterTreatment?param=' +
+      randomInt.toString();
   Map<String, dynamic>? responseData;
   Map<String, dynamic>? jsonSend;
 
@@ -904,7 +963,10 @@ Future<Map<String, dynamic>> registerTreatmentApi([
 
 Future<List<PetScheduleTreatmentModel>> petScheduleTreatmentListApi(
     [String? treatmentId]) async {
-  const url = 'https://adm.petner.com.br/ScheduleTreatmentList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/ScheduleTreatmentList?param=' +
+      randomInt.toString();
   List<PetScheduleTreatmentModel> petScheduleTreatmentList = [];
 
   Map<String, dynamic> petCode = {'treatmentId': treatmentId};
@@ -947,7 +1009,10 @@ Future<Map<String, dynamic>> petRegisterScheduleTreatmentApi([
   String? timeTable,
   bool? performed,
 ]) async {
-  const url = 'https://adm.petner.com.br/RegisterScheduleTreatment';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterScheduleTreatment?param=' +
+      randomInt.toString();
 
   Map<String, dynamic>? responseData;
   Map<String, dynamic> petCode = {
@@ -1021,7 +1086,11 @@ Future<List<CityModel>> cityListApi([String? uf]) async {
 
 /////////////////////// activity list
 Future<List<ActivityTypeModel>> activityTypeListApi([String? petId]) async {
-  const url = 'https://adm.petner.com.br/ActivityTypeList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/ActivityTypeList?param=' +
+      randomInt.toString();
+
   List<ActivityTypeModel> activityTypeList = [];
 
   try {
@@ -1101,7 +1170,10 @@ Future<Map<String, dynamic>> petRegisterActivityApi([
   bool? repeatDayOfMonth,
   bool? repeatDayOfWeek,
 ]) async {
-  const url = 'https://adm.petner.com.br/RegisterActivity';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterActivity?param=' +
+      randomInt.toString();
 
   Map<String, dynamic>? responseData;
   Map<String, dynamic> petCode = {
@@ -1166,7 +1238,10 @@ Future<Map<String, dynamic>> registerMedicalScreeningApi([
   String? screeningReasonId,
   List<Map<String, dynamic>>? answer,
 ]) async {
-  const url = 'https://adm.petner.com.br/RegisterAppointment';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterAppointment?param=' +
+      randomInt.toString();
   Map<String, dynamic>? responseData;
 
   Map<String, dynamic> petCode = {
@@ -1211,7 +1286,10 @@ Future<Map<String, dynamic>> registerMedicalScreeningApi([
 ///////////////////////////////
 ///////////////////////// PetActivityModel
 Future<List<PetActivityModel>> petActivityModelApi([String? petId]) async {
-  const url = 'https://adm.petner.com.br/ActivityList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/ActivityList?param=' + randomInt.toString();
   List<PetActivityModel> petActivityList = [];
 
   Map<String, dynamic> petCode = {'petId': petId};
@@ -1253,7 +1331,10 @@ Future<List<PetActivityModel>> petActivityModelApi([String? petId]) async {
 ////////////////////////// file Type List
 
 Future<List<FileTypeModel>> fileTypeListApi() async {
-  const url = 'https://adm.petner.com.br/FileTypeList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/FileTypeList?param=' + randomInt.toString();
 
   List<FileTypeModel> fileTypeList = [];
 
@@ -1286,7 +1367,10 @@ Future<List<FileTypeModel>> fileTypeListApi() async {
 }
 
 Future<List<PetFileModel>> petFileModelApi([String? petId]) async {
-  const url = 'https://adm.petner.com.br/FileList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/FileList?param=' + randomInt.toString();
   List<PetFileModel> petFileList = [];
 
   Map<String, dynamic> petCode = {'petId': petId};
@@ -1336,7 +1420,10 @@ Future<List<PetScheduleActivityModel>> petScheduleActivityListApi([
   String? activityStartDate,
   String? activityEndDate,
 ]) async {
-  const url = 'https://adm.petner.com.br/ScheduleActivityList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/ScheduleActivityList?param=' +
+      randomInt.toString();
   List<PetScheduleActivityModel> petScheduleTreatmentList = [];
 
   Map<String, dynamic> petCode = {
@@ -1379,7 +1466,10 @@ Future<List<PetScheduleActivityModel>> petScheduleActivityListApi([
 }
 
 Future<List<ScreeningReasonModel>> screeningReasonApi() async {
-  const url = 'https://adm.petner.com.br/ScreeningReasonList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/ScreeningReasonList?param=' +
+      randomInt.toString();
   List<ScreeningReasonModel> screeningReasonList = [];
 
   try {
@@ -1412,7 +1502,10 @@ Future<List<ScreeningReasonModel>> screeningReasonApi() async {
 }
 
 Future<List<ScreeningQuestionModel>> screeningQuestionApi() async {
-  const url = 'https://adm.petner.com.br/ScreeningQuestionList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/ScreeningQuestionList?param=' +
+      randomInt.toString();
   List<ScreeningQuestionModel> screeningQuestionList = [];
 
   try {
@@ -1446,7 +1539,10 @@ Future<List<ScreeningQuestionModel>> screeningQuestionApi() async {
 }
 
 Future<List<QuestionAnswerModel>> questionAnswerApi() async {
-  const url = 'https://adm.petner.com.br/QuestionAnswerList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/QuestionAnswerList?param=' +
+      randomInt.toString();
   List<QuestionAnswerModel> questionAnswerList = [];
 
   try {
@@ -1481,7 +1577,10 @@ Future<List<QuestionAnswerModel>> questionAnswerApi() async {
 /////////////// file and event type
 
 Future<List<HealthEventTypeModel>> healthEventTypeApi() async {
-  const url = 'https://adm.petner.com.br/HealthEventTypeList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/HealthEventTypeList?param=' +
+      randomInt.toString();
   List<HealthEventTypeModel> healthEventTypeModelList = [];
 
   try {
@@ -1515,7 +1614,10 @@ Future<List<HealthEventTypeModel>> healthEventTypeApi() async {
 }
 
 Future<List<HealthEventFileTypeModel>> healthEventFileTypeApi() async {
-  const url = 'https://adm.petner.com.br/HealthEventFileTypeList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/HealthEventFileTypeList?param=' +
+      randomInt.toString();
   List<HealthEventFileTypeModel> healthEventTypeFileList = [];
 
   try {
@@ -1548,7 +1650,11 @@ Future<List<HealthEventFileTypeModel>> healthEventFileTypeApi() async {
 }
 
 Future<List<ServiceQueueModel>> serviceQueueApi() async {
-  const url = 'https://adm.petner.com.br/ServiceQueueList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/ServiceQueueList?param=' +
+      randomInt.toString();
+
   List<ServiceQueueModel> serviceQueueList = [];
 
   try {
@@ -1556,16 +1662,13 @@ Future<List<ServiceQueueModel>> serviceQueueApi() async {
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': headerBasic
+        'Authorization': headerBasic,
       },
     );
+
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-
-      print(response.body);
-
       for (var item in jsonData) {
-        print(item);
         ServiceQueueModel healthEventFileType =
             ServiceQueueModel.fromJson(item);
         serviceQueueList.add(healthEventFileType);
@@ -1583,19 +1686,20 @@ Future<List<ServiceQueueModel>> serviceQueueApi() async {
   return serviceQueueList;
 }
 
-Future<String> getRTCTokenApi(int petId, int roomNameId, int crmv) async {
-  const url = 'https://adm.petner.com.br/GetRTCToken';
+Future<String> getRTCTokenApi(
+    int petId, int roomNameId, int crmv, int veterinaryId) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/GetRTCToken?param=' + randomInt.toString();
   String token = '0';
 
   Map<String, dynamic> getRoom = {
     'petId': petId,
     'roomNameId': roomNameId,
-    'crmv': crmv
+    'crmv': crmv,
+    'veterinaryId': veterinaryId,
   };
-
-  print(getRoom);
-
-  print(jsonEncode(getRoom));
 
   try {
     final response = await http.post(
@@ -1629,7 +1733,10 @@ Future<Map<String, dynamic>> registerDiseaseApi([
   String? otherDisease,
   bool? chronic,
 ]) async {
-  const url = 'https://adm.petner.com.br/RegisterDisease';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RegisterDisease?param=' + randomInt.toString();
   Map<String, dynamic> responseData;
 
   Map<String, dynamic> jsonSend = {
@@ -1639,8 +1746,6 @@ Future<Map<String, dynamic>> registerDiseaseApi([
     'otherDisease': otherDisease,
     'chronic': chronic,
   };
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -1670,7 +1775,10 @@ Future<Map<String, dynamic>> registerDiseaseApi([
 }
 
 Future<void> diseaseListApi() async {
-  const url = 'https://adm.petner.com.br/DiseaseList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/DiseaseList?param=' + randomInt.toString();
 
   try {
     final response = await http.get(
@@ -1696,15 +1804,16 @@ Future<List<PetDiseaseModel>> petDiseaseListApi([
   String? petId,
   bool? chronic,
 ]) async {
-  const url = 'https://adm.petner.com.br/PetDiseaseList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/PetDiseaseList?param=' + randomInt.toString();
   List<PetDiseaseModel> petDiseaseList = [];
 
   Map<String, dynamic> jsonSend = {
     'petId': petId,
     'chronic': chronic,
   };
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -1718,9 +1827,6 @@ Future<List<PetDiseaseModel>> petDiseaseListApi([
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-
-      print(jsonData);
-
       for (var item in jsonData) {
         PetDiseaseModel petDiseaseModel = PetDiseaseModel.fromJson(item);
         petDiseaseList.add(petDiseaseModel);
@@ -1746,7 +1852,10 @@ Future<Map<String, dynamic>> registerMedicineApi([
   String? otherMedicine,
   bool? continuousUser,
 ]) async {
-  const url = 'https://adm.petner.com.br/RegisterMedicine';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterMedicine?param=' +
+      randomInt.toString();
   Map<String, dynamic> responseData;
 
   Map<String, dynamic> jsonSend = {
@@ -1756,8 +1865,6 @@ Future<Map<String, dynamic>> registerMedicineApi([
     'otherMedicine': otherMedicine,
     'continuousUser': continuousUser,
   };
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -1793,7 +1900,10 @@ Future<Map<String, int>> registerSymptomApi([
   String? symptomId,
   String? otherSymptom,
 ]) async {
-  const url = 'https://adm.petner.com.br/RegisterSymptom';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RegisterSymptom?param=' + randomInt.toString();
   Map<String, int> responseData;
 
   Map<String, dynamic> jsonSend = {
@@ -1803,8 +1913,6 @@ Future<Map<String, int>> registerSymptomApi([
     'symptomId': symptomId,
     'otherSymptom': otherSymptom,
   };
-
-  print(jsonEncode(jsonSend));
 
   try {
     final response = await http.post(
@@ -1834,7 +1942,10 @@ Future<Map<String, int>> registerSymptomApi([
 }
 
 Future<void> medicineListApi() async {
-  const url = 'https://adm.petner.com.br/MedicineList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/MedicineList?param=' + randomInt.toString();
 
   try {
     final response = await http.get(
@@ -1859,14 +1970,15 @@ Future<void> medicineListApi() async {
 Future<List<PetMedicineModel>> petMedicineListApi([
   String? petId,
 ]) async {
-  const url = 'https://adm.petner.com.br/PetMedicineList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/PetMedicineList?param=' + randomInt.toString();
   List<PetMedicineModel> petMedicineList = [];
 
   Map<String, dynamic> jsonSend = {
     'petId': petId,
   };
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -1880,9 +1992,6 @@ Future<List<PetMedicineModel>> petMedicineListApi([
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-
-      print(jsonData);
-
       for (var item in jsonData) {
         PetMedicineModel petMedicineModel = PetMedicineModel.fromJson(item);
         petMedicineList.add(petMedicineModel);
@@ -1906,7 +2015,10 @@ Future<Map<String, dynamic>> registerAllergyApi([
   String? petId,
   String? allergy,
 ]) async {
-  const url = 'https://adm.petner.com.br/RegisterAllergy';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RegisterAllergy?param=' + randomInt.toString();
   Map<String, dynamic> responseData;
 
   Map<String, dynamic> jsonSend = {
@@ -1945,14 +2057,15 @@ Future<Map<String, dynamic>> registerAllergyApi([
 Future<List<PetAllergyModel>> petAllergyListApi([
   String? petId,
 ]) async {
-  const url = 'https://adm.petner.com.br/PetAllergyList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/PetAllergyList?param=' + randomInt.toString();
   List<PetAllergyModel> petAllergyList = [];
 
   Map<String, dynamic> jsonSend = {
     'petId': petId,
   };
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -1966,8 +2079,6 @@ Future<List<PetAllergyModel>> petAllergyListApi([
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-
-      print(jsonData);
 
       for (var item in jsonData) {
         PetAllergyModel petAllergyModel = PetAllergyModel.fromJson(item);
@@ -1991,15 +2102,16 @@ Future<List<PetSymptomModel>> petSymptomListApi([
   String? petId,
   String? queueId,
 ]) async {
-  const url = 'https://adm.petner.com.br/PetSimptomList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/PetSimptomList?param=' + randomInt.toString();
   List<PetSymptomModel> petSymptomList = [];
 
   Map<String, dynamic> jsonSend = {
     'petId': petId,
     'queueId': queueId,
   };
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -2013,8 +2125,6 @@ Future<List<PetSymptomModel>> petSymptomListApi([
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-
-      print(jsonData);
 
       for (var item in jsonData) {
         PetSymptomModel petSymptomModel = PetSymptomModel.fromJson(item);
@@ -2035,7 +2145,10 @@ Future<List<PetSymptomModel>> petSymptomListApi([
 }
 
 Future<void> symptomListApi() async {
-  const url = 'https://adm.petner.com.br/SymptomList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/SymptomList?param=' + randomInt.toString();
 
   try {
     final response = await http.get(
@@ -2057,19 +2170,39 @@ Future<void> symptomListApi() async {
   }
 }
 
-Future<void> healthProgramListApi() async {
-  const url = 'https://adm.petner.com.br/HealthProgramList';
+Future<List<HealthProgramModel>> healthProgramListApi([
+  String? queueId,
+]) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/HealthProgramList?param=' +
+      randomInt.toString();
+  List<HealthProgramModel> healthProgramList = [];
+
+  Map<String, dynamic> jsonSend = {
+    'queueId': queueId,
+  };
 
   try {
-    final response = await http.get(
+    final response = await http.post(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': headerBasic
       },
+      body: jsonEncode(jsonSend),
     );
+
     if (response.statusCode == 200) {
-      UserPreferences.saveHealthProgram(response.body);
+      //UserPreferences.saveHealthProgram(response.body);
+      final jsonData = jsonDecode(response.body);
+
+      for (var item in jsonData) {
+        HealthProgramModel healthProgramModel =
+            HealthProgramModel.fromJson(item);
+        healthProgramList.add(healthProgramModel);
+      }
+      HealthProgramData().healthProgramList = healthProgramList;
     } else {
       // A resposta não foi bem-sucedida
       print(
@@ -2077,13 +2210,18 @@ Future<void> healthProgramListApi() async {
     }
   } catch (e) {
     // Ocorreu um erro durante a solicitação
-    print('Erro na solicitação GET healthProgramList: $e');
+    print('Erro na solicitação POST healthProgramList: $e');
   }
+
+  return healthProgramList;
 }
 
 Future<List<PetServiceHistoryModel>> petServiceHistoryListApi(
     String petId) async {
-  const url = 'https://adm.petner.com.br/PetServiceHistoryList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/PetServiceHistoryList?param=' +
+      randomInt.toString();
   List<PetServiceHistoryModel> petServiceHistoryList = [];
   Map<String, dynamic> jsonSend = {
     'petId': petId,
@@ -2127,7 +2265,10 @@ Future<List<PetServiceHistoryModel>> petServiceHistoryListApi(
 
 Future<List<PetHealthProgramModel>> petHealthProgramListApi(
     String petId) async {
-  const url = 'https://adm.petner.com.br/PetHealthProgramList';
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/PetHealthProgramList?param=' +
+      randomInt.toString();
   List<PetHealthProgramModel> petHealthProgramList = [];
   Map<String, dynamic> jsonSend = {
     'petId': petId,
@@ -2148,8 +2289,6 @@ Future<List<PetHealthProgramModel>> petHealthProgramListApi(
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
 
-      print(jsonData);
-
       for (var item in jsonData) {
         PetHealthProgramModel petHealthProgramModel =
             PetHealthProgramModel.fromJson(item);
@@ -2167,4 +2306,323 @@ Future<List<PetHealthProgramModel>> petHealthProgramListApi(
   }
 
   return petHealthProgramList;
+}
+
+Future<Map<String, dynamic>> registerAnamneseApi(
+  int? queueId,
+  String? complaint,
+  int? appetit,
+  int? waterIntake,
+  int? urineStaining,
+  int? urineVolume,
+  int? stoolColoring,
+  int? stoolConsistency,
+  int? noseType,
+  int? noseTemperature,
+  int? hotEar,
+  int? gases,
+  int? tightBelly,
+  int? touchPain,
+  int? walksBentOver,
+  int? conjunctivaId,
+  int? gumTongueId,
+  int? hairLossId,
+  int? hairFailureId,
+  int? abnormalPlacementId,
+  int? bodyStateId,
+  int? bodyScoreId,
+  int? restlessId,
+  int? dullHairId,
+  int? brittleHairId,
+) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterAnamnese?param=' +
+      randomInt.toString();
+  Map<String, dynamic> responseData;
+
+  Map<String, dynamic> petner = {
+    'queueId': queueId,
+    'complaint': complaint,
+    'appetit': appetit,
+    'waterIntake': waterIntake,
+    'urineStaining': urineStaining,
+    'urineVolume': urineVolume,
+    'stoolColoring': stoolColoring,
+    'stoolConsistency': stoolConsistency,
+    'noseType': noseType,
+    'noseTemperature': noseTemperature,
+    'hotEar': hotEar,
+    'gases': gases,
+    'tightBelly': tightBelly,
+    'touchPain': touchPain,
+    'walksBentOver': walksBentOver,
+    'conjunctivaId': conjunctivaId,
+    'gumTongueId': gumTongueId,
+    'hairLossId': hairLossId,
+    'hairFailureId': hairFailureId,
+    'abnormalPlacementId': abnormalPlacementId,
+    'bodyStateId': bodyStateId,
+    'bodyScoreId': bodyScoreId,
+    'restlessId': restlessId,
+    'dullHairId': dullHairId,
+    'brittleHairId': brittleHairId,
+  };
+
+  //print(jsonEncode(petner));
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(petner),
+    );
+
+    if (response.statusCode == 200) {
+      responseData = jsonDecode(response.body);
+    } else {
+      responseData = {'registerDiseaseApi': 2};
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST registerAnamneseApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    responseData = {'registerDiseaseApi': 3};
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST registerAnamneseApi: $e');
+  }
+
+  return responseData;
+}
+
+Future<Map<String, dynamic>> registerFinalGuidelinesApi(
+  int? queueId,
+  String? ultimatRisk,
+  String? guidelines,
+) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterFinalGuideLines?param=' +
+      randomInt.toString();
+  Map<String, dynamic> responseData;
+
+  Map<String, dynamic> petner = {
+    'queueId': queueId,
+    'ultimatRisk': ultimatRisk,
+    'guidelines': guidelines,
+  };
+
+  //print(jsonEncode(petner));
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(petner),
+    );
+
+    if (response.statusCode == 200) {
+      responseData = jsonDecode(response.body);
+    } else {
+      responseData = {'registerDiseaseApi': 2};
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST registerFinalGuidelinesApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    responseData = {'registerDiseaseApi': 3};
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST registerFinalGuidelinesApi: $e');
+  }
+
+  return responseData;
+}
+
+Future<List<ConsultChatGPTModel>> consultChatGPTApi(
+  int? queueId,
+) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/ConsultChatGPT?param=' + randomInt.toString();
+  List<ConsultChatGPTModel> consultChatGPTList = [];
+
+  Map<String, dynamic> petner = {
+    'queueId': queueId,
+  };
+
+  print(jsonEncode(petner));
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(petner),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+
+      for (var item in jsonData) {
+        print(item);
+        ConsultChatGPTModel consultChatGPTModel =
+            ConsultChatGPTModel.fromJson(item);
+        consultChatGPTList.add(consultChatGPTModel);
+      }
+      ConsultChatGPTData().consultChatGPTList = consultChatGPTList;
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST consultChatGPTApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST consultChatGPTApi: $e');
+  }
+
+  return consultChatGPTList;
+}
+
+Future<List<ConsultChatGPTModel>> listConsultChatGPTApi(
+  int? queueId,
+) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/ListConsultChatGPT?param=' +
+      randomInt.toString();
+  List<ConsultChatGPTModel> consultChatGPTList = [];
+
+  Map<String, dynamic> petner = {
+    'queueId': queueId,
+  };
+
+  //print(jsonEncode(petner));
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(petner),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+
+      for (var item in jsonData) {
+        ConsultChatGPTModel consultChatGPTModel =
+            ConsultChatGPTModel.fromJson(item);
+        consultChatGPTList.add(consultChatGPTModel);
+      }
+      ConsultChatGPTData().consultChatGPTList = consultChatGPTList;
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST listConsultChatGPTApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST listConsultChatGPTApi: $e');
+  }
+
+  return consultChatGPTList;
+}
+
+Future<void> registerDeseaseConsultChatGPTApi(
+  int? chaGPTId,
+  bool selected,
+) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RegisterDeseaseConsultChatGPT?param=' +
+          randomInt.toString();
+  List<ConsultChatGPTModel> consultChatGPTList = [];
+
+  Map<String, dynamic> petner = {
+    'chaGPTId': chaGPTId,
+    'selected': selected,
+  };
+
+  print(jsonEncode(petner));
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(petner),
+    );
+
+    if (response.statusCode == 200) {
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST listConsultChatGPTApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST listConsultChatGPTApi: $e');
+  }
+}
+
+Future<Map<String, dynamic>> registerHealthProgramApi([
+  String? option,
+  int? queueId,
+  int? healthProgramId,
+  String? veterinaryId,
+]) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterHealthProgram?param=' +
+      randomInt.toString();
+  Map<String, dynamic> responseData;
+
+  Map<String, dynamic> jsonSend = {
+    'option': option,
+    'queueId': queueId,
+    'healthProgramId': healthProgramId,
+    'veterinaryId': veterinaryId,
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    print(jsonEncode(jsonSend));
+
+    if (response.statusCode == 200) {
+      responseData = jsonDecode(response.body);
+    } else {
+      responseData = {'registerDisease': 2};
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST registerHealtProgram: ${response.statusCode}');
+    }
+  } catch (e) {
+    responseData = {'registerDiseaseApi': 3};
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST registerHealtProgram: $e');
+  }
+
+  return responseData;
 }

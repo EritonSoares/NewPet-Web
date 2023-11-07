@@ -24,7 +24,7 @@ class FoodData {
     },
     {
       'id': '5',
-      'name': 'Alimentação Umida',
+      'name': 'Alimentação Úmida',
       'specie': 2,
     },
     {
@@ -53,5 +53,4 @@ class FoodData {
   List<Map<String, dynamic>> getFoodBySpecie(int index) {
     return foodList.where((food) => food['specie'] == index).toList();
   }
-
 }

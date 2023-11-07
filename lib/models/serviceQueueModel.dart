@@ -3,13 +3,15 @@
 class ServiceQueueModel {
   late final int queueId;
   late final int queueType;
+  late final String queueTypeName;
+  late final int? tutorId;
   late final String? tutorName;
   late final int petId;
   late final String? petName;
   late final String? petNickName;
   late final String? plan;
   late final String? petPhoto;
-  late final String? bithDay;
+  late final String? birthDay;
   late final String? age;
   late final int? ageType;
   late final int? raceId;
@@ -43,13 +45,15 @@ class ServiceQueueModel {
   ServiceQueueModel({
     required this.queueId,
     required this.queueType,
+    required this.queueTypeName,
+    required this.tutorId,
     required this.tutorName,
     required this.petId,
     required this.petName,
     required this.petNickName,
     required this.plan,
     required this.petPhoto,
-    required this.bithDay,
+    required this.birthDay,
     required this.age,
     required this.ageType,
     required this.raceId,
@@ -84,19 +88,21 @@ class ServiceQueueModel {
   factory ServiceQueueModel.fromJson(Map<String, dynamic> json) {
     List<dynamic> screeningListJson = json['screeningList'];
     List<ScreeningModel> screeningList = screeningListJson
-        .map((vaccineJson) => ScreeningModel.fromJson(vaccineJson))
+        .map((screeningJson) => ScreeningModel.fromJson(screeningJson))
         .toList();
 
     return ServiceQueueModel(
       queueId: json['queueId'],
       queueType: json['queueType'],
+      queueTypeName: json['queueTypeName'],
+      tutorId: json['tutorId'],
       tutorName: json['tutorName'],
       petId: json['petId'],
       petName: json['petName'],
       petNickName: json['petNickName'],
       plan: json['plan'],
       petPhoto: json['petPhoto'],
-      bithDay: json['bithDay'],
+      birthDay: json['birthDay'],
       age: json['age'],
       ageType: json['ageType'],
       raceId: json['raceId'],
@@ -136,13 +142,15 @@ class ServiceQueueModel {
     return {
       'queueId': queueId,
       'queueType': queueType,
+      'queueTypeName': queueTypeName,
+      'tutorId': tutorId,
       'tutorName': tutorName,
       'petId': petId,
       'petName': petName,
       'petNickName': petNickName,
       'plan': plan,
       'petPhoto': petPhoto,
-      'bithDay': bithDay,
+      'birthDay': birthDay,
       'age': age,
       'ageType': ageType,
       'raceId': raceId,
