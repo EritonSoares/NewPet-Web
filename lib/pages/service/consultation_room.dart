@@ -97,6 +97,7 @@ int? _petMedicineId;
 int? _petAllergyId;
 int? _symptomId;
 int? _petSymptomId;
+String? _petHealthProgramId;
 int? _chatGPTId;
 bool? _complaint;
 String? _veterinaryId;
@@ -181,6 +182,7 @@ String _textValidation = '';
 int seconds = 0;
 int minutes = 0;
 int hours = 0;
+String? _option;
 
 class ConsultationRoomPage extends StatefulWidget {
   const ConsultationRoomPage({super.key});
@@ -205,7 +207,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       shareScreen = false;
   int? _remoteUid;
   String? formattedTime =
-        '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
   @override
   void initState() {
@@ -227,7 +229,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       if (mounted) {
         setState(() {
           seconds++;
-          print(seconds);
           if (seconds == 60) {
             seconds = 0;
             minutes++;
@@ -238,9 +239,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
           }
 
           formattedTime =
-        '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+              '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
         });
-        print(formattedTime);
       }
     });
 
@@ -1462,6 +1462,17 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  @override
+  void initState() {
+    super.initState();
+
+    isWelcome = false;
+    isProduct = false;
+    isCompany = false;
+    isFaceToFaceConsultation = false;
+    isHealthProgram = false;
+  }
+
   void _validateInputs() {
     final form = _formKey.currentState;
     if (form!.validate()) {
@@ -1506,38 +1517,25 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
                 const SizedBox(height: 10.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        style: const TextStyle(fontSize: 15.0),
-                        enabled: false,
-                        controller: _petNickNameController,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Este campo não pode ser vazio';
-                          }
-                          return null;
-                        },
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Raio dos cantos da borda
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0), // Cor e largura da borda
-                          ),
-                          labelText: 'Apelido',
-                        ),
-                      ),
+                TextFormField(
+                  style: const TextStyle(fontSize: 15.0),
+                  enabled: false,
+                  controller: _petNickNameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
                     ),
-                  ],
+                    labelText: 'Apelido',
+                  ),
                 ),
                 const SizedBox(height: 10.0),
                 Row(
                   children: [
                     Expanded(
-                      flex: 1,
                       child: TextFormField(
                         style: const TextStyle(fontSize: 15.0),
                         enabled: false,
@@ -1556,7 +1554,6 @@ class _WelcomePageState extends State<WelcomePage> {
                     ),
                     const SizedBox(width: 10.0),
                     Expanded(
-                      flex: 2,
                       child: TextFormField(
                         style: const TextStyle(fontSize: 15.0),
                         enabled: false,
@@ -1775,245 +1772,240 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKey,
-      child: ListView(
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.all(10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Conferência e Atualização de Dados',
-                        style: TextStyle(fontSize: 30)),
-                  ],
-                ),
-                const SizedBox(height: 10.0),
-                TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  enabled: false,
-                  controller: _tutorNameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Tutor',
-                  ),
-                ),
-                const SizedBox(height: 10.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        style: const TextStyle(fontSize: 15.0),
-                        //enabled: false,
-                        controller: _petNameController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Raio dos cantos da borda
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0), // Cor e largura da borda
-                          ),
-                          labelText: 'Pet',
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      child: TextFormField(
-                        style: const TextStyle(fontSize: 15.0),
-                        //enabled: false,
-                        controller: _petNickNameController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Raio dos cantos da borda
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0), // Cor e largura da borda
-                          ),
-                          labelText: 'Apelido',
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10.0),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: speciesDropdown(),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      flex: 3,
-                      child: racesDropdown(),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      flex: 1,
-                      child: sizeDropdown(),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10.0),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: gendersDropDown(),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      flex: 4,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: TextFormField(
-                              decoration: InputDecoration(
-                                border: const OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(
-                                          8.0)), // Raio dos cantos da borda
-                                  borderSide: BorderSide(
-                                      color: Colors.black,
-                                      width: 1.0), // Cor e largura da borda
-                                ),
-                                labelText: 'Data de Nascimento',
-                                suffixIcon: IconButton(
-                                  icon: const Icon(Icons.calendar_today),
-                                  onPressed: () => _selectBirthDay(context),
-                                ),
-                              ),
-                              controller: _birthdayController,
-                              readOnly: true,
-                              onTap: () => _selectBirthDay(context),
-                              validator: (input) => input?.isEmpty == true
-                                  ? 'Por favor informar a Data de Nascimento'
-                                  : null,
-                            ),
-                          ),
-                          const SizedBox(width: 10.0),
-                          Expanded(
-                            flex: 2,
-                            child: TextFormField(
-                              style: const TextStyle(fontSize: 15.0),
-                              enabled: false,
-                              controller: _ageController,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(
-                                          8.0)), // Raio dos cantos da borda
-                                  borderSide: BorderSide(
-                                      color: Colors.black,
-                                      width: 1.0), // Cor e largura da borda
-                                ),
-                                labelText: 'Idade',
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 0,
-                            child: Row(
-                              children: [
-                                Checkbox(
-                                  value: _isAgeReal,
-                                  onChanged: (bool? newValue) {
-                                    setState(() {
-                                      _isAgeReal = newValue!;
-                                    });
-                                  },
-                                ),
-                                const Text('Idade Real?'),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10.0),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: coatsDropdown(),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      flex: 1,
-                      child: temperamentDropdown(),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      flex: 0,
-                      child: Row(
-                        children: [
-                          Checkbox(
-                            value: _castrated,
-                            onChanged: (bool? newValue) {
-                              setState(() {
-                                _castrated = newValue!;
-                              });
-                            },
-                          ),
-                          const Text('Castrado?'),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10.0),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: environmentDropdown(),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      child: foodDropdown(),
-                    ),
-                    const SizedBox(width: 10.0),
-                    Expanded(
-                      child: bodyScoreDropdown(),
-                    ),
-                  ],
-                ),
-                /*
-          const SizedBox(height: 10.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return ListView(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: stateDropdown(),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Conferência e Atualização de Dados',
+                      style: TextStyle(fontSize: 30)),
+                ],
               ),
-              const SizedBox(width: 10.0),
-              Expanded(
-                child: cityDropDown(),
+              const SizedBox(height: 10.0),
+              TextFormField(
+                style: const TextStyle(fontSize: 15.0),
+                enabled: false,
+                controller: _tutorNameController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(8.0)), // Raio dos cantos da borda
+                    borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 1.0), // Cor e largura da borda
+                  ),
+                  labelText: 'Tutor',
+                ),
               ),
-              const SizedBox(width: 10.0),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 15.0),
+                      //enabled: false,
+                      controller: _petNameController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(8.0)), // Raio dos cantos da borda
+                          borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 1.0), // Cor e largura da borda
+                        ),
+                        labelText: 'Pet',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: TextFormField(
+                      style: const TextStyle(fontSize: 15.0),
+                      //enabled: false,
+                      controller: _petNickNameController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(8.0)), // Raio dos cantos da borda
+                          borderSide: BorderSide(
+                              color: Colors.black,
+                              width: 1.0), // Cor e largura da borda
+                        ),
+                        labelText: 'Apelido',
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: speciesDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 3,
+                    child: racesDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 1,
+                    child: sizeDropdown(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: gendersDropDown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 4,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: TextFormField(
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    8.0)), // Raio dos cantos da borda
+                                borderSide: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.0), // Cor e largura da borda
+                              ),
+                              labelText: 'Data de Nascimento',
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.calendar_today),
+                                onPressed: () => _selectBirthDay(context),
+                              ),
+                            ),
+                            controller: _birthdayController,
+                            readOnly: true,
+                            onTap: () => _selectBirthDay(context),
+                            validator: (input) => input?.isEmpty == true
+                                ? 'Por favor informar a Data de Nascimento'
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Expanded(
+                          flex: 2,
+                          child: TextFormField(
+                            style: const TextStyle(fontSize: 15.0),
+                            enabled: false,
+                            controller: _ageController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    8.0)), // Raio dos cantos da borda
+                                borderSide: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.0), // Cor e largura da borda
+                              ),
+                              labelText: 'Idade',
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 0,
+                          child: Row(
+                            children: [
+                              Checkbox(
+                                value: _isAgeReal,
+                                onChanged: (bool? newValue) {
+                                  setState(() {
+                                    _isAgeReal = newValue!;
+                                  });
+                                },
+                              ),
+                              const Text('Idade Real?'),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: coatsDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 1,
+                    child: temperamentDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    flex: 0,
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: _castrated,
+                          onChanged: (bool? newValue) {
+                            setState(() {
+                              _castrated = newValue!;
+                            });
+                          },
+                        ),
+                        const Text('Castrado?'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: environmentDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: foodDropdown(),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: bodyScoreDropdown(),
+                  ),
+                ],
+              ),
+              /*
+        const SizedBox(height: 10.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: stateDropdown(),
+            ),
+            const SizedBox(width: 10.0),
+            Expanded(
+              child: cityDropDown(),
+            ),
+            const SizedBox(width: 10.0),
+          ],
+        ),
+        */
             ],
           ),
-          */
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -3229,6 +3221,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
         _typeRegister,
         _serviceQueue.petId.toString(),
         _diseaseId,
+        _petDiseaseId.toString(),
         _otherChronicDiseaseController.text,
         true,
       );
@@ -3238,7 +3231,11 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
       });
 
       //return 1;
-      return responseData['validateRegisterChronicDisease'];
+      if (responseData['validateRegisterChronicDisease'] != null) {
+        return responseData['validateRegisterChronicDisease'];
+      } else {
+        return responseData['validateRegisterDisease'];
+      }
     }
   }
 
@@ -3256,6 +3253,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
         _typeRegister,
         _serviceQueue.petId.toString(),
         _medicineId,
+        _petMedicineId.toString(),
         _otherMedicineController.text,
         true,
       );
@@ -3289,6 +3287,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
         _typeRegister,
         _serviceQueue.petId.toString(),
         _allergyController.text,
+        _petAllergyId.toString(),
       );
 
       setState(() {
@@ -3401,7 +3400,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                     const EdgeInsets.all(8.0),
                                                 child: Container(
                                                   height:
-                                                      50, // Defina a altura desejada para o card
+                                                      70, // Defina a altura desejada para o card
                                                   width: double
                                                       .infinity, // Defina a largura desejada para o card
 
@@ -3440,36 +3439,67 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                           Row(
                                                             mainAxisAlignment:
                                                                 MainAxisAlignment
-                                                                    .start,
+                                                                    .spaceBetween,
                                                             children: [
-                                                              /*
-                                                          Container(
-                                                            alignment: Alignment
-                                                                .centerRight,
-                                                            child: const Icon(
-                                                                Icons
-                                                                    .health_and_safety,
-                                                                color: Colors
-                                                                    .black,
-                                                                size: 50),
-                                                          ),
-                                                          */
-                                                              Container(
-                                                                alignment: Alignment
-                                                                    .centerRight,
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(
-                                                                          0.0),
-                                                                  child: Text(
-                                                                    petDisease
-                                                                        .name!,
-                                                                    style: const TextStyle(
+                                                              Text(
+                                                                petDisease
+                                                                    .name!,
+                                                                style:
+                                                                    const TextStyle(
                                                                         fontSize:
                                                                             18),
-                                                                  ),
-                                                                ),
+                                                              ),
+                                                              IconButton(
+                                                                icon: Icon(Icons
+                                                                    .delete),
+                                                                color:
+                                                                    Colors.red,
+                                                                onPressed: () {
+                                                                  setState(() {
+                                                                    _petDiseaseId =
+                                                                        petDisease
+                                                                            .petDiseaseId;
+                                                                  });
+                                                                  showDialog(
+                                                                    context:
+                                                                        context,
+                                                                    builder:
+                                                                        (BuildContext
+                                                                            context) {
+                                                                      return Form(
+                                                                        key:
+                                                                            _formKey,
+                                                                        child:
+                                                                            AlertDialog(
+                                                                          title:
+                                                                              Text('Excluir Doença Crônica?'),
+                                                                          content:
+                                                                              Text('A Doença será Excluída. Confirma?'),
+                                                                          actions: <Widget>[
+                                                                            TextButton(
+                                                                              child: Text('Não'),
+                                                                              onPressed: () {
+                                                                                Navigator.of(context).pop();
+                                                                              },
+                                                                            ),
+                                                                            TextButton(
+                                                                              child: Text('Sim'),
+                                                                              onPressed: () {
+                                                                                _typeRegister = 'D';
+                                                                                _registerChronicDisease(context).then(
+                                                                                  (value) {
+                                                                                    Navigator.of(context).pop();
+                                                                                  },
+                                                                                );
+                                                                              },
+                                                                            ),
+                                                                          ],
+                                                                        ),
+                                                                      );
+                                                                    },
+                                                                  );
+                                                                  // Ação ao pressionar o botão de lixeira
+                                                                },
                                                               ),
                                                             ],
                                                           ),
@@ -3610,46 +3640,73 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                       padding:
                                                           const EdgeInsets.all(
                                                               8.0),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .end,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
                                                         children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .start,
-                                                            children: [
-                                                              /*
-                                                          Container(
-                                                            alignment: Alignment
-                                                                .centerRight,
-                                                            child: const Icon(
-                                                                Icons
-                                                                    .health_and_safety,
-                                                                color: Colors
-                                                                    .black,
-                                                                size: 50),
+                                                          Text(
+                                                            petMedicine.name!,
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        18),
                                                           ),
-                                                          */
-                                                              Container(
-                                                                alignment: Alignment
-                                                                    .centerRight,
-                                                                child: Padding(
-                                                                  padding:
-                                                                      const EdgeInsets
-                                                                          .all(
-                                                                          0.0),
-                                                                  child: Text(
+                                                          IconButton(
+                                                            icon: Icon(
+                                                                Icons.delete),
+                                                            color: Colors.red,
+                                                            onPressed: () {
+                                                              setState(() {
+                                                                _petMedicineId =
                                                                     petMedicine
-                                                                        .name!,
-                                                                    style: const TextStyle(
-                                                                        fontSize:
-                                                                            18),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
+                                                                        .petMedicineId;
+                                                              });
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (BuildContext
+                                                                        context) {
+                                                                  return Form(
+                                                                    key:
+                                                                        _formKey,
+                                                                    child:
+                                                                        AlertDialog(
+                                                                      title: Text(
+                                                                          'Excluir Medicamento?'),
+                                                                      content: Text(
+                                                                          'O medicamento será excluído. Confirma?'),
+                                                                      actions: <Widget>[
+                                                                        TextButton(
+                                                                          child:
+                                                                              Text('Não'),
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                        ),
+                                                                        TextButton(
+                                                                          child:
+                                                                              Text('Sim'),
+                                                                          onPressed:
+                                                                              () {
+                                                                            _typeRegister =
+                                                                                'D';
+                                                                            _registerMedicine(context).then(
+                                                                              (value) {
+                                                                                Navigator.of(context).pop();
+                                                                              },
+                                                                            );
+                                                                          },
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              );
+                                                              // Ação ao pressionar o botão de lixeira
+                                                            },
                                                           ),
                                                         ],
                                                       ),
@@ -3784,46 +3841,72 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                     padding:
                                                         const EdgeInsets.all(
                                                             8.0),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
+                                                    child: Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .spaceBetween,
                                                       children: [
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            /*
-                                                          Container(
-                                                            alignment: Alignment
-                                                                .centerRight,
-                                                            child: const Icon(
-                                                                Icons
-                                                                    .health_and_safety,
-                                                                color: Colors
-                                                                    .black,
-                                                                size: 50),
-                                                          ),
-                                                          */
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        0.0),
-                                                                child: Text(
+                                                        Text(
+                                                          petAllergy.name!,
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 18),
+                                                        ),
+                                                        IconButton(
+                                                          icon: Icon(
+                                                              Icons.delete),
+                                                          color: Colors.red,
+                                                          onPressed: () {
+                                                            setState(() {
+                                                              _petAllergyId =
                                                                   petAllergy
-                                                                      .name!,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          18),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
+                                                                      .petAllergyId;
+                                                            });
+                                                            showDialog(
+                                                              context: context,
+                                                              builder:
+                                                                  (BuildContext
+                                                                      context) {
+                                                                return Form(
+                                                                  key: _formKey,
+                                                                  child:
+                                                                      AlertDialog(
+                                                                    title: Text(
+                                                                        'Excluir Alergia?'),
+                                                                    content: Text(
+                                                                        'A alergia será excluída. Confirma?'),
+                                                                    actions: <Widget>[
+                                                                      TextButton(
+                                                                        child: Text(
+                                                                            'Não'),
+                                                                        onPressed:
+                                                                            () {
+                                                                          Navigator.of(context)
+                                                                              .pop();
+                                                                        },
+                                                                      ),
+                                                                      TextButton(
+                                                                        child: Text(
+                                                                            'Sim'),
+                                                                        onPressed:
+                                                                            () {
+                                                                          _typeRegister =
+                                                                              'D';
+                                                                          _registerAllergy(context)
+                                                                              .then(
+                                                                            (value) {
+                                                                              Navigator.of(context).pop();
+                                                                            },
+                                                                          );
+                                                                        },
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                );
+                                                              },
+                                                            );
+                                                            // Ação ao pressionar o botão de lixeira
+                                                          },
                                                         ),
                                                       ],
                                                     ),
@@ -4488,6 +4571,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
           _serviceQueue.petId.toString(),
           _serviceQueue.queueId.toString(),
           _symptomId.toString(),
+          _petSymptomId.toString(),
           _otherSymptomController.text);
 
       setState(() {
@@ -5455,7 +5539,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Container(
                                   height:
-                                      50, // Defina a altura desejada para o card
+                                      60, // Defina a altura desejada para o card
                                   width: double
                                       .infinity, // Defina a largura desejada para o card
 
@@ -5485,32 +5569,66 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                         children: [
                                           Row(
                                             mainAxisAlignment:
-                                                MainAxisAlignment.start,
+                                                MainAxisAlignment.spaceBetween,
                                             children: [
-                                              /*
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: const Icon(
-                                                                  Icons
-                                                                      .health_and_safety,
-                                                                  color: Colors
-                                                                      .black,
-                                                                  size: 50),
+                                              Text(
+                                                petSymptom.name!,
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                              ),
+                                              IconButton(
+                                                icon: Icon(Icons.delete),
+                                                color: Colors.red,
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _petSymptomId =
+                                                        petSymptom.petSymptomId;
+                                                  });
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return Form(
+                                                        key: _formKey,
+                                                        child: AlertDialog(
+                                                          title: Text(
+                                                              'Excluir Sintoma?'),
+                                                          content: Text(
+                                                              'O sintoma será excluído. Confirma?'),
+                                                          actions: <Widget>[
+                                                            TextButton(
+                                                              child:
+                                                                  Text('Não'),
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
                                                             ),
-                                                            */
-                                              Container(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(0.0),
-                                                  child: Text(
-                                                    petSymptom.name!,
-                                                    style: const TextStyle(
-                                                        fontSize: 18),
-                                                  ),
-                                                ),
+                                                            TextButton(
+                                                              child:
+                                                                  Text('Sim'),
+                                                              onPressed: () {
+                                                                _typeRegister =
+                                                                    'D';
+                                                                _registerSymptom(
+                                                                        context)
+                                                                    .then(
+                                                                  (value) {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                );
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                  // Ação ao pressionar o botão de lixeira
+                                                },
                                               ),
                                             ],
                                           ),
@@ -5938,48 +6056,6 @@ class _AnamnesisPage extends State<AnamnesisPage> {
   }
 }
 
-class RecommendationPage extends StatefulWidget {
-  const RecommendationPage({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  _RecommendationPage createState() => _RecommendationPage();
-}
-
-class _RecommendationPage extends State<RecommendationPage> {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Orientações e Recomendações Finais",
-        style: TextStyle(fontSize: 24.0),
-      ),
-    );
-  }
-}
-
-class FinalClassificationPage extends StatefulWidget {
-  const FinalClassificationPage({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  _FinalClassificationPage createState() => _FinalClassificationPage();
-}
-
-class _FinalClassificationPage extends State<FinalClassificationPage> {
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text(
-        "Classificação de risco Final",
-        style: TextStyle(fontSize: 24.0),
-      ),
-    );
-  }
-}
-
 class HealthProgramPage extends StatefulWidget {
   const HealthProgramPage({
     Key? key,
@@ -5990,6 +6066,13 @@ class HealthProgramPage extends StatefulWidget {
 }
 
 class _HealthProgramPage extends State<HealthProgramPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    _getVeterinaryCrmv();
+  }
+
   Future<List<dynamic>> _fetchHealthProgram() async {
     List<HealthProgramModel> healthProgramList;
     healthProgramList =
@@ -6012,10 +6095,16 @@ class _HealthProgramPage extends State<HealthProgramPage> {
     _crmv = (await UserPreferences.getVeterinaryCrmv())!;
   }
 
-  Future<void> _fetchRegisterHealtProgram() async {
-    await _getVeterinaryCrmv();
+  Future<int?> _fetchRegisterHealtProgram(BuildContext context) async {
+    //await _getVeterinaryCrmv();
     await registerHealthProgramApi(
-        'C', _serviceQueue.queueId, _healthProgramId, _veterinaryId);
+      _typeRegister,
+      _serviceQueue.queueId,
+      _healthProgramId,
+      _petHealthProgramId,
+      _veterinaryId,
+    );
+    return 1;
   }
 
   @override
@@ -6096,84 +6185,76 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                 return Expanded(
                                   child: Padding(
                                     padding: const EdgeInsets.all(8.0),
-                                    child: ListView.builder(
-                                      itemCount: HealthProgramData()
-                                          .healthProgramList
-                                          .length,
-                                      itemBuilder: (context, index) {
-                                        final healthProgram =
-                                            HealthProgramData()
-                                                .healthProgramList[index];
-                                        return Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            height:
-                                                50, // Defina a altura desejada para o card
-                                            width: double
-                                                .infinity, // Defina a largura desejada para o card
+                                    child: Scrollbar(
+                                      thumbVisibility: true,
+                                      child: ListView.builder(
+                                        itemCount: HealthProgramData()
+                                            .healthProgramList
+                                            .length,
+                                        itemBuilder: (context, index) {
+                                          final healthProgram =
+                                              HealthProgramData()
+                                                  .healthProgramList[index];
+                                          return Padding(
+                                            padding: const EdgeInsets.all(8.0),
+                                            child: Container(
+                                              height:
+                                                  50, // Defina a altura desejada para o card
+                                              width: double
+                                                  .infinity, // Defina a largura desejada para o card
 
-                                            // Estilize o card com o BoxDecoration ou o Card widget
-                                            decoration: BoxDecoration(
-                                              color: Colors.white,
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.grey
-                                                      .withOpacity(0.5),
-                                                  spreadRadius: 2,
-                                                  blurRadius: 5,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: InkWell(
-                                              onTap: () {
-                                                //print(petVaccine.);
-                                                _healthProgramId = healthProgram
-                                                    .healthProgramId;
+                                              // Estilize o card com o BoxDecoration ou o Card widget
+                                              decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.grey
+                                                        .withOpacity(0.5),
+                                                    spreadRadius: 2,
+                                                    blurRadius: 5,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ],
+                                              ),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  //print(petVaccine.);
+                                                  _healthProgramId =
+                                                      healthProgram
+                                                          .healthProgramId;
 
-                                                _showInfoHealthProgram(
-                                                    healthProgram.description);
-                                              },
-                                              child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.end,
-                                                  children: [
-                                                    Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        Container(
-                                                          alignment: Alignment
-                                                              .centerRight,
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .all(0.0),
-                                                            child: Text(
-                                                              healthProgram
-                                                                  .action,
-                                                              style:
-                                                                  const TextStyle(
-                                                                      fontSize:
-                                                                          18),
-                                                            ),
-                                                          ),
+                                                  _showInfoHealthProgram(
+                                                      healthProgram
+                                                          .description);
+                                                },
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment.start,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .all(0.0),
+                                                        child: Text(
+                                                          healthProgram.action,
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 18),
                                                         ),
-                                                      ],
-                                                    ),
-                                                  ],
+                                                      ),
+                                                    ],
+                                                  ),
                                                 ),
                                               ),
                                             ),
-                                          ),
-                                        );
-                                      },
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ),
                                 );
@@ -6239,86 +6320,129 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                     return Expanded(
                                       child: Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: ListView.builder(
-                                          itemCount: PetHealthProgramData()
-                                              .petHealthProgramList
-                                              .length,
-                                          itemBuilder: (context, index) {
-                                            final petHealthProgram =
-                                                PetHealthProgramData()
-                                                        .petHealthProgramList[
-                                                    index];
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Container(
-                                                height:
-                                                    50, // Defina a altura desejada para o card
-                                                width: double
-                                                    .infinity, // Defina a largura desejada para o card
+                                        child: Scrollbar(
+                                          thumbVisibility: true,
+                                          child: ListView.builder(
+                                            itemCount: PetHealthProgramData()
+                                                .petHealthProgramList
+                                                .length,
+                                            itemBuilder: (context, index) {
+                                              final petHealthProgram =
+                                                  PetHealthProgramData()
+                                                          .petHealthProgramList[
+                                                      index];
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Container(
+                                                  height:
+                                                      50, // Defina a altura desejada para o card
+                                                  width: double
+                                                      .infinity, // Defina a largura desejada para o card
 
-                                                // Estilize o card com o BoxDecoration ou o Card widget
-                                                decoration: BoxDecoration(
-                                                  color: Colors.white,
-                                                  borderRadius:
-                                                      BorderRadius.circular(10),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.grey
-                                                          .withOpacity(0.5),
-                                                      spreadRadius: 2,
-                                                      blurRadius: 5,
-                                                      offset:
-                                                          const Offset(0, 3),
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    //print(petVaccine.);
-                                                    //_petMedicineId = petMedicine
-                                                    //    .petMedicineId;
-                                                  },
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                            8.0),
-                                                    child: Column(
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      children: [
-                                                        Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Container(
-                                                              alignment: Alignment
-                                                                  .centerRight,
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(
-                                                                        0.0),
-                                                                child: Text(
+                                                  // Estilize o card com o BoxDecoration ou o Card widget
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.white,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.grey
+                                                            .withOpacity(0.5),
+                                                        spreadRadius: 2,
+                                                        blurRadius: 5,
+                                                        offset:
+                                                            const Offset(0, 3),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: InkWell(
+                                                    onTap: () {
+                                                      _petHealthProgramId =
+                                                          petHealthProgram
+                                                              .petHealthProgramId;
+                                                    },
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              8.0),
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceBetween,
+                                                        children: [
+                                                          Text(
+                                                            petHealthProgram
+                                                                .action,
+                                                            style:
+                                                                const TextStyle(
+                                                                    fontSize:
+                                                                        18),
+                                                          ),
+                                                          IconButton(
+                                                            icon: Icon(
+                                                                Icons.delete),
+                                                            color: Colors.red,
+                                                            onPressed: () {
+                                                              _petHealthProgramId =
                                                                   petHealthProgram
-                                                                      .action,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          18),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ],
+                                                                      .petHealthProgramId;
+                                                              showDialog(
+                                                                context:
+                                                                    context,
+                                                                builder:
+                                                                    (BuildContext
+                                                                        context) {
+                                                                  return Form(
+                                                                    key:
+                                                                        _formKey,
+                                                                    child:
+                                                                        AlertDialog(
+                                                                      title: Text(
+                                                                          'Excluir Programa de Saúde?'),
+                                                                      content: Text(
+                                                                          'O programa de saúde será excluído. Confirma?'),
+                                                                      actions: <Widget>[
+                                                                        TextButton(
+                                                                          child:
+                                                                              Text('Não'),
+                                                                          onPressed:
+                                                                              () {
+                                                                            Navigator.of(context).pop();
+                                                                          },
+                                                                        ),
+                                                                        TextButton(
+                                                                          child:
+                                                                              Text('Sim'),
+                                                                          onPressed:
+                                                                              () {
+                                                                            setState(() {
+                                                                              _typeRegister = 'D';
+                                                                              _fetchRegisterHealtProgram(context).then(
+                                                                                (value) {
+                                                                                  Navigator.of(context).pop();
+                                                                                },
+                                                                              );
+                                                                            });
+                                                                          },
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  );
+                                                                },
+                                                              );
+                                                              // Ação ao pressionar o botão de lixeira
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
                                                     ),
                                                   ),
                                                 ),
-                                              ),
-                                            );
-                                          },
+                                              );
+                                            },
+                                          ),
                                         ),
                                       ),
                                     );
@@ -6364,10 +6488,10 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        _fetchRegisterHealtProgram();
+                        _typeRegister = 'C';
+                        _fetchRegisterHealtProgram(context).then((value) {});
+                        Navigator.of(context).pop();
                       });
-
-                      Navigator.of(context).pop(); // Fecha o diálogo
                     },
                     child: const Text('Adicionar'),
                   ),

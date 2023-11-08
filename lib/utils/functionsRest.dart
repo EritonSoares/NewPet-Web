@@ -1730,6 +1730,7 @@ Future<Map<String, dynamic>> registerDiseaseApi([
   String? option,
   String? petId,
   String? diseaseId,
+  String? petDiseaseId,
   String? otherDisease,
   bool? chronic,
 ]) async {
@@ -1746,6 +1747,15 @@ Future<Map<String, dynamic>> registerDiseaseApi([
     'otherDisease': otherDisease,
     'chronic': chronic,
   };
+
+  if (option == 'D') {
+    jsonSend = {
+      'option': option,
+      'petDiseaseId': petDiseaseId,
+    };
+  }
+
+  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -1849,6 +1859,7 @@ Future<Map<String, dynamic>> registerMedicineApi([
   String? option,
   String? petId,
   String? medicineId,
+  String? petMedicineId,
   String? otherMedicine,
   bool? continuousUser,
 ]) async {
@@ -1865,6 +1876,15 @@ Future<Map<String, dynamic>> registerMedicineApi([
     'otherMedicine': otherMedicine,
     'continuousUser': continuousUser,
   };
+
+  if (option == 'D') {
+    jsonSend = {
+      'option': option,
+      'petMedicineId': petMedicineId,
+    };
+  }
+
+  print(jsonEncode(jsonSend));
 
   try {
     final response = await http.post(
@@ -1898,6 +1918,7 @@ Future<Map<String, int>> registerSymptomApi([
   String? petId,
   String? queueId,
   String? symptomId,
+  String? petSymptomId,
   String? otherSymptom,
 ]) async {
   final random = Random();
@@ -1913,6 +1934,15 @@ Future<Map<String, int>> registerSymptomApi([
     'symptomId': symptomId,
     'otherSymptom': otherSymptom,
   };
+
+  if (option == 'D') {
+    jsonSend = {
+      'option': option,
+      'petSymptomId': petSymptomId,
+    };
+  }
+
+  print(jsonEncode(jsonSend));
 
   try {
     final response = await http.post(
@@ -2014,6 +2044,7 @@ Future<Map<String, dynamic>> registerAllergyApi([
   String? option,
   String? petId,
   String? allergy,
+  String? petAllergyId,
 ]) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
@@ -2026,6 +2057,13 @@ Future<Map<String, dynamic>> registerAllergyApi([
     'petId': petId,
     'allergy': allergy,
   };
+
+  if (option == 'D') {
+    jsonSend = {
+      'option': option,
+      'petAllergyId': petAllergyId,
+    };
+  }
 
   try {
     final response = await http.post(
@@ -2583,6 +2621,7 @@ Future<Map<String, dynamic>> registerHealthProgramApi([
   String? option,
   int? queueId,
   int? healthProgramId,
+  String? petHealthProgramId,
   String? veterinaryId,
 ]) async {
   final random = Random();
@@ -2597,6 +2636,16 @@ Future<Map<String, dynamic>> registerHealthProgramApi([
     'healthProgramId': healthProgramId,
     'veterinaryId': veterinaryId,
   };
+
+  if (option == 'D') {
+    jsonSend = {
+      'option': option,
+      'petHealthProgramId': petHealthProgramId,
+      'veterinaryId': veterinaryId,
+    };
+  }
+
+  print(jsonEncode(jsonSend));
 
   try {
     final response = await http.post(
