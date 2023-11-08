@@ -4,19 +4,31 @@ class BodyScoreData {
   List<Map<String, dynamic>> bodyScoreList = [
     {
       'id': '1',
-      'name': 'Bom',
+      'name': 'Emaciado',
     },
     {
       'id': '2',
-      'name': 'Magro',
+      'name': 'Muito Magro',
     },
     {
       'id': '3',
-      'name': 'Caquético',
+      'name': 'Magro',
     },
     {
       'id': '4',
-      'name': 'Obeso',
+      'name': 'Ideal',
+    },
+    {
+      'id': '5',
+      'name': 'Sobrepeso',
+    },
+    {
+      'id': '6',
+      'name': 'Obesidade',
+    },
+    {
+      'id': '7',
+      'name': 'Obesidade Grave',
     },
   ];
 
