@@ -64,7 +64,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
 
     _future = _fetchServiceQueue();
 
-    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
           //_queueSelected = false;
