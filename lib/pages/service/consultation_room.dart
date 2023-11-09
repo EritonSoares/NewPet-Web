@@ -27,6 +27,7 @@ import 'package:petner_web/models/petAllergyModel.dart';
 import 'package:petner_web/models/petDiseaseModel.dart';
 import 'package:petner_web/models/petHealthProgramModel.dart';
 import 'package:petner_web/models/petMedicineModel.dart';
+import 'package:petner_web/models/petModel.dart';
 import 'package:petner_web/models/petSericeHistoryModel.dart';
 import 'package:petner_web/models/petSymptomModel.dart';
 import 'package:petner_web/models/petVaccineCardModel.dart';
@@ -46,6 +47,7 @@ import 'package:petner_web/shared/data/genderData.dart';
 import 'package:petner_web/shared/data/healthProgramData.dart';
 import 'package:petner_web/shared/data/medicineData.dart';
 import 'package:petner_web/shared/data/petAllergyData.dart';
+import 'package:petner_web/shared/data/petData.dart';
 import 'package:petner_web/shared/data/petDiseaseData.dart';
 import 'package:petner_web/shared/data/petHealthProgramData.dart';
 import 'package:petner_web/shared/data/petMedicineData.dart';
@@ -213,6 +215,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   void initState() {
     super.initState();
 
+    _resetVariable();
+
     _roomConfiguration();
     _getQueue();
 
@@ -250,6 +254,62 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
     //Descomentar PARA ATIVAR A CHAMADA DE VÍDEO
     _initEngine();
+  }
+
+  void _resetVariable() {
+    _tutorNameController.text = '';
+    _petNameController.text = '';
+    _petPlanController.text = '';
+    _petNickNameController.text = '';
+    _raceController.text = '';
+    _specieController.text = '';
+    _genderController.text = '';
+    _screningController.text = '';
+    _productController.text = '';
+    _ageController.text = '';
+    _applicationDateController.text = '';
+    _brandController.text = '';
+    _veterinaryController.text = '';
+    _observationController.text = '';
+    _lotController.text = '';
+    _otherChronicDiseaseController.text = '';
+    _otherMedicineController.text = '';
+    _otherSymptomController.text = '';
+    _allergyController.text = '';
+    _complaintController.text = '';
+    _finalGuidelinesController.text = '';
+    _birthdayController.text = '';
+
+    _complaint = null;
+
+    appetitId = null;
+    waterIntakeId = null;
+    urineStainingId = null;
+    urineVolumeId = null;
+    stoolColoringId = null;
+    stoolConsistencyId = null;
+    noseTypeId = null;
+    noseTemperatureId = null;
+    hotEarId = null;
+    restlessId = null;
+    gasesId = null;
+    tightBellyId = null;
+    touchPainId = null;
+    walksBentOverId = null;
+    gumTongueId = null;
+    conjunctivaId = null;
+    hairLossId = null;
+    dullHairId = null;
+    abnormalPlacementId = null;
+    hairFailureId = null;
+    brittleHairId = null;
+    bodyStateId = null;
+    bodyScoreId = null;
+    finalClassificationId = null;
+
+    seconds = 0;
+    minutes = 0;
+    hours = 0;
   }
 
   @override
@@ -5860,100 +5920,107 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                       return Expanded(
                         child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: ListView.builder(
-                            itemCount:
-                                ConsultChatGPTData().consultChatGPTList.length,
-                            itemBuilder: (context, index) {
-                              final chatGPT = ConsultChatGPTData()
-                                  .consultChatGPTList[index];
-                              return Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Container(
-                                  height:
-                                      60, // Defina a altura desejada para o card
-                                  width: double
-                                      .infinity, // Defina a largura desejada para o card
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            child: ListView.builder(
+                              itemCount: ConsultChatGPTData()
+                                  .consultChatGPTList
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final chatGPT = ConsultChatGPTData()
+                                    .consultChatGPTList[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height:
+                                        60, // Defina a altura desejada para o card
+                                    width: double
+                                        .infinity, // Defina a largura desejada para o card
 
-                                  // Estilize o card com o BoxDecoration ou o Card widget
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      //print(petVaccine.);
-                                      _chatGPTId = chatGPT.chatGPTId;
-                                      _showInfoDesease(chatGPT.description);
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Container(
-                                                alignment:
-                                                    Alignment.centerRight,
-                                                child: Padding(
-                                                  padding:
-                                                      const EdgeInsets.all(0.0),
-                                                  child: Row(
-                                                    children: [
-                                                      Text(
-                                                        chatGPT.diseaseName!,
-                                                        style: const TextStyle(
-                                                            fontSize: 18),
-                                                      ),
-                                                    ],
+                                    // Estilize o card com o BoxDecoration ou o Card widget
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        //print(petVaccine.);
+                                        _chatGPTId = chatGPT.chatGPTId;
+                                        _showInfoDesease(chatGPT.description);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Container(
+                                                  alignment:
+                                                      Alignment.centerRight,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            0.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          chatGPT.diseaseName!,
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 18),
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: <Widget>[
-                                                  const Text(
-                                                    'Selecionar',
-                                                    style:
-                                                        TextStyle(fontSize: 10),
-                                                  ),
-                                                  Switch(
-                                                    value: chatGPT.selected,
-                                                    onChanged: (bool value) {
-                                                      print(_chatGPTId);
-                                                      setState(() {
-                                                        _fetchRegisterDeseaseConsultChatGPT(
-                                                            chatGPT.chatGPTId,
-                                                            value);
-                                                      });
-                                                    },
-                                                    activeTrackColor:
-                                                        Colors.lightGreen,
-                                                    activeColor: Colors.green,
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    const Text(
+                                                      'Selecionar',
+                                                      style: TextStyle(
+                                                          fontSize: 10),
+                                                    ),
+                                                    Switch(
+                                                      value: chatGPT.selected,
+                                                      onChanged: (bool value) {
+                                                        print(_chatGPTId);
+                                                        setState(() {
+                                                          _fetchRegisterDeseaseConsultChatGPT(
+                                                              chatGPT.chatGPTId,
+                                                              value);
+                                                        });
+                                                      },
+                                                      activeTrackColor:
+                                                          Colors.lightGreen,
+                                                      activeColor: Colors.green,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );
-                            },
+                                );
+                              },
+                            ),
                           ),
                         ),
                       );

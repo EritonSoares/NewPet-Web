@@ -64,7 +64,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
 
     _future = _fetchServiceQueue();
 
-    timer = Timer.periodic(const Duration(seconds: 30), (timer) {
+    timer = Timer.periodic(const Duration(seconds: 60), (timer) {
       if (mounted) {
         setState(() {
           //_queueSelected = false;
@@ -91,6 +91,24 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
     final roomToken = await getRTCTokenApi(petId, queueId, crmv, veterinaryId);
 
     return roomToken;
+  }
+
+  @override
+  void dispose() {
+    // Cancela o timer ao sair da tela para evitar memory leaks
+    timer.cancel();
+    super.dispose();
+  }
+
+  String formatElapsedTime(DateTime timestamp) {
+    Duration difference = DateTime.now().difference(timestamp);
+    int seconds = difference.inSeconds;
+
+    int hours = seconds ~/ 3600;
+    int minutes = (seconds % 3600) ~/ 60;
+    seconds = seconds % 60;
+
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -269,6 +287,17 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                                                     .petName!),
                                                               ],
                                                             ),
+                                                            Text(serviceQueueList[
+                                                                    index]
+                                                                .queueDate
+                                                                .toString()),
+                                                            const SizedBox(
+                                                              width: 8,
+                                                            ),
+                                                            Text(formatElapsedTime(
+                                                                serviceQueueList[
+                                                                        index]
+                                                                    .queueDate)),
                                                           ],
                                                         ),
                                                       ],

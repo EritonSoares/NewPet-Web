@@ -1,9 +1,13 @@
 // ignore_for_file: file_names
 
+import 'package:flutter/material.dart';
+
 class ServiceQueueModel {
   late final int queueId;
   late final int queueType;
   late final String queueTypeName;
+  late final DateTime queueDate;
+  //late final DateTime queueTime;
   late final int? tutorId;
   late final String? tutorName;
   late final int petId;
@@ -46,6 +50,8 @@ class ServiceQueueModel {
     required this.queueId,
     required this.queueType,
     required this.queueTypeName,
+    required this.queueDate,
+    //required this.queueTime,
     required this.tutorId,
     required this.tutorName,
     required this.petId,
@@ -95,6 +101,8 @@ class ServiceQueueModel {
       queueId: json['queueId'],
       queueType: json['queueType'],
       queueTypeName: json['queueTypeName'],
+      queueDate: DateTime.parse(json['queueDate']),
+      //queueTime: DateTime.parse(json['queueTime']),
       tutorId: json['tutorId'],
       tutorName: json['tutorName'],
       petId: json['petId'],
@@ -143,6 +151,8 @@ class ServiceQueueModel {
       'queueId': queueId,
       'queueType': queueType,
       'queueTypeName': queueTypeName,
+      'queueDate': queueDate,
+      //'queueTime': queueTime,
       'tutorId': tutorId,
       'tutorName': tutorName,
       'petId': petId,
