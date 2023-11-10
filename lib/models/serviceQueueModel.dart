@@ -6,7 +6,7 @@ class ServiceQueueModel {
   late final int queueId;
   late final int queueType;
   late final String queueTypeName;
-  late final DateTime queueDate;
+  late final String queueDate;
   //late final DateTime queueTime;
   late final int? tutorId;
   late final String? tutorName;
@@ -101,7 +101,7 @@ class ServiceQueueModel {
       queueId: json['queueId'],
       queueType: json['queueType'],
       queueTypeName: json['queueTypeName'],
-      queueDate: DateTime.parse(json['queueDate']),
+      queueDate: json['queueDate'],
       //queueTime: DateTime.parse(json['queueTime']),
       tutorId: json['tutorId'],
       tutorName: json['tutorName'],

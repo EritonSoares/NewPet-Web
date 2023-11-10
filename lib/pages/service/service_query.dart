@@ -36,6 +36,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   late int _index;
   late String roomToken;
   String? _crmv, _veterinary, _veterinaryId;
+  int seconds = 0;
 
   void _queueInformation(int index) {
     setState(() {
@@ -69,8 +70,9 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
         setState(() {
           //_queueSelected = false;
           // Atualize seus dados aqui, por exemplo:
-
-          _future = _fetchServiceQueue();
+          if (seconds == 30 || seconds == 59) {
+            _future = _fetchServiceQueue();
+          }
         });
       }
     });
@@ -102,13 +104,13 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
 
   String formatElapsedTime(DateTime timestamp) {
     Duration difference = DateTime.now().difference(timestamp);
-    int seconds = difference.inSeconds;
+    seconds = difference.inSeconds;
 
     int hours = seconds ~/ 3600;
     int minutes = (seconds % 3600) ~/ 60;
     seconds = seconds % 60;
 
-    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}';
+    return '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
   @override
@@ -295,9 +297,10 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                                               width: 8,
                                                             ),
                                                             Text(formatElapsedTime(
-                                                                serviceQueueList[
-                                                                        index]
-                                                                    .queueDate)),
+                                                                DateTime.parse(
+                                                                    serviceQueueList[
+                                                                            index]
+                                                                        .queueDate))),
                                                           ],
                                                         ),
                                                       ],
@@ -522,8 +525,10 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       } else {
                         UserPreferences.saveRoom(roomToken,
                             serviceQueueList[index].queueId.toString());
+                        print(serviceQueueList[index].toJson());
                         UserPreferences.saveQueue(
                             jsonEncode(serviceQueueList[index].toJson()));
+                        print('xxxxxxxxxxxxxxxxxxxxxxx');
                         Navigator.of(Routes.navigatorKey!.currentContext!)
                             .pushReplacementNamed('/consultationRoom');
                       }

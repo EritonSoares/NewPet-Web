@@ -19,6 +19,7 @@ import 'package:petner_web/models/healthProgramModel.dart';
 import 'package:petner_web/models/petActivityModel.dart';
 import 'package:petner_web/models/petAllergyModel.dart';
 import 'package:petner_web/models/petDiseaseModel.dart';
+import 'package:petner_web/models/petDiseaseServiceModel.dart';
 import 'package:petner_web/models/petHealthProgramModel.dart';
 import 'package:petner_web/models/petMedicineModel.dart';
 import 'package:petner_web/models/petSericeHistoryModel.dart';
@@ -34,6 +35,7 @@ import 'package:petner_web/shared/data/consultChatGPTData.dart';
 import 'package:petner_web/shared/data/healthProgramData.dart';
 import 'package:petner_web/shared/data/petAllergyData.dart';
 import 'package:petner_web/shared/data/petDiseaseData.dart';
+import 'package:petner_web/shared/data/petDiseaseServiceData.dart';
 import 'package:petner_web/shared/data/petHealthProgramData.dart';
 import 'package:petner_web/shared/data/petMedicineData.dart';
 import 'package:petner_web/shared/data/petScheduleActivityData.dart';
@@ -2577,14 +2579,14 @@ Future<List<ConsultChatGPTModel>> listConsultChatGPTApi(
   return consultChatGPTList;
 }
 
-Future<void> registerDeseaseConsultChatGPTApi(
+Future<void> registerDiseaseConsultChatGPTApi(
   int? chaGPTId,
   bool selected,
 ) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
   String url =
-      'https://adm.petner.com.br/RegisterDeseaseConsultChatGPT?param=' +
+      'https://adm.petner.com.br/RegisterDiseaseConsultChatGPT?param=' +
           randomInt.toString();
   List<ConsultChatGPTModel> consultChatGPTList = [];
 
@@ -2674,4 +2676,113 @@ Future<Map<String, dynamic>> registerHealthProgramApi([
   }
 
   return responseData;
+}
+
+Future<Map<String, dynamic>> registerDiseaseServiceApi([
+  String? option,
+  int? serviceId,
+  String? diseaseId,
+  String? otherDisease,
+  int? petDiseaseServiceId,
+]) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/RegisterDiseaseService?param=' +
+      randomInt.toString();
+  Map<String, dynamic> responseData;
+
+  Map<String, dynamic>? jsonSend;
+
+  if (option == 'C') {
+    jsonSend = {
+      'option': option,
+      'serviceId': serviceId,
+      'diseaseId': diseaseId,
+      'otherDisease': otherDisease,
+    };
+  }
+
+  if (option == 'D') {
+    jsonSend = {
+      'option': option,
+      'petDiseaseServiceId': petDiseaseServiceId,
+    };
+  }
+
+  print(jsonEncode(jsonSend));
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    print(jsonEncode(jsonSend));
+
+    if (response.statusCode == 200) {
+      responseData = jsonDecode(response.body);
+    } else {
+      responseData = {'registerDisease': 2};
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST registerHealtProgram: ${response.statusCode}');
+    }
+  } catch (e) {
+    responseData = {'registerDiseaseApi': 3};
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST registerHealtProgram: $e');
+  }
+
+  return responseData;
+}
+
+Future<List<PetDiseaseServiceModel>> petDiseaseServiceListApi(
+  int? serviceId,
+) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/petDiseaseServiceList?param=' +
+      randomInt.toString();
+  List<PetDiseaseServiceModel> petDiseaseServiceList = [];
+
+  Map<String, dynamic> petner = {
+    'serviceId': serviceId,
+  };
+
+  //print(jsonEncode(petner));
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(petner),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+
+      for (var item in jsonData) {
+        PetDiseaseServiceModel petDiseaseServiceModel =
+            PetDiseaseServiceModel.fromJson(item);
+        petDiseaseServiceList.add(petDiseaseServiceModel);
+      }
+      PetDiseaseServiceData().petDiseaseServiceList = petDiseaseServiceList;
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST petDiseaseServiceListApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST petDiseaseServiceListApi: $e');
+  }
+
+  return petDiseaseServiceList;
 }
