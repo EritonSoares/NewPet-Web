@@ -124,9 +124,11 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: _toggleObscure,
                         ),
                       ),
+                      /*
                       validator: (input) => (input?.length ?? 0) < 6
                           ? 'A senha deve ter pelo menos 6 caracteres'
                           : null,
+                      */    
                     ),
                     const SizedBox(height: 50.0),
                     ElevatedButton(
