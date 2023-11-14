@@ -33,6 +33,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   bool _queueSelected = false;
   late Future<List<dynamic>> _future;
   late Timer timer;
+  late Timer timer2;
   late int _index;
   late String roomToken;
   String? _crmv, _veterinary, _veterinaryId;
@@ -71,8 +72,18 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
           //_queueSelected = false;
           // Atualize seus dados aqui, por exemplo:
           if (seconds == 30 || seconds == 59) {
-            _future = _fetchServiceQueue();
+            //_future = _fetchServiceQueue();
           }
+        });
+      }
+    });
+
+    timer2 = Timer.periodic(const Duration(seconds: 10), (timer) {
+      if (mounted) {
+        setState(() {
+          //_queueSelected = false;
+          // Atualize seus dados aqui, por exemplo:
+          _future = _fetchServiceQueue();
         });
       }
     });
@@ -525,10 +536,8 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                       } else {
                         UserPreferences.saveRoom(roomToken,
                             serviceQueueList[index].queueId.toString());
-                        print(serviceQueueList[index].toJson());
                         UserPreferences.saveQueue(
                             jsonEncode(serviceQueueList[index].toJson()));
-                        print('xxxxxxxxxxxxxxxxxxxxxxx');
                         Navigator.of(Routes.navigatorKey!.currentContext!)
                             .pushReplacementNamed('/consultationRoom');
                       }

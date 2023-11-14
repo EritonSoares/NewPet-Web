@@ -41,10 +41,6 @@ class _HomePageState extends State<HomePage> {
     String? email = await UserPreferences.getEmail();
     String? password = await UserPreferences.getPassword();
 
-    print('xxxxxxxxxxxxxxxxxxxxx');
-    print(email);
-    print(password);
-
     if (email != null && password != null) {
       Map<String, dynamic> responseData =
           await validateUserApi(email, password, 1);

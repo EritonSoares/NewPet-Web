@@ -7385,8 +7385,6 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
   Future<List<dynamic>> _fetchListConsultChatGPT() async {
     List<ConsultChatGPTModel> consultChatGPTList;
     consultChatGPTList = await listConsultChatGPTApi(2, _serviceQueue.queueId);
-    print('xxxxxxxxxxxxxxxxxxxxxxxxxxxxx');
-    print(consultChatGPTList.toList());
 
     return consultChatGPTList;
   }

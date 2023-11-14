@@ -1688,6 +1688,48 @@ Future<List<ServiceQueueModel>> serviceQueueApi() async {
   return serviceQueueList;
 }
 
+Future<List<ServiceQueueModel>> serviceQueueListApi(int veterinaryId) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/ServiceQueueList?param=' +
+      randomInt.toString();
+
+  List<ServiceQueueModel> serviceQueueList = [];
+
+  Map<String, dynamic> jsonSend = {
+    'veterinaryId': veterinaryId,
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic,
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      for (var item in jsonData) {
+        ServiceQueueModel healthEventFileType =
+            ServiceQueueModel.fromJson(item);
+        serviceQueueList.add(healthEventFileType);
+      }
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST ServiceQueueModel: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação GET ServiceQueueModel: $e');
+  }
+
+  return serviceQueueList;
+}
+
 Future<String> getRTCTokenApi(
     int petId, int roomNameId, int crmv, int veterinaryId) async {
   final random = Random();
