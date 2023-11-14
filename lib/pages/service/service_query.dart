@@ -31,13 +31,16 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
 
   List<ServiceQueueModel> serviceQueueList = [];
   bool _queueSelected = false;
-  late Future<List<dynamic>> _future;
+  Future<List<dynamic>> _future = Future.value([]);
+  late Future<String> teste;
   late Timer timer;
   late Timer timer2;
   late int _index;
   late String roomToken;
+  //String _crmv = '0', _veterinary = '0', _veterinaryId = '0';
   String? _crmv, _veterinary, _veterinaryId;
   int seconds = 0;
+  Future<int>? cont;
 
   void _queueInformation(int index) {
     setState(() {
@@ -62,7 +65,32 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
       print('LOADING DE PAGINA');
     }
 
-    _getVeterinaryCrmv();
+    _getVeterinaryCrmv().then((String result) {
+      _future = _fetchServiceQueue();
+
+      timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (mounted) {
+          setState(() {
+            if (seconds == 30 || seconds == 59) {
+              //_future = _fetchServiceQueue();
+            }
+          });
+        }
+      });
+
+      timer2 = Timer.periodic(const Duration(seconds: 10), (timer) {
+        if (mounted) {
+          setState(() {
+            _future = _fetchServiceQueue();
+          });
+        }
+      });
+    });
+
+/*
+    teste = _getVeterinaryCrmv();
+
+    print(teste.toString());
 
     _future = _fetchServiceQueue();
 
@@ -87,16 +115,21 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
         });
       }
     });
+*/
   }
 
-  Future<void> _getVeterinaryCrmv() async {
+  Future<String> _getVeterinaryCrmv() async {
     _veterinaryId = (await UserPreferences.getVeterinaryUserId())!;
     _veterinary = (await UserPreferences.getVeterinaryName())!;
     _crmv = (await UserPreferences.getVeterinaryCrmv())!;
+
+    return '1';
   }
 
   Future<List<dynamic>> _fetchServiceQueue() async {
-    return serviceQueueList = await serviceQueueApi();
+    //print('eeeeeeeeeeeeeeeeeeeeeeeee');
+    return serviceQueueList = await serviceQueueListApi((_veterinaryId!.isEmpty ? 0 : int.parse(_veterinaryId!)));
+    //return serviceQueueList = await serviceQueueApi();
   }
 
   Future<String> _getRTCToken(
