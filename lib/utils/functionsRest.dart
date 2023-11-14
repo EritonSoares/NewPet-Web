@@ -2485,6 +2485,7 @@ Future<Map<String, dynamic>> registerFinalGuidelinesApi(
 }
 
 Future<List<ConsultChatGPTModel>> consultChatGPTApi(
+  int? type,
   int? queueId,
 ) async {
   final random = Random();
@@ -2494,6 +2495,7 @@ Future<List<ConsultChatGPTModel>> consultChatGPTApi(
   List<ConsultChatGPTModel> consultChatGPTList = [];
 
   Map<String, dynamic> petner = {
+    'type': type,
     'queueId': queueId,
   };
 
@@ -2533,6 +2535,7 @@ Future<List<ConsultChatGPTModel>> consultChatGPTApi(
 }
 
 Future<List<ConsultChatGPTModel>> listConsultChatGPTApi(
+  int? type,
   int? queueId,
 ) async {
   final random = Random();
@@ -2542,6 +2545,7 @@ Future<List<ConsultChatGPTModel>> listConsultChatGPTApi(
   List<ConsultChatGPTModel> consultChatGPTList = [];
 
   Map<String, dynamic> petner = {
+    'type': type,
     'queueId': queueId,
   };
 
@@ -2561,6 +2565,8 @@ Future<List<ConsultChatGPTModel>> listConsultChatGPTApi(
       final jsonData = jsonDecode(response.body);
 
       for (var item in jsonData) {
+        print('yyyyyyyyyyyyyyyyy');
+        print(item);
         ConsultChatGPTModel consultChatGPTModel =
             ConsultChatGPTModel.fromJson(item);
         consultChatGPTList.add(consultChatGPTModel);

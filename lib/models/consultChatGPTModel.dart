@@ -2,8 +2,11 @@
 
 class ConsultChatGPTModel {
   late final int chatGPTId;
-  late final String diseaseName;
-  late final String description;
+  late final String? diseaseName;
+  late final String? medicineName;
+  late final String? dosage;
+  late bool? humanUse;
+  late final String? description;
   late bool selected;
 
   set setSelected(bool value) {
@@ -13,6 +16,9 @@ class ConsultChatGPTModel {
   ConsultChatGPTModel({
     required this.chatGPTId,
     required this.diseaseName,
+    required this.medicineName,
+    required this.dosage,
+    required this.humanUse,
     required this.description,
     required this.selected,
   });
@@ -21,6 +27,9 @@ class ConsultChatGPTModel {
     return ConsultChatGPTModel(
       chatGPTId: json['chatGPTId'],
       diseaseName: json['diseaseName'],
+      medicineName: json['medicineName'],
+      dosage: json['dosage'],
+      humanUse: json['humanUse'],
       description: json['description'],
       selected: json['selected'],
     );
@@ -30,6 +39,9 @@ class ConsultChatGPTModel {
     return {
       'chatGPTId': chatGPTId,
       'diseaseName': diseaseName,
+      'medicineName': medicineName,
+      'dosage': dosage,
+      'humanUse': humanUse,
       'description': description,
       'selected': selected,
     };

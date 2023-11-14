@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:petner_web/pages/login/login_page.dart';
+import 'package:petner_web/shared/data/userPreference%20copy.dart';
 import 'package:petner_web/utils/routes.dart';
 
 class CustomDrawer extends StatelessWidget implements PreferredSizeWidget {
@@ -43,13 +45,17 @@ class CustomDrawer extends StatelessWidget implements PreferredSizeWidget {
                 ),
                 ListTile(
                   title: Text(
-                    'Clientes',
+                    'Sair',
                     style: TextStyle(
                         color: Colors.grey[800]), // Letras cinza escuro
                   ),
                   onTap: () {
                     // Coloque aqui a ação ao selecionar "Clientes"
-                    Navigator.pop(context); // Fecha o menu
+                    UserPreferences.saveCredentials('', '');
+                    Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const LoginPage()));
                   },
                 ),
               ],
