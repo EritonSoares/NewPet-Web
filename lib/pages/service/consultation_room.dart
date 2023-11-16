@@ -6791,7 +6791,7 @@ class _ServiceHistoryPage extends State<ServiceHistoryPage> {
                             padding: const EdgeInsets.all(8.0),
                             child: Container(
                               height:
-                                  150, // Defina a altura desejada para o card
+                                  175, // Defina a altura desejada para o card
                               width: double
                                   .infinity, // Defina a largura desejada para o card
 
@@ -6879,24 +6879,34 @@ class _ServiceHistoryPage extends State<ServiceHistoryPage> {
                                       Visibility(
                                         visible:
                                             petServiceHistory.servicedByPetner,
-                                        child: Row(
+                                        child: Column(
                                           mainAxisAlignment:
                                               MainAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                                 'Diagnóstico: ${petServiceHistory.diagnostic}'),
-                                            const SizedBox(width: 10.0),
-                                            Text(petServiceHistory
-                                                        .exameList!.length ==
-                                                    0
-                                                ? 'Nenhum Exame Solicitado'
-                                                : 'Foram Solicitados Exames'),
-                                            const SizedBox(width: 10.0),
-                                            Text(petServiceHistory
-                                                        .medicineList!.length ==
-                                                    0
-                                                ? 'Sem Prescrição de Medicamento'
-                                                : 'Com Prescrição de Medicamento'),
+                                            const SizedBox(height: 10.0),
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: [
+                                                Text(petServiceHistory
+                                                            .exameList!
+                                                            .length ==
+                                                        0
+                                                    ? 'Nenhum Exame Solicitado'
+                                                    : 'Foram Solicitados Exames'),
+                                                const SizedBox(width: 10.0),
+                                                Text(petServiceHistory
+                                                            .medicineList!
+                                                            .length ==
+                                                        0
+                                                    ? 'Sem Prescrição de Medicamento'
+                                                    : 'Com Prescrição de Medicamento'),
+                                              ],
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -7397,6 +7407,11 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
     });
   }
 
+  Future<void> _fetchRegisterPrescriptionConsultChatGPT(
+      int chatGPTId, bool selected) async {
+    await registerPrescriptionConsultChatGPTApi(chatGPTId, selected);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -7890,6 +7905,18 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
                                                   ),
                                                   const SizedBox(width: 10.0),
                                                   Text(
+                                                    'Quantidade: ${chatGPT.amount!}',
+                                                    style: const TextStyle(
+                                                        fontSize: 18),
+                                                  ),
+                                                  const SizedBox(width: 10.0),
+                                                  Text(
+                                                    'Tipo Uso: ${chatGPT.useType!}',
+                                                    style: const TextStyle(
+                                                        fontSize: 18),
+                                                  ),
+                                                  const SizedBox(width: 10.0),
+                                                  Text(
                                                     'Posologia: ${chatGPT.dosage!}',
                                                     style: const TextStyle(
                                                         fontSize: 18),
@@ -7909,13 +7936,11 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
                                                 Switch(
                                                   value: chatGPT.selected,
                                                   onChanged: (bool value) {
-                                                    print(_chatGPTId);
+                                                    print(chatGPT.chatGPTId);
                                                     setState(() {
-                                                      /*
-                                                      _fetchRegisterDiseaseConsultChatGPT(
+                                                      _fetchRegisterPrescriptionConsultChatGPT(
                                                           chatGPT.chatGPTId,
                                                           value);
-                                                          */
                                                     });
                                                   },
                                                   activeTrackColor:

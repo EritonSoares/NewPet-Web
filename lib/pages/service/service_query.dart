@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:petner_web/custom/custom_appbar.dart';
 import 'package:petner_web/custom/custom_drawer.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
@@ -41,6 +42,8 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   String? _crmv, _veterinary, _veterinaryId;
   int seconds = 0;
   Future<int>? cont;
+  bool _elapsedTime = false;
+  bool _startService = false;
 
   void _queueInformation(int index) {
     setState(() {
@@ -50,7 +53,9 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
       _raceController.text = serviceQueueList[index].raceName!;
       _specieController.text = serviceQueueList[index].specieName!;
       _genderController.text = serviceQueueList[index].genderName!;
-      _screningController.text = serviceQueueList[index].screeningName!;
+      if (serviceQueueList[index].screeningName != null) {
+        _screningController.text = serviceQueueList[index].screeningName!;
+      }
 
       _queueSelected = true; // Atualiza a variável de estado
     });
@@ -86,36 +91,6 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
         }
       });
     });
-
-/*
-    teste = _getVeterinaryCrmv();
-
-    print(teste.toString());
-
-    _future = _fetchServiceQueue();
-
-    timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          //_queueSelected = false;
-          // Atualize seus dados aqui, por exemplo:
-          if (seconds == 30 || seconds == 59) {
-            //_future = _fetchServiceQueue();
-          }
-        });
-      }
-    });
-
-    timer2 = Timer.periodic(const Duration(seconds: 10), (timer) {
-      if (mounted) {
-        setState(() {
-          //_queueSelected = false;
-          // Atualize seus dados aqui, por exemplo:
-          _future = _fetchServiceQueue();
-        });
-      }
-    });
-*/
   }
 
   Future<String> _getVeterinaryCrmv() async {
@@ -127,9 +102,8 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   }
 
   Future<List<dynamic>> _fetchServiceQueue() async {
-    //print('eeeeeeeeeeeeeeeeeeeeeeeee');
-    return serviceQueueList = await serviceQueueListApi((_veterinaryId!.isEmpty ? 0 : int.parse(_veterinaryId!)));
-    //return serviceQueueList = await serviceQueueApi();
+    return serviceQueueList = await serviceQueueListApi(
+        (_veterinaryId!.isEmpty ? 0 : int.parse(_veterinaryId!)));
   }
 
   Future<String> _getRTCToken(
@@ -147,8 +121,24 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   }
 
   String formatElapsedTime(DateTime timestamp) {
-    Duration difference = DateTime.now().difference(timestamp);
-    seconds = difference.inSeconds;
+    Duration difference = timestamp.difference(DateTime.now());
+    int seconds = difference.inSeconds;
+
+    _elapsedTime = false;
+    if (seconds < 0) {
+      _elapsedTime = true;
+      // Se a data/hora fornecida for maior que a data/hora atual,
+      // ajustamos para tornar o tempo decrescente
+      seconds = -seconds;
+    }
+
+    if (difference.inMinutes < 5) {
+      _startService = true;
+    }
+
+    print(difference.inMinutes);
+
+    print(_startService);
 
     int hours = seconds ~/ 3600;
     int minutes = (seconds % 3600) ~/ 60;
@@ -299,52 +289,54 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                                 child: Column(
                                                   children: [
                                                     Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
                                                       children: [
-                                                        Row(
-                                                          children: [
-                                                            Expanded(
-                                                              child: Container(
-                                                                alignment:
-                                                                    Alignment
-                                                                        .topRight,
-                                                                child: Text(
-                                                                  serviceQueueList[
-                                                                          index]
-                                                                      .petName!,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          12,
-                                                                      color: Colors
-                                                                          .red),
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
+                                                        Text(
+                                                            'Tipo: ${serviceQueueList[index].queueTypeName}'),
+                                                        const SizedBox(
+                                                          height: 8,
+                                                        ),
+                                                        Text(
+                                                            'Tutor: ${serviceQueueList[index].tutorName}'),
+                                                        const SizedBox(
+                                                          height: 8,
                                                         ),
                                                         Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .spaceBetween,
                                                           children: [
-                                                            Column(
-                                                              children: [
-                                                                Text(serviceQueueList[
-                                                                        index]
-                                                                    .tutorName!),
-                                                                Text(serviceQueueList[
-                                                                        index]
-                                                                    .petName!),
-                                                              ],
-                                                            ),
-                                                            Text(serviceQueueList[
-                                                                    index]
-                                                                .queueDate
-                                                                .toString()),
+                                                            Text(
+                                                                'Pet: ${serviceQueueList[index].petName}'),
                                                             const SizedBox(
-                                                              width: 8,
+                                                              width: 10,
                                                             ),
-                                                            Text(formatElapsedTime(
-                                                                DateTime.parse(
-                                                                    serviceQueueList[
-                                                                            index]
-                                                                        .queueDate))),
+                                                            Text(!_elapsedTime
+                                                                ? 'Agendado para ${DateFormat('dd/MM/yyyy \'às\' HH:mm').format(DateTime.parse(serviceQueueList[index].queueDate))}'
+                                                                : ''),
+                                                            const SizedBox(
+                                                              width: 10,
+                                                            ),
+                                                            Text(!_elapsedTime
+                                                                ? 'Faltam ${formatElapsedTime(DateTime.parse(serviceQueueList[index].queueDate))} para iniciar o Atendimento.'
+                                                                : 'Tempo em espera de ${formatElapsedTime(DateTime.parse(serviceQueueList[index].queueDate))}.'),
+                                                            /*
+                                                            if (!_elapsedTime) ...[
+                                                              Text(
+                                                                  'Agendado para ${DateFormat('dd/MM/yyyy \'às\' HH:mm').format(DateTime.parse(serviceQueueList[index].queueDate))}'),
+                                                              const SizedBox(
+                                                                width: 10,
+                                                              ),
+                                                              Text(
+                                                                  'Faltam ${formatElapsedTime(DateTime.parse(serviceQueueList[index].queueDate))} para iniciar o Atendimento.'),
+                                                            ],
+                                                            if (_elapsedTime) ...[
+                                                              Text(
+                                                                  'Tempo em espera de ${formatElapsedTime(DateTime.parse(serviceQueueList[index].queueDate))}.'),
+                                                            ],
+                                                            */
                                                           ],
                                                         ),
                                                       ],
@@ -493,66 +485,73 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
               ],
             ),
             const SizedBox(height: 10.0),
-            TextFormField(
-              style: const TextStyle(fontSize: 15.0),
-              enabled: false,
-              controller: _screningController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(8.0)), // Raio dos cantos da borda
-                  borderSide: BorderSide(
-                      color: Colors.black,
-                      width: 1.0), // Cor e largura da borda
-                ),
-                labelText: 'Sintoma',
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            const Text(
-              'Triagem',
-              style: TextStyle(color: Colors.grey),
-            ),
-            Expanded(
-              child: Stack(
-                children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: ListView.builder(
-                      itemCount: serviceQueueList[index].screeningList!.length,
-                      itemBuilder: (context, subindex) {
-                        return Padding(
-                          // ignore: prefer_const_constructors
-                          padding: EdgeInsets.all(1),
-                          child: SizedBox(
-                            height: 55, // Defina a altura desejada para o card
-                            width: double.infinity,
-                            child: ListTile(
-                              title: Text(
-                                  '${subindex + 1}- ${serviceQueueList[index].screeningList![subindex].question!}'),
-                              subtitle: Text(
-                                  'R: ${serviceQueueList[index].screeningList![subindex].answer!}'),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
+            if (serviceQueueList[index].screeningList!.isNotEmpty) ...[
+              TextFormField(
+                style: const TextStyle(fontSize: 15.0),
+                enabled: false,
+                controller: _screningController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(8.0)), // Raio dos cantos da borda
+                    borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 1.0), // Cor e largura da borda
                   ),
-                ],
+                  labelText: 'Sintoma',
+                ),
               ),
-            ),
-            const SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
+              const Text(
+                'Triagem',
+                style: TextStyle(color: Colors.grey),
+              ),
+              Expanded(
+                child: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: ListView.builder(
+                        itemCount:
+                            serviceQueueList[index].screeningList!.length,
+                        itemBuilder: (context, subindex) {
+                          return Padding(
+                            // ignore: prefer_const_constructors
+                            padding: EdgeInsets.all(1),
+                            child: SizedBox(
+                              height:
+                                  55, // Defina a altura desejada para o card
+                              width: double.infinity,
+                              child: ListTile(
+                                title: Text(
+                                    '${subindex + 1}- ${serviceQueueList[index].screeningList![subindex].question!}'),
+                                subtitle: Text(
+                                    'R: ${serviceQueueList[index].screeningList![subindex].answer!}'),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10.0),
+            ],
             Row(
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () async {
+                    onPressed: /*!_startService
+                        ? null
+                        :*/
+                        () async {
                       _getVeterinaryCrmv();
                       roomToken = await _getRTCToken(
                           serviceQueueList[index].petId,

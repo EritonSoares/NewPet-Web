@@ -2834,3 +2834,43 @@ Future<List<PetDiseaseServiceModel>> petDiseaseServiceListApi(
 
   return petDiseaseServiceList;
 }
+
+Future<void> registerPrescriptionConsultChatGPTApi(
+  int? chaGPTId,
+  bool selected,
+) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RegisterPrescriptionConsultChatGPT?param=' +
+          randomInt.toString();
+  List<ConsultChatGPTModel> consultChatGPTList = [];
+
+  Map<String, dynamic> petner = {
+    'chaGPTId': chaGPTId,
+    'selected': selected,
+  };
+
+  print(jsonEncode(petner));
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(petner),
+    );
+
+    if (response.statusCode == 200) {
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST listConsultChatGPTApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST listConsultChatGPTApi: $e');
+  }
+}
