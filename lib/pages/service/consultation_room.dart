@@ -20,12 +20,15 @@ import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
 import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
 import 'package:petner_web/models/consultChatGPTModel.dart';
+import 'package:petner_web/models/consultationModel.dart';
 import 'package:petner_web/models/diseaseModel.dart';
+import 'package:petner_web/models/examModel.dart';
 import 'package:petner_web/models/healthProgramModel.dart';
 import 'package:petner_web/models/medicineModel.dart';
 import 'package:petner_web/models/petAllergyModel.dart';
 import 'package:petner_web/models/petDiseaseModel.dart';
 import 'package:petner_web/models/petDiseaseServiceModel.dart';
+import 'package:petner_web/models/petForwardingModel.dart';
 import 'package:petner_web/models/petHealthProgramModel.dart';
 import 'package:petner_web/models/petMedicineModel.dart';
 import 'package:petner_web/models/petModel.dart';
@@ -43,8 +46,10 @@ import 'package:petner_web/shared/data/bodyScoreData.dart';
 import 'package:petner_web/shared/data/cityData.dart';
 import 'package:petner_web/shared/data/coatData.dart';
 import 'package:petner_web/shared/data/consultChatGPTData.dart';
+import 'package:petner_web/shared/data/consultationData.dart';
 import 'package:petner_web/shared/data/diseaseData.dart';
 import 'package:petner_web/shared/data/environmentData.dart';
+import 'package:petner_web/shared/data/examData.dart';
 import 'package:petner_web/shared/data/foodData.dart';
 import 'package:petner_web/shared/data/genderData.dart';
 import 'package:petner_web/shared/data/healthProgramData.dart';
@@ -53,6 +58,7 @@ import 'package:petner_web/shared/data/petAllergyData.dart';
 import 'package:petner_web/shared/data/petData.dart';
 import 'package:petner_web/shared/data/petDiseaseData.dart';
 import 'package:petner_web/shared/data/petDiseaseServiceData.dart';
+import 'package:petner_web/shared/data/petForwardingData.dart';
 import 'package:petner_web/shared/data/petHealthProgramData.dart';
 import 'package:petner_web/shared/data/petMedicineData.dart';
 import 'package:petner_web/shared/data/petServiceHIstoryData.dart';
@@ -96,6 +102,7 @@ int? _coatId;
 int? _petVaccineId;
 int? _vaccineId;
 int? _serviceHistoryId;
+int? _petForwardingId;
 String? _petVaccineDoseId;
 String? _vaccineDoseId;
 String? _diseaseId;
@@ -103,6 +110,7 @@ int? _petDiseaseId;
 int? _petDiseaseServiceId;
 int? _healthProgramId;
 String? _medicineId;
+int? _forwardingId;
 int? _petMedicineId;
 int? _petAllergyId;
 int? _symptomId;
@@ -168,6 +176,8 @@ List<MedicineModel> medicineList = [];
 List<SymptomModel> symptomList = [];
 List<VaccineModel> vaccineList = [];
 List<VaccineDoseModel> vaccineDoseList = [];
+List<ExamModel> examList = [];
+List<ConsultationModel> consultationList = [];
 
 //List<HealthProgramModel> healthProgramList = [];
 int? appetitId;
@@ -948,8 +958,23 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             .map((e) => VaccineDoseModel.fromJson(e))
             .toList();
     vaccineDoseList = VaccineDoseData().vaccineDoseList.toList();
+
+    final jsonExam = await UserPreferences.getExam();
+    ExamData().examList =
+        (jsonDecode(jsonExam!) as List<dynamic>)
+            .map((e) => ExamModel.fromJson(e))
+            .toList();
+    examList = ExamData().examList.toList();
+
+    final jsonConsultation = await UserPreferences.getConsultation();
+    ConsultationData().consultationList =
+        (jsonDecode(jsonConsultation!) as List<dynamic>)
+            .map((e) => ConsultationModel.fromJson(e))
+            .toList();
+    consultationList = ConsultationData().consultationList.toList();
+
 /*
-    final jsonHealthProgram = await UserPreferences.getMedicine();
+    final jsonHealthProgram = await UserPreferences.getHealthProgram();
     HealthProgramData().healthProgramList =
         (jsonDecode(jsonHealthProgram!) as List<dynamic>)
             .map((e) => HealthProgramModel.fromJson(e))
@@ -1024,6 +1049,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _engine = await RtcEngine.create(appId);
 
     await _engine.enableVideo();
+    await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
+    await _engine.setClientRole(ClientRole.Broadcaster);
+    await _engine.startPreview();
 
     _engine.setEventHandler(
       RtcEngineEventHandler(
@@ -8183,6 +8211,39 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
     return 4;
   }
 
+  Future<List<dynamic>> _fetchPetForwarding() async {
+    List<PetForwardingModel> petForwardingList;
+    petForwardingList =
+        await petForwardingListApi(_serviceQueue.queueId);
+
+    return petForwardingList;
+  }
+
+  Future<int?> _registerForwarding(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerForwardingApi(
+        _typeRegister,
+        _serviceQueue.queueId,
+        _forwardingId,
+        _petForwardingId,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterMedicine'];
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return 4;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -8627,7 +8688,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                               ),
                             ),
                             FutureBuilder<List<dynamic>>(
-                                future: null, //_fetchPetMedicines(),
+                                future: _fetchPetForwarding(),
                                 builder: (context, snapshot) {
                                   /*if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
@@ -8648,13 +8709,13 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                         child: Scrollbar(
                                           thumbVisibility: true,
                                           child: ListView.builder(
-                                            itemCount: PetMedicineData()
-                                                .petMedicineList
+                                            itemCount: PetForwardingData()
+                                                .petForwardingList
                                                 .length,
                                             itemBuilder: (context, index) {
-                                              final petMedicine =
-                                                  PetMedicineData()
-                                                      .petMedicineList[index];
+                                              final petForwordnig =
+                                                  PetForwardingData()
+                                                      .petForwardingList[index];
                                               return Padding(
                                                 padding:
                                                     const EdgeInsets.all(8.0),
@@ -8683,10 +8744,8 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                   ),
                                                   child: InkWell(
                                                     onTap: () {
-                                                      //print(petVaccine.);
-                                                      _petMedicineId =
-                                                          petMedicine
-                                                              .petMedicineId;
+                                                      _petForwardingId =
+                                                          petForwordnig.petForwardingId;
                                                     },
                                                     child: Padding(
                                                       padding:
@@ -8698,7 +8757,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                 .spaceBetween,
                                                         children: [
                                                           Text(
-                                                            petMedicine.name!,
+                                                            petForwordnig.forwardingName!,
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
@@ -8709,10 +8768,12 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                 Icons.delete),
                                                             color: Colors.red,
                                                             onPressed: () {
+                                                              print('petForwordnig.petForwardingId');
+                                                              print(petForwordnig.petForwardingId);
+                                                              print('petForwordnig.petForwardingId');
                                                               setState(() {
-                                                                _petMedicineId =
-                                                                    petMedicine
-                                                                        .petMedicineId;
+                                                                _petForwardingId =
+                                                          petForwordnig.petForwardingId;
                                                               });
                                                               showDialog(
                                                                 context:
@@ -8745,13 +8806,13 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                               () {
                                                                             _typeRegister =
                                                                                 'D';
-                                                                            /*
-                                                                            _registerMedicine(context).then(
+                                                                            
+                                                                            _registerForwarding(context).then(
                                                                               (value) {
                                                                                 Navigator.of(context).pop();
                                                                               },
                                                                             );
-                                                                            */
+                                                                           
                                                                           },
                                                                         ),
                                                                       ],
@@ -8791,6 +8852,9 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                               _isotherMedicineVisible = false;
                             });
                             */
+                            typeForwardingId = null;
+                            _forwardingId = null;
+                            _heigthShowMedicineVaccine = 200;
                             _showExamConsultation(context);
                           },
                           child: const Icon(Icons.add),
@@ -8881,9 +8945,9 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                             setState(() {
                               typePrescriptionId = int.parse(value!);
                               if (value == '1') {
-                                _heigthShowMedicineVaccine = 600;
+                                _heigthShowMedicineVaccine = 300;
                               } else {
-                                _heigthShowMedicineVaccine = 350;
+                                _heigthShowMedicineVaccine = 300;
                               }
                             });
                           },
@@ -9277,11 +9341,11 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                           onChanged: (value) {
                             print(value);
                             setState(() {
-                              typePrescriptionId = int.parse(value!);
+                              typeForwardingId = int.parse(value!);
                               if (value == '1') {
-                                _heigthShowMedicineVaccine = 600;
+                                _heigthShowMedicineVaccine = 280;
                               } else {
-                                _heigthShowMedicineVaccine = 350;
+                                _heigthShowMedicineVaccine = 280;
                               }
                             });
                           },
@@ -9305,184 +9369,35 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                       ),
                       if (typeForwardingId == 1) ...[
                         const SizedBox(width: 10.0),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: <Widget>[
-                                DropdownSearch<MedicineModel>(
-                                  popupProps: const PopupProps.menu(
-                                    showSearchBox: true,
-                                  ),
-                                  dropdownDecoratorProps:
-                                      DropDownDecoratorProps(
-                                    dropdownSearchDecoration: InputDecoration(
-                                      labelText: "Selecinar Medicamento",
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                      ),
-                                    ),
-                                  ),
-                                  items: MedicineData()
-                                      .medicineList
-                                      .where((medicines) =>
-                                          medicines.id == '941' ||
-                                          medicines.specieId ==
-                                              _serviceQueue.specieId)
-                                      .toList(),
-                                  itemAsString: (MedicineModel medicine) =>
-                                      medicine.name,
-                                  onChanged: (value) {
-                                    if (value != null) {
-                                      _medicineId = value.id;
-                                    } else {
-                                      _medicineId = null;
-                                    }
-                                    setState(() {
-                                      veterinaryUse = value!.veterinaryUse;
-                                    });
-
-                                    if (_medicineId == '941') {
-                                      setState(() {
-                                        _isotherMedicineVisible = true;
-                                      });
-                                    } else {
-                                      setState(() {
-                                        _isotherMedicineVisible = false;
-                                      });
-                                    }
-                                  },
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            children: <Widget>[
+                              DropdownSearch<ExamModel>(
+                                popupProps: const PopupProps.menu(
+                                  showSearchBox: true,
                                 ),
-                                Visibility(
-                                  visible: _isotherMedicineVisible,
-                                  child: const SizedBox(height: 10.0),
-                                ),
-                                Visibility(
-                                  visible: _isotherMedicineVisible,
-                                  child: TextFormField(
-                                    controller: _otherMedicineController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Outro Medicamento',
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                8.0)), // Raio dos cantos da borda
-                                        borderSide: BorderSide(
-                                            color: Colors.black, width: 1.0),
-                                      ),
+                                dropdownDecoratorProps:
+                                    DropDownDecoratorProps(
+                                  dropdownSearchDecoration: InputDecoration(
+                                    labelText: "Selecinar Exame",
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(8.0),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 10.0),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: DropdownButtonFormField<String>(
-                                        validator: _validateDropDown,
-                                        isDense: true,
-                                        onChanged: (value) {
-                                          print(value);
-                                          setState(() {
-                                            useTypeId = int.parse(value!);
-                                          });
-                                        },
-                                        items: useTypeList.keys.map((key) {
-                                          return DropdownMenuItem<String>(
-                                            value: key,
-                                            child: Text(useTypeList[key]!),
-                                          );
-                                        }).toList(),
-                                        decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                            ),
-                                            filled: true,
-                                            fillColor: Colors.white,
-                                            labelText: 'Tipo de Uso?'),
-                                        value: (useTypeId == null
-                                            ? null
-                                            : useTypeId.toString()),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10.0),
-                                    Row(
-                                      children: [
-                                        const Text(
-                                          'Uso Veterinário?',
-                                          style: TextStyle(fontSize: 10),
-                                        ),
-                                        Column(
-                                          children: [
-                                            Text(
-                                              veterinaryUse ? 'Sim' : 'Não',
-                                              style: TextStyle(fontSize: 10),
-                                            ),
-                                            Switch(
-                                              value: veterinaryUse,
-                                              onChanged: (bool value) {
-                                                setState(() {
-                                                  veterinaryUse = value;
-                                                });
-                                              },
-                                              activeTrackColor:
-                                                  Colors.lightGreen,
-                                              activeColor: Colors.green,
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(width: 10.0),
-                                    Expanded(
-                                      flex: 1,
-                                      child: TextFormField(
-                                        style: const TextStyle(fontSize: 15.0),
-                                        controller: _amountMedicineController,
-                                        decoration: const InputDecoration(
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(
-                                                    8.0)), // Raio dos cantos da borda
-                                            borderSide: BorderSide(
-                                                color: Colors.black,
-                                                width:
-                                                    1.0), // Cor e largura da borda
-                                          ),
-                                          labelText: 'Quantidade',
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 10.0),
-                                Container(
-                                  height: 200,
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Colors.black,
-                                      width: 1.0,
-                                    ),
-                                    borderRadius: BorderRadius.circular(8.0),
-                                  ),
-                                  child: TextFormField(
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: null,
-                                    style: const TextStyle(fontSize: 15.0),
-                                    controller: _dosageController,
-                                    decoration: const InputDecoration(
-                                      border: InputBorder
-                                          .none, // Remova a borda padrão do TextFormField
-                                      labelText: 'Posologia',
-                                      contentPadding: EdgeInsets.all(
-                                          8.0), // Adicione espaço interno
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                                items: ExamData().examList.where((exam) => (exam.dog == true && _serviceQueue.specieId == 1) || (exam.cat == true && _serviceQueue.specieId == 2)).toList(),
+                                itemAsString: (ExamModel exam) => exam.name,
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    _forwardingId = value.id;
+                                  } else {
+                                    _forwardingId = null;
+                                  }
+                                },
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -9490,24 +9405,21 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                         const SizedBox(width: 10.0),
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: DropdownButtonFormField<VaccineModel>(
+                          child: DropdownButtonFormField<ConsultationModel>(
                             validator: (value) =>
                                 value == null ? 'Campo obrigatório' : null,
                             isDense: true,
                             onChanged: (value) {
                               print(value);
                               setState(() {
-                                _vaccineId = value!.vaccineId;
+                                _forwardingId = value!.id;
                               });
                             },
-                            items: VaccineData()
-                                .vaccineList
-                                .where((vaccines) =>
-                                    vaccines.specieId == _specieId)
-                                .map((vaccine) {
-                              return DropdownMenuItem<VaccineModel>(
-                                value: vaccine,
-                                child: Text(vaccine.name),
+                            items: ConsultationData()
+                                .consultationList.map((consultation) {
+                              return DropdownMenuItem<ConsultationModel>(
+                                value: consultation,
+                                child: Text(consultation.name),
                               );
                             }).toList(),
                             decoration: InputDecoration(
@@ -9516,54 +9428,15 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                 ),
                                 filled: true,
                                 fillColor: Colors.white,
-                                labelText: 'Selecione uma Vacina'),
-                            value: _vaccineId != null
-                                ? VaccineData().vaccineList.firstWhere(
-                                    (vaccine) =>
-                                        vaccine.vaccineId == _vaccineId)
+                                labelText: 'Selecione uma Consutla'),
+                            value: _forwardingId != null
+                                ? ConsultationData().consultationList.firstWhere(
+                                    (consultation) =>
+                                        consultation.id == _forwardingId)
                                 : null,
                           ),
                         ),
-                        const SizedBox(width: 10.0),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: DropdownButtonFormField<VaccineDoseModel>(
-                            validator: (value) =>
-                                value == null ? 'Campo obrigatório' : null,
-                            isDense: true,
-                            onChanged: (value) {
-                              print(value!.vaccineDoseId);
-                              setState(() {
-                                _vaccineDoseId =
-                                    value!.vaccineDoseId.toString();
-                              });
-                            },
-                            items: VaccineDoseData()
-                                .vaccineDoseList
-                                .where((vaccinesDose) =>
-                                    vaccinesDose.vaccineId == _vaccineId)
-                                .map((vaccineDose) {
-                              return DropdownMenuItem<VaccineDoseModel>(
-                                value: vaccineDose,
-                                child: Text(vaccineDose.name),
-                              );
-                            }).toList(),
-                            decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                filled: true,
-                                fillColor: Colors.white,
-                                labelText: 'Selecione uma Dose'),
-                            /*
-                            value: _vaccineDoseId != null
-                                ? VaccineDoseData().vaccineDoseList.firstWhere(
-                                    (vaccineDose) =>
-                                        vaccineDose.vaccineDoseId ==
-                                        _vaccineDoseId)
-                                : null, */
-                          ),
-                        ),
+
                       ],
                       Container(
                         padding: const EdgeInsets.all(16.0),
@@ -9583,7 +9456,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                               onPressed: () {
                                 setState(() {
                                   _typeRegister = 'C';
-                                  _registerMedicine(context).then((value) {});
+                                  _registerForwarding(context).then((value) {});
                                   Navigator.of(context).pop();
                                 });
                               },

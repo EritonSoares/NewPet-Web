@@ -20,6 +20,7 @@ import 'package:petner_web/models/petActivityModel.dart';
 import 'package:petner_web/models/petAllergyModel.dart';
 import 'package:petner_web/models/petDiseaseModel.dart';
 import 'package:petner_web/models/petDiseaseServiceModel.dart';
+import 'package:petner_web/models/petForwardingModel.dart';
 import 'package:petner_web/models/petHealthProgramModel.dart';
 import 'package:petner_web/models/petMedicineModel.dart';
 import 'package:petner_web/models/petSericeHistoryModel.dart';
@@ -36,6 +37,7 @@ import 'package:petner_web/shared/data/healthProgramData.dart';
 import 'package:petner_web/shared/data/petAllergyData.dart';
 import 'package:petner_web/shared/data/petDiseaseData.dart';
 import 'package:petner_web/shared/data/petDiseaseServiceData.dart';
+import 'package:petner_web/shared/data/petForwardingData.dart';
 import 'package:petner_web/shared/data/petHealthProgramData.dart';
 import 'package:petner_web/shared/data/petMedicineData.dart';
 import 'package:petner_web/shared/data/petScheduleActivityData.dart';
@@ -129,9 +131,11 @@ Future<Map<String, dynamic>> validateUserApi(
         await diseaseListApi();
         await medicineListApi();
         await symptomListApi();
-        await healthProgramListApi();
+        //await healthProgramListApi();
         await vaccineListApi();
         await vaccineDoseListApi();
+        await examListApi();
+        await consultationListApi();
 
         /*
         print('==================================');
@@ -726,6 +730,7 @@ Future<List<PetVaccineDoseModel>> petVaccineDoseListApi(
       },
       body: jsonEncode(jsonSend),
     );
+    print(jsonEncode(jsonSend));
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
@@ -2013,8 +2018,6 @@ Future<Map<String, int>> registerSymptomApi([
     };
   }
 
-  print(jsonEncode(jsonSend));
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2356,9 +2359,6 @@ Future<List<PetServiceHistoryModel>> petServiceHistoryListApi(
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
-
-      print(jsonData);
-
       for (var item in jsonData) {
         PetServiceHistoryModel petServiceHistoryModel =
             PetServiceHistoryModel.fromJson(item);
@@ -2884,8 +2884,6 @@ Future<void> registerPrescriptionConsultChatGPTApi(
     'selected': selected,
   };
 
-  print(jsonEncode(petner));
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2935,4 +2933,164 @@ Future<void> vaccineDoseListApi() async {
     // Ocorreu um erro durante a solicitação
     print('Erro na solicitação POST vaccineDoseList: $e');
   }
+}
+
+Future<void> examListApi() async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/ExamList?param=' + randomInt.toString();
+
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      UserPreferences.saveExam(response.body);
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST examListApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST examListApi: $e');
+  }
+}
+
+Future<void> consultationListApi() async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/ConsultationList?param=' + randomInt.toString();
+
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      UserPreferences.saveConsultation(response.body);
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST consultationListApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST consultationListApi: $e');
+  }
+}
+
+Future<Map<String, int>> registerForwardingApi([
+  String? option,
+  int? serviceId,
+  int? forwardingId,
+  int? petForwardingId,
+]) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/RegisterForwardingService?param=' + randomInt.toString();
+  Map<String, int> responseData;
+
+  Map<String, dynamic> jsonSend = {
+    'option': option,
+    'serviceId': serviceId,
+    'forwardingId': forwardingId,
+  };
+
+  if (option == 'D') {
+    jsonSend = {
+      'option': option,
+      'petForwardingId': petForwardingId,
+    };
+  }
+
+  print('jsonEncode(jsonSend)');
+  print(jsonEncode(jsonSend));
+  print('jsonEncode(jsonSend)');
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    if (response.statusCode == 200) {
+      responseData = jsonDecode(response.body);
+    } else {
+      responseData = {'registerForwarding': 2};
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST registerForwardingApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    responseData = {'registerForwarding': 3};
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST registerForwardingApi: $e');
+  }
+
+  return responseData;
+}
+
+Future<List<PetForwardingModel>> petForwardingListApi([
+  int? serviceId,
+]) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/PetForwardingList?param=' + randomInt.toString();
+  List<PetForwardingModel> petForwardingList = [];
+
+  Map<String, dynamic> jsonSend = {
+    'serviceId': serviceId,
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(jsonSend),
+    );
+
+    print(jsonEncode(jsonSend));
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      for (var item in jsonData) {
+        print(item);
+        PetForwardingModel petForwardingModel = PetForwardingModel.fromJson(item);
+        petForwardingList.add(petForwardingModel);
+      }
+      PetForwardingData().petForwardingList = petForwardingList;
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST petForwardingListApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST petForwardingListApi: $e');
+  }
+
+  return petForwardingList;
 }

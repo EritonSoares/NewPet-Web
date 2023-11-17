@@ -197,4 +197,30 @@ class UserPreferences {
     return prefs.getString('vaccineDose');
   }
   /****************************************************************************************/
+
+  /****************************************************************************************/
+  /* Listagem de Exame  */
+  static Future<void> saveExam(String exame) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('exame', exame);
+  }
+
+  static Future<String?> getExam() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('exame');
+  }
+  /****************************************************************************************/
+
+  /****************************************************************************************/
+  /* Listagem de Consulta  */
+  static Future<void> saveConsultation(String consultation) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('consultation', consultation);
+  }
+
+  static Future<String?> getConsultation() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('consultation');
+  }
+  /****************************************************************************************/
 }
