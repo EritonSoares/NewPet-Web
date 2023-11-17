@@ -35,7 +35,9 @@ import 'package:petner_web/models/petVaccineCardModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/serviceQueueModel.dart';
 import 'package:petner_web/models/symptomModel.dart';
+import 'package:petner_web/models/petVaccineDoseModel.dart';
 import 'package:petner_web/models/vaccineDoseModel.dart';
+import 'package:petner_web/models/vaccineModel.dart';
 import 'package:petner_web/shared/data/anexoServiceHistoryData.dart';
 import 'package:petner_web/shared/data/bodyScoreData.dart';
 import 'package:petner_web/shared/data/cityData.dart';
@@ -64,6 +66,8 @@ import 'package:petner_web/shared/data/stateData.dart';
 import 'package:petner_web/shared/data/symptomData.dart';
 import 'package:petner_web/shared/data/temperamentData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
+import 'package:petner_web/shared/data/vaccineData.dart';
+import 'package:petner_web/shared/data/petVaccineDoseData.dart';
 import 'package:petner_web/shared/data/vaccineDoseData.dart';
 import 'package:petner_web/utils/functions.dart';
 import 'package:petner_web/utils/functionsRest.dart';
@@ -92,6 +96,7 @@ int? _coatId;
 int? _petVaccineId;
 int? _vaccineId;
 int? _serviceHistoryId;
+String? _petVaccineDoseId;
 String? _vaccineDoseId;
 String? _diseaseId;
 int? _petDiseaseId;
@@ -136,6 +141,8 @@ final TextEditingController _otherMedicineController = TextEditingController();
 final TextEditingController _otherSymptomController = TextEditingController();
 final TextEditingController _allergyController = TextEditingController();
 final TextEditingController _complaintController = TextEditingController();
+final TextEditingController _amountMedicineController = TextEditingController();
+final TextEditingController _dosageController = TextEditingController();
 final TextEditingController _finalGuidelinesController =
     TextEditingController();
 final TextEditingController _birthdayController = TextEditingController();
@@ -159,9 +166,14 @@ List<CityModel> listCity = [];
 List<DiseaseModel> diseaseList = [];
 List<MedicineModel> medicineList = [];
 List<SymptomModel> symptomList = [];
+List<VaccineModel> vaccineList = [];
+List<VaccineDoseModel> vaccineDoseList = [];
+
 //List<HealthProgramModel> healthProgramList = [];
 int? appetitId;
-int? typeMPrescriptionId;
+int? typePrescriptionId;
+int? typeForwardingId;
+int? useTypeId;
 int? waterIntakeId;
 int? urineStainingId;
 int? urineVolumeId;
@@ -921,6 +933,21 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         .toList();
     symptomList = SymptomData().symptomList;
 
+    final jsonVaccine = await UserPreferences.getVaccine();
+    VaccineData().vaccineList = (jsonDecode(jsonVaccine!) as List<dynamic>)
+        .map((e) => VaccineModel.fromJson(e))
+        .toList();
+    vaccineList = VaccineData()
+        .vaccineList
+        .where((vaccines) => vaccines.specieId == _specieId)
+        .toList();
+
+    final jsonVaccineDose = await UserPreferences.getVaccineDose();
+    VaccineDoseData().vaccineDoseList =
+        (jsonDecode(jsonVaccineDose!) as List<dynamic>)
+            .map((e) => VaccineDoseModel.fromJson(e))
+            .toList();
+    vaccineDoseList = VaccineDoseData().vaccineDoseList.toList();
 /*
     final jsonHealthProgram = await UserPreferences.getMedicine();
     HealthProgramData().healthProgramList =
@@ -2465,10 +2492,10 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
     }
   }
 
-  Future<int?> _registerVaccineDose(BuildContext context) async {
+  Future<int?> _registerPetVaccineDose(BuildContext context) async {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      Map<String, dynamic> responseData = await registerVaccineDoseApi(
+      Map<String, dynamic> responseData = await registerPetVaccineDoseApi(
         _typeRegister,
         _serviceQueue.queueId.toString(),
         '',
@@ -2476,7 +2503,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
         true,
         _serviceQueue.petId.toString(),
         _petVaccineId.toString(),
-        _vaccineDoseId,
+        _petVaccineDoseId,
         _brandController.text,
         _lotController.text,
         _veterinaryController.text,
@@ -2490,7 +2517,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
       });
 
       //return 1;
-      return responseData['validateRegisterVaccineDose'];
+      return responseData['validateRegisterPetVaccineDose'];
     }
 
     setState(() {
@@ -2517,11 +2544,12 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
           FutureBuilder<List<dynamic>>(
               future: _fetchPetVaccines(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                /*if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                } else if (snapshot.hasError) {
+                } else */
+                if (snapshot.hasError) {
                   return Center(
                     child: Text('Error: ${snapshot.error}'),
                   );
@@ -2562,7 +2590,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                                   //print(petVaccine.);
                                   _petVaccineId = petVaccine.petVaccineId;
                                   _vaccineId = petVaccine.vaccineId;
-                                  _showVaccineDoseList(context);
+                                  _showPetVaccineDoseList(context);
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -2718,7 +2746,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
     );
   }
 
-  void _showVaccineDoseList(BuildContext context) {
+  void _showPetVaccineDoseList(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2783,12 +2811,13 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                     FutureBuilder<List<dynamic>>(
                         future: _fetchPetVaccinationCard(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState ==
+                          /*if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
                               child: CircularProgressIndicator(),
                             );
-                          } else if (snapshot.hasError) {
+                          } else */
+                          if (snapshot.hasError) {
                             return Center(
                               child: Text('Error: ${snapshot.error}'),
                             );
@@ -2833,7 +2862,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => RegisterVaccineDosePage(myPet: widget.myPet, vaccinePetId: widget.vaccinePetId, vaccineDoseId: petVaccineCard.vaccineTypeId, typeRegister: 'U', vaccinationCardId: petVaccineCard.vaccinationCardId.toString()),
+                                  builder: (context) => RegisterPetVaccineDosePage(myPet: widget.myPet, vaccinePetId: widget.vaccinePetId, petVaccineDoseId: petVaccineCard.vaccineTypeId, typeRegister: 'U', vaccinationCardId: petVaccineCard.vaccinationCardId.toString()),
                                 ),
                               ).whenComplete(() {
                                 updatePetData(PetData().getPetById(myPet.id.toString()));
@@ -2885,7 +2914,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                                                     color: Colors.red,
                                                     onPressed: () {
                                                       setState(() {
-                                                        //_selectedVaccineDoseId = petVaccineCard.vaccinationCardId.toString();
+                                                        //_selectedPetVaccineDoseId = petVaccineCard.vaccinationCardId.toString();
                                                       });
                                                       showDialog(
                                                         context: context,
@@ -2921,7 +2950,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                                                                       () {
                                                                     /*
                                                                                                             _option = 'D';
-                                                                                                            _registerVaccineDose(context).then(
+                                                                                                            _registerPetVaccineDose(context).then(
                                                         (value) {
                                                           switch (value) {
                                                             case 0:
@@ -2983,7 +3012,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                               _lotController.text = '';
                               _veterinaryController.text = '';
                               _observationController.text = '';
-                              _showRegisterVaccineDose(context);
+                              _showRegisterPetVaccineDose(context);
                             },
                             child: const Text('Adicionar Dose'),
                           ),
@@ -3000,7 +3029,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
     );
   }
 
-  void _showRegisterVaccineDose(BuildContext context) {
+  void _showRegisterPetVaccineDose(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -3069,30 +3098,31 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                           padding: const EdgeInsets.all(8.0),
                           child: ListView(
                             children: <Widget>[
-                              FutureBuilder<List<VaccineDoseModel>>(
-                                future: vaccineDoseListApi(
+                              FutureBuilder<List<PetVaccineDoseModel>>(
+                                future: petVaccineDoseListApi(
                                     _serviceQueue.petId.toString(),
                                     _vaccineId
                                         .toString()), // Função para buscar os dados da API VaccineType
                                 builder: (BuildContext context,
-                                    AsyncSnapshot<List<VaccineDoseModel>>
+                                    AsyncSnapshot<List<PetVaccineDoseModel>>
                                         snapshot) {
                                   if (snapshot.hasData) {
-                                    List<VaccineDoseModel> vaccineDose =
+                                    List<PetVaccineDoseModel> petVaccineDose =
                                         snapshot.data!;
                                     return DropdownButtonFormField<String>(
                                       hint: const Text('Selecione uma Dose'),
-                                      value: _vaccineDoseId,
+                                      value: _petVaccineDoseId,
                                       validator: _validateDropDown,
-                                      items: vaccineDose.map((vaccineDose) {
+                                      items:
+                                          petVaccineDose.map((petVaccineDose) {
                                         return DropdownMenuItem<String>(
-                                          value: vaccineDose.vaccineDoseId
+                                          value: petVaccineDose.petVaccineDoseId
                                               .toString(),
-                                          child: Text(vaccineDose.name),
+                                          child: Text(petVaccineDose.name),
                                         );
                                       }).toList(),
                                       onChanged: (String? selectedValue) {
-                                        _vaccineDoseId = selectedValue;
+                                        _petVaccineDoseId = selectedValue;
                                         // Ação a ser executada quando um item for selecionado no dropdown
                                         if (selectedValue != null) {
                                           // Faça algo com o valor selecionado
@@ -3113,7 +3143,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                                     return const Text(
                                         'Erro ao carregar os dados');
                                   } else {
-                                    _vaccineDoseId = null;
+                                    _petVaccineDoseId = null;
                                     return Container(
                                       width: 5,
                                       color: Colors.black.withOpacity(0.5),
@@ -3233,7 +3263,7 @@ class _VaccineRegistrationPage extends State<VaccineRegistrationPage> {
                               onPressed: () {
                                 _typeRegister = 'C';
                                 if (_formKey.currentState!.validate()) {
-                                  _registerVaccineDose(context).then(
+                                  _registerPetVaccineDose(context).then(
                                     (value) {
                                       switch (value) {
                                         case 0:
@@ -3337,7 +3367,8 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
 
   Future<List<dynamic>> _fetchPetMedicines() async {
     List<PetMedicineModel> petMedicineList;
-    petMedicineList = await petMedicineListApi(_serviceQueue.petId.toString());
+    petMedicineList =
+        await petMedicineListApi(1, _serviceQueue.petId.toString(), '0');
 
     return petMedicineList;
   }
@@ -3346,12 +3377,17 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
     final form = _formKey.currentState;
     if (form!.validate()) {
       Map<String, dynamic> responseData = await registerMedicineApi(
+        1,
         _typeRegister,
         _serviceQueue.petId.toString(),
+        '0',
         _medicineId,
         _petMedicineId.toString(),
         _otherMedicineController.text,
         true,
+        0,
+        '',
+        '',
       );
 
       setState(() {
@@ -3466,12 +3502,13 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                             FutureBuilder<List<dynamic>>(
                                 future: _fetchPetDiseaes(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
+                                  /*if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return const Center(
                                       child: CircularProgressIndicator(),
                                     );
-                                  } else if (snapshot.hasError) {
+                                  } else */
+                                  if (snapshot.hasError) {
                                     return Center(
                                       child: Text('Error: ${snapshot.error}'),
                                     );
@@ -3674,12 +3711,13 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                             FutureBuilder<List<dynamic>>(
                                 future: _fetchPetMedicines(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
+                                  /*if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return const Center(
                                       child: CircularProgressIndicator(),
                                     );
-                                  } else if (snapshot.hasError) {
+                                  } else */
+                                  if (snapshot.hasError) {
                                     return Center(
                                       child: Text('Error: ${snapshot.error}'),
                                     );
@@ -3880,12 +3918,13 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                             FutureBuilder<List<dynamic>>(
                                 future: _fetchPetAllergies(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
+                                  /*if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return const Center(
                                       child: CircularProgressIndicator(),
                                     );
-                                  } else if (snapshot.hasError) {
+                                  } else */
+                                  if (snapshot.hasError) {
                                     return Center(
                                       child: Text('Error: ${snapshot.error}'),
                                     );
@@ -5614,11 +5653,12 @@ class _AnamnesisPage extends State<AnamnesisPage> {
               FutureBuilder<List<dynamic>>(
                   future: _fetchPetSymptoms(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    /*if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (snapshot.hasError) {
+                    } else */
+                    if (snapshot.hasError) {
                       return Center(
                         child: Text('Error: ${snapshot.error}'),
                       );
@@ -5944,11 +5984,12 @@ class _AnamnesisPage extends State<AnamnesisPage> {
               FutureBuilder<List<dynamic>>(
                   future: _fetchListConsultChatGPT(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    /*if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (snapshot.hasError) {
+                    } else */
+                    if (snapshot.hasError) {
                       return Center(
                         child: Text('Error: ${snapshot.error}'),
                       );
@@ -6275,12 +6316,13 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                         FutureBuilder<List<dynamic>>(
                             future: _fetchHealthProgram(),
                             builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
+                              /*if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const Center(
                                   child: CircularProgressIndicator(),
                                 );
-                              } else if (snapshot.hasError) {
+                              } else */
+                              if (snapshot.hasError) {
                                 return Center(
                                   child: Text('Error: ${snapshot.error}'),
                                 );
@@ -6410,12 +6452,13 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                             FutureBuilder<List<dynamic>>(
                                 future: _fetchPetHealthProgram(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
+                                  /*if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return const Center(
                                       child: CircularProgressIndicator(),
                                     );
-                                  } else if (snapshot.hasError) {
+                                  } else */
+                                  if (snapshot.hasError) {
                                     return Center(
                                       child: Text('Error: ${snapshot.error}'),
                                     );
@@ -6770,11 +6813,12 @@ class _ServiceHistoryPage extends State<ServiceHistoryPage> {
           FutureBuilder<List<dynamic>>(
               future: _fetchPetServiceHistory(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                /*if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                } else if (snapshot.hasError) {
+                } else */
+                if (snapshot.hasError) {
                   return Center(
                     child: Text('Error: ${snapshot.error}'),
                   );
@@ -6817,7 +6861,7 @@ class _ServiceHistoryPage extends State<ServiceHistoryPage> {
                                   //print(petVaccine.);
                                   //_petServiceFormId = petServiceHistory.serviceFormId;
                                   //_vaccineId = petVaccine.vaccineId;
-                                  //_showVaccineDoseList(context);
+                                  //_showPetVaccineDoseList(context);
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -7019,11 +7063,12 @@ class _ServiceHistoryPage extends State<ServiceHistoryPage> {
                 FutureBuilder<List<dynamic>>(
                     future: _fetchAnexoServiceHistory(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
+                      /*if (snapshot.connectionState == ConnectionState.waiting) {
                         return const Center(
                           child: CircularProgressIndicator(),
                         );
-                      } else if (snapshot.hasError) {
+                      } else */
+                      if (snapshot.hasError) {
                         return Center(
                           child: Text('Error: ${snapshot.error}'),
                         );
@@ -7146,11 +7191,12 @@ class _HealthProgramPagePet extends State<HealthProgramPagePet> {
           FutureBuilder<List<dynamic>>(
               future: _fetchPetHealthProgram(),
               builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
+                /*if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
                     child: CircularProgressIndicator(),
                   );
-                } else if (snapshot.hasError) {
+                } else */
+                if (snapshot.hasError) {
                   return Center(
                     child: Text('Error: ${snapshot.error}'),
                   );
@@ -7192,7 +7238,7 @@ class _HealthProgramPagePet extends State<HealthProgramPagePet> {
                                   //print(petVaccine.);
                                   //_petServiceFormId = petHealthProgram.serviceFormId;
                                   //_vaccineId = petVaccine.vaccineId;
-                                  //_showVaccineDoseList(context);
+                                  //_showPetVaccineDoseList(context);
                                 },
                                 child: Padding(
                                   padding: const EdgeInsets.all(8.0),
@@ -7487,11 +7533,12 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
               FutureBuilder<List<dynamic>>(
                   future: _fetchPetDiseaesService(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    /*if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (snapshot.hasError) {
+                    } else */
+                    if (snapshot.hasError) {
                       return Center(
                         child: Text('Error: ${snapshot.error}'),
                       );
@@ -7829,11 +7876,12 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
               FutureBuilder<List<dynamic>>(
                   future: _fetchListConsultChatGPT(),
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                    /*if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(
                         child: CircularProgressIndicator(),
                       );
-                    } else if (snapshot.hasError) {
+                    } else */
+                    if (snapshot.hasError) {
                       return Center(
                         child: Text('Error: ${snapshot.error}'),
                       );
@@ -8046,16 +8094,93 @@ class PrescriptionReferralPage extends StatefulWidget {
 }
 
 class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
-  final Map<String, String> medicineVacineList = {
+  double _heigthShowMedicineVaccine = 200;
+  bool _isotherMedicineVisible = false;
+  bool veterinaryUse = false;
+
+  final Map<String, String> medicineVaccineList = {
     '1': 'Medicamento',
     '2': 'Vacina',
   };
+
+  final Map<String, String> examConsultationList = {
+    '1': 'Exame',
+    '2': 'Consulta',
+  };
+
+  final Map<String, String> useTypeList = {
+    '1': 'Cutâneo',
+    '2': 'Injetável',
+    '3': 'Intranasal',
+    '4': 'Oftálmico',
+    '5': 'Oral',
+    '6': 'Otológico',
+    '7': 'Retal',
+    '8': 'Tópico',
+    '9': 'Vaginal',
+    '10': 'Outro',
+  };
+
+  String? _validateDropDownModel(VaccineModel? value) {
+    if (value == null || value.name.isEmpty) {
+      return 'Selecione uma opção';
+    }
+    return null;
+  }
 
   String? _validateDropDown(String? value) {
     if (value == null || value.isEmpty) {
       return 'Selecione uma opção';
     }
     return null;
+  }
+
+  Future<List<dynamic>> _fetchPetMedicines() async {
+    List<PetMedicineModel> petMedicineList;
+    petMedicineList = await petMedicineListApi(
+      2,
+      _serviceQueue.petId.toString(),
+      _serviceQueue.queueId.toString(),
+    );
+
+    return petMedicineList;
+  }
+
+  Future<int?> _registerMedicine(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerMedicineApi(
+        2,
+        _typeRegister,
+        _serviceQueue.petId.toString(),
+        _serviceQueue.queueId.toString(),
+        _medicineId,
+        _petMedicineId.toString(),
+        _otherMedicineController.text,
+        false,
+        useTypeId,
+        _amountMedicineController.text,
+        _dosageController.text,
+        veterinaryUse,
+        typePrescriptionId,
+        _vaccineId.toString(),
+        _petVaccineId.toString(),
+        _vaccineDoseId,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterMedicine'];
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return 4;
   }
 
   @override
@@ -8121,14 +8246,16 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                             // colocar lista
 
                             FutureBuilder<List<dynamic>>(
-                                future: null, //_fetchPetDiseaes(),
+                                future: _fetchPetMedicines(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
+                                  /*if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return const Center(
-                                      child: CircularProgressIndicator(),
+                                      child:
+                                          null, //CircularProgressIndicator(),
                                     );
-                                  } else if (snapshot.hasError) {
+                                  } else */
+                                  if (snapshot.hasError) {
                                     return Center(
                                       child: Text('Error: ${snapshot.error}'),
                                     );
@@ -8141,19 +8268,19 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                         child: Scrollbar(
                                           thumbVisibility: true,
                                           child: ListView.builder(
-                                            itemCount: PetDiseaseData()
-                                                .petDiseaseList
+                                            itemCount: PetMedicineData()
+                                                .petMedicineList
                                                 .length,
                                             itemBuilder: (context, index) {
-                                              final petDisease =
-                                                  PetDiseaseData()
-                                                      .petDiseaseList[index];
+                                              final petMedicine =
+                                                  PetMedicineData()
+                                                      .petMedicineList[index];
                                               return Padding(
                                                 padding:
                                                     const EdgeInsets.all(8.0),
                                                 child: Container(
                                                   height:
-                                                      70, // Defina a altura desejada para o card
+                                                      150, // Defina a altura desejada para o card
                                                   width: double
                                                       .infinity, // Defina a largura desejada para o card
 
@@ -8177,8 +8304,17 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                   child: InkWell(
                                                     onTap: () {
                                                       //print(petVaccine.);
-                                                      _petDiseaseId = petDisease
-                                                          .petDiseaseId;
+                                                      if (petMedicine
+                                                              .petMedicineId !=
+                                                          0) {
+                                                        _petMedicineId =
+                                                            petMedicine
+                                                                .petMedicineId;
+                                                      } else {
+                                                        _petVaccineId =
+                                                            petMedicine
+                                                                .petVaccineId;
+                                                      }
                                                     },
                                                     child: Padding(
                                                       padding:
@@ -8189,75 +8325,231 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                             CrossAxisAlignment
                                                                 .end,
                                                         children: [
-                                                          Row(
-                                                            mainAxisAlignment:
-                                                                MainAxisAlignment
-                                                                    .spaceBetween,
-                                                            children: [
-                                                              Text(
-                                                                petDisease
-                                                                    .name!,
-                                                                style:
-                                                                    const TextStyle(
-                                                                        fontSize:
-                                                                            18),
-                                                              ),
-                                                              IconButton(
-                                                                icon: Icon(Icons
-                                                                    .delete),
-                                                                color:
-                                                                    Colors.red,
-                                                                onPressed: () {
-                                                                  setState(() {
-                                                                    _petDiseaseId =
-                                                                        petDisease
-                                                                            .petDiseaseId;
-                                                                  });
-                                                                  showDialog(
-                                                                    context:
-                                                                        context,
-                                                                    builder:
-                                                                        (BuildContext
-                                                                            context) {
-                                                                      return Form(
-                                                                        key:
-                                                                            _formKey,
-                                                                        child:
-                                                                            AlertDialog(
-                                                                          title:
-                                                                              Text('Excluir Prescrição?'),
-                                                                          content:
-                                                                              Text('A Prescrição será Excluída. Confirma?'),
-                                                                          actions: <Widget>[
-                                                                            TextButton(
-                                                                              child: Text('Não'),
-                                                                              onPressed: () {
-                                                                                Navigator.of(context).pop();
-                                                                              },
-                                                                            ),
-                                                                            TextButton(
-                                                                              child: Text('Sim'),
-                                                                              onPressed: () {
-                                                                                _typeRegister = 'D';
-                                                                                /*
-                                                                                _registerChronicDisease(context).then(
-                                                                                  (value) {
-                                                                                    Navigator.of(context).pop();
-                                                                                  },
-                                                                                );
-                                                                                */
-                                                                              },
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      );
-                                                                    },
-                                                                  );
-                                                                  // Ação ao pressionar o botão de lixeira
-                                                                },
-                                                              ),
-                                                            ],
-                                                          ),
+                                                          if (petMedicine
+                                                                  .petMedicineId !=
+                                                              0) ...[
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        'Medicamento: ${petMedicine.name!}',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                          width:
+                                                                              10.0),
+                                                                      Text(
+                                                                        'Uso Humano: ${petMedicine.veterinaryUse! == true ? "Não" : "Sim"}',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18),
+                                                                        maxLines:
+                                                                            3,
+                                                                        softWrap:
+                                                                            true,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      ),
+                                                                      const SizedBox(
+                                                                          width:
+                                                                              10.0),
+                                                                      Text(
+                                                                        'Quantidade: ${petMedicine.amountMedicine!}',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                          width:
+                                                                              10.0),
+                                                                      Text(
+                                                                        'Tipo Uso: ${useTypeList.values.elementAt(int.parse(petMedicine.useTypeId!) - 1)}',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                          width:
+                                                                              10.0),
+                                                                      Text(
+                                                                        'Posologia: ${petMedicine.dosage!}',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18),
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                IconButton(
+                                                                  icon: Icon(Icons
+                                                                      .delete),
+                                                                  color: Colors
+                                                                      .red,
+                                                                  onPressed:
+                                                                      () {
+                                                                    setState(
+                                                                        () {
+                                                                      _petMedicineId =
+                                                                          petMedicine
+                                                                              .petMedicineId;
+                                                                    });
+                                                                    showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (BuildContext
+                                                                              context) {
+                                                                        return Form(
+                                                                          key:
+                                                                              _formKey,
+                                                                          child:
+                                                                              AlertDialog(
+                                                                            title:
+                                                                                Text('Excluir Prescrição?'),
+                                                                            content:
+                                                                                Text('A Prescrição será Excluída. Confirma?'),
+                                                                            actions: <Widget>[
+                                                                              TextButton(
+                                                                                child: Text('Não'),
+                                                                                onPressed: () {
+                                                                                  Navigator.of(context).pop();
+                                                                                },
+                                                                              ),
+                                                                              TextButton(
+                                                                                child: Text('Sim'),
+                                                                                onPressed: () {
+                                                                                  _typeRegister = 'D';
+                                                                                  _registerMedicine(context).then(
+                                                                                    (value) {
+                                                                                      Navigator.of(context).pop();
+                                                                                    },
+                                                                                  );
+                                                                                },
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                    // Ação ao pressionar o botão de lixeira
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
+                                                          if (petMedicine
+                                                                  .petVaccineId !=
+                                                              0) ...[
+                                                            Row(
+                                                              mainAxisAlignment:
+                                                                  MainAxisAlignment
+                                                                      .spaceBetween,
+                                                              children: [
+                                                                Expanded(
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                    mainAxisAlignment:
+                                                                        MainAxisAlignment
+                                                                            .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        'Vacina: ${petMedicine.name!}',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                          width:
+                                                                              10.0),
+                                                                      Text(
+                                                                        'Tipo Dose: ${petMedicine.doseName}',
+                                                                        style: const TextStyle(
+                                                                            fontSize:
+                                                                                18),
+                                                                        maxLines:
+                                                                            3,
+                                                                        softWrap:
+                                                                            true,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                IconButton(
+                                                                  icon: Icon(Icons
+                                                                      .delete),
+                                                                  color: Colors
+                                                                      .red,
+                                                                  onPressed:
+                                                                      () {
+                                                                    setState(
+                                                                        () {
+                                                                      _petVaccineId =
+                                                                          petMedicine
+                                                                              .petVaccineId;
+                                                                      _petMedicineId =
+                                                                          0;
+                                                                    });
+                                                                    showDialog(
+                                                                      context:
+                                                                          context,
+                                                                      builder:
+                                                                          (BuildContext
+                                                                              context) {
+                                                                        return Form(
+                                                                          key:
+                                                                              _formKey,
+                                                                          child:
+                                                                              AlertDialog(
+                                                                            title:
+                                                                                Text('Excluir Prescrição?'),
+                                                                            content:
+                                                                                Text('A Prescrição será Excluída. Confirma?'),
+                                                                            actions: <Widget>[
+                                                                              TextButton(
+                                                                                child: Text('Não'),
+                                                                                onPressed: () {
+                                                                                  Navigator.of(context).pop();
+                                                                                },
+                                                                              ),
+                                                                              TextButton(
+                                                                                child: Text('Sim'),
+                                                                                onPressed: () {
+                                                                                  _typeRegister = 'D';
+                                                                                  _registerMedicine(context).then(
+                                                                                    (value) {
+                                                                                      Navigator.of(context).pop();
+                                                                                    },
+                                                                                  );
+                                                                                },
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        );
+                                                                      },
+                                                                    );
+                                                                    // Ação ao pressionar o botão de lixeira
+                                                                  },
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ],
                                                         ],
                                                       ),
                                                     ),
@@ -8281,10 +8573,14 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                             10, // Define a posição do botão a partir da direita
                         child: ElevatedButton(
                           onPressed: () {
-                            setState(() {
-                              //_isotherChronicDiseaseVisible = false;
-                            });
-                            _showMedicneVacine(context);
+                            //setState(() {
+                            _isotherMedicineVisible = false;
+                            typePrescriptionId = null;
+                            _vaccineId = null;
+                            _heigthShowMedicineVaccine = 200;
+                            //});
+
+                            _showMedicneVaccine(context);
                           },
                           child: const Icon(Icons.add),
                         ),
@@ -8333,12 +8629,13 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                             FutureBuilder<List<dynamic>>(
                                 future: null, //_fetchPetMedicines(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
+                                  /*if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
                                     return const Center(
                                       child: CircularProgressIndicator(),
                                     );
-                                  } else if (snapshot.hasError) {
+                                  } else */
+                                  if (snapshot.hasError) {
                                     return Center(
                                       child: Text('Error: ${snapshot.error}'),
                                     );
@@ -8489,10 +8786,12 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                         child: ElevatedButton(
                           onPressed: () {
                             // Adicionar ação de "Adicionar" aqui
+                            /*
                             setState(() {
-                              //_isotherMedicineVisible = false;
+                              _isotherMedicineVisible = false;
                             });
-                            _showMedicine(context);
+                            */
+                            _showExamConsultation(context);
                           },
                           child: const Icon(Icons.add),
                         ),
@@ -8508,7 +8807,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
     );
   }
 
-  void _showMedicneVacine(BuildContext context) {
+  void _showMedicneVaccine(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -8516,8 +8815,8 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
           builder: (context, setState) {
             return Dialog(
               child: Container(
-                width: 1000,
-                height: 600,
+                width: 800,
+                height: _heigthShowMedicineVaccine,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5.0),
@@ -8572,100 +8871,101 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                         ),
                       ),
                       const SizedBox(height: 16.0),
-                      Expanded(
-                        // Use o Expanded para limitar a largura do DropdownButtonFormField
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListView(
-                            scrollDirection: Axis.vertical,
-                            children: <Widget>[
-                              DropdownButtonFormField<String>(
-                                alignment: const Alignment(0.0, 0.0),
-                                validator: _validateDropDown,
-                                isDense: true,
-                                onChanged: (value) {
-                                  print(value);
-                                  setState(() {
-                                    typeMPrescriptionId = int.parse(value!);
-                                  });
-                                },
-                                items: medicineVacineList.keys.map((key) {
-                                  return DropdownMenuItem<String>(
-                                    value: key,
-                                    child: Text(medicineVacineList[key]!),
-                                  );
-                                }).toList(),
-                                decoration: InputDecoration(
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    labelText: 'Medicamento ou Vacina?'),
-                                value: (typeMPrescriptionId == null
-                                    ? null
-                                    : typeMPrescriptionId.toString()),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: DropdownButtonFormField<String>(
+                          validator: _validateDropDown,
+                          isDense: true,
+                          onChanged: (value) {
+                            print(value);
+                            setState(() {
+                              typePrescriptionId = int.parse(value!);
+                              if (value == '1') {
+                                _heigthShowMedicineVaccine = 600;
+                              } else {
+                                _heigthShowMedicineVaccine = 350;
+                              }
+                            });
+                          },
+                          items: medicineVaccineList.keys.map((key) {
+                            return DropdownMenuItem<String>(
+                              value: key,
+                              child: Text(medicineVaccineList[key]!),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
                               ),
-                            ],
-                          ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              labelText: 'Medicamento ou Vacina?'),
+                          value: (typePrescriptionId == null
+                              ? null
+                              : typePrescriptionId.toString()),
                         ),
                       ),
-                      if (typeMPrescriptionId == 1) ...[
+                      if (typePrescriptionId == 1) ...[
                         const SizedBox(width: 10.0),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: ListView(
+                            child: Column(
                               children: <Widget>[
-                                DropdownSearch<DiseaseModel>(
+                                DropdownSearch<MedicineModel>(
                                   popupProps: const PopupProps.menu(
                                     showSearchBox: true,
                                   ),
                                   dropdownDecoratorProps:
                                       DropDownDecoratorProps(
                                     dropdownSearchDecoration: InputDecoration(
-                                      labelText: "Doenças",
+                                      labelText: "Selecinar Medicamento",
                                       border: OutlineInputBorder(
                                         borderRadius:
                                             BorderRadius.circular(8.0),
                                       ),
                                     ),
                                   ),
-                                  items: DiseaseData()
-                                      .diseaseList
-                                      .where((diseases) =>
-                                          (diseases.chronic == true ||
-                                              diseases.id == '171') &&
-                                          diseases.specieId ==
+                                  items: MedicineData()
+                                      .medicineList
+                                      .where((medicines) =>
+                                          medicines.id == '941' ||
+                                          medicines.specieId ==
                                               _serviceQueue.specieId)
                                       .toList(),
-                                  itemAsString: (DiseaseModel disease) =>
-                                      disease.name,
+                                  itemAsString: (MedicineModel medicine) =>
+                                      medicine.name,
                                   onChanged: (value) {
                                     if (value != null) {
-                                      _diseaseId = value.id;
+                                      _medicineId = value.id;
                                     } else {
-                                      _diseaseId = null;
+                                      _medicineId = null;
                                     }
-                                    if (_diseaseId == '171') {
+                                    setState(() {
+                                      veterinaryUse = value!.veterinaryUse;
+                                    });
+
+                                    if (_medicineId == '941') {
                                       setState(() {
-                                        //_isotherChronicDiseaseVisible = true;
+                                        _isotherMedicineVisible = true;
                                       });
                                     } else {
                                       setState(() {
-                                        //_isotherChronicDiseaseVisible = false;
+                                        _isotherMedicineVisible = false;
                                       });
                                     }
                                   },
                                 ),
-                                const SizedBox(height: 10.0),
                                 Visibility(
-                                  visible:
-                                      false, //_isotherChronicDiseaseVisible,
+                                  visible: _isotherMedicineVisible,
+                                  child: const SizedBox(height: 10.0),
+                                ),
+                                Visibility(
+                                  visible: _isotherMedicineVisible,
                                   child: TextFormField(
-                                    controller: _otherChronicDiseaseController,
+                                    controller: _otherMedicineController,
                                     decoration: const InputDecoration(
-                                      labelText: 'Outra Doença Crônica',
+                                      labelText: 'Outro Medicamento',
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.all(
                                             Radius.circular(
@@ -8676,8 +8976,194 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                     ),
                                   ),
                                 ),
+                                const SizedBox(height: 10.0),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: DropdownButtonFormField<String>(
+                                        validator: _validateDropDown,
+                                        isDense: true,
+                                        onChanged: (value) {
+                                          print(value);
+                                          setState(() {
+                                            useTypeId = int.parse(value!);
+                                          });
+                                        },
+                                        items: useTypeList.keys.map((key) {
+                                          return DropdownMenuItem<String>(
+                                            value: key,
+                                            child: Text(useTypeList[key]!),
+                                          );
+                                        }).toList(),
+                                        decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            labelText: 'Tipo de Uso?'),
+                                        value: (useTypeId == null
+                                            ? null
+                                            : useTypeId.toString()),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          'Uso Veterinário?',
+                                          style: TextStyle(fontSize: 10),
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              veterinaryUse ? 'Sim' : 'Não',
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                            Switch(
+                                              value: veterinaryUse,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  veterinaryUse = value;
+                                                });
+                                              },
+                                              activeTrackColor:
+                                                  Colors.lightGreen,
+                                              activeColor: Colors.green,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    Expanded(
+                                      flex: 1,
+                                      child: TextFormField(
+                                        style: const TextStyle(fontSize: 15.0),
+                                        controller: _amountMedicineController,
+                                        decoration: const InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(
+                                                    8.0)), // Raio dos cantos da borda
+                                            borderSide: BorderSide(
+                                                color: Colors.black,
+                                                width:
+                                                    1.0), // Cor e largura da borda
+                                          ),
+                                          labelText: 'Quantidade',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10.0),
+                                Container(
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: TextFormField(
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: null,
+                                    style: const TextStyle(fontSize: 15.0),
+                                    controller: _dosageController,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder
+                                          .none, // Remova a borda padrão do TextFormField
+                                      labelText: 'Posologia',
+                                      contentPadding: EdgeInsets.all(
+                                          8.0), // Adicione espaço interno
+                                    ),
+                                  ),
+                                ),
                               ],
                             ),
+                          ),
+                        ),
+                      ],
+                      if (typePrescriptionId == 2) ...[
+                        const SizedBox(width: 10.0),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: DropdownButtonFormField<VaccineModel>(
+                            validator: (value) =>
+                                value == null ? 'Campo obrigatório' : null,
+                            isDense: true,
+                            onChanged: (value) {
+                              print(value);
+                              setState(() {
+                                _vaccineId = value!.vaccineId;
+                              });
+                            },
+                            items: VaccineData()
+                                .vaccineList
+                                .where((vaccines) =>
+                                    vaccines.specieId == _specieId)
+                                .map((vaccine) {
+                              return DropdownMenuItem<VaccineModel>(
+                                value: vaccine,
+                                child: Text(vaccine.name),
+                              );
+                            }).toList(),
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                labelText: 'Selecione uma Vacina'),
+                            value: _vaccineId != null
+                                ? VaccineData().vaccineList.firstWhere(
+                                    (vaccine) =>
+                                        vaccine.vaccineId == _vaccineId)
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: DropdownButtonFormField<VaccineDoseModel>(
+                            validator: (value) =>
+                                value == null ? 'Campo obrigatório' : null,
+                            isDense: true,
+                            onChanged: (value) {
+                              print(value!.vaccineDoseId);
+                              setState(() {
+                                _vaccineDoseId =
+                                    value!.vaccineDoseId.toString();
+                              });
+                            },
+                            items: VaccineDoseData()
+                                .vaccineDoseList
+                                .where((vaccinesDose) =>
+                                    vaccinesDose.vaccineId == _vaccineId)
+                                .map((vaccineDose) {
+                              return DropdownMenuItem<VaccineDoseModel>(
+                                value: vaccineDose,
+                                child: Text(vaccineDose.name),
+                              );
+                            }).toList(),
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                labelText: 'Selecione uma Dose'),
+                            /*
+                            value: _vaccineDoseId != null
+                                ? VaccineDoseData().vaccineDoseList.firstWhere(
+                                    (vaccineDose) =>
+                                        vaccineDose.vaccineDoseId ==
+                                        _vaccineDoseId)
+                                : null, */
                           ),
                         ),
                       ],
@@ -8699,11 +9185,8 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                               onPressed: () {
                                 setState(() {
                                   _typeRegister = 'C';
-                                  /*
-                                  _registerChronicDisease(context)
-                                      .then((value) {});
+                                  _registerMedicine(context).then((value) {});
                                   Navigator.of(context).pop();
-                                  */
                                 });
                               },
                               child: const Text('Cadastrar'),
@@ -8722,16 +9205,16 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
     );
   }
 
-  void _showMedicine(BuildContext context) {
+  void _showExamConsultation(BuildContext context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return StatefulBuilder(
-          builder: (context, StateSetter setStateMedicine) {
+          builder: (context, setState) {
             return Dialog(
               child: Container(
-                width: 450,
-                height: 250,
+                width: 800,
+                height: _heigthShowMedicineVaccine,
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(5.0),
@@ -8774,7 +9257,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                               },
                             ),
                             const Text(
-                              'Medicamentos',
+                              'Exames/Consultas',
                               style: TextStyle(
                                 fontSize: 15,
                                 fontFamily: 'Montserrat',
@@ -8786,70 +9269,302 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                         ),
                       ),
                       const SizedBox(height: 16.0),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: ListView(
-                            children: <Widget>[
-                              DropdownSearch<MedicineModel>(
-                                popupProps: const PopupProps.menu(
-                                  showSearchBox: true,
-                                ),
-                                dropdownDecoratorProps: DropDownDecoratorProps(
-                                  dropdownSearchDecoration: InputDecoration(
-                                    labelText: "Medicamentos",
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8.0),
-                                    ),
-                                  ),
-                                ),
-                                items: MedicineData().medicineList,
-                                itemAsString: (MedicineModel medicine) =>
-                                    medicine.name,
-                                onChanged: (value) {
-                                  //print(value.id);
-                                  if (value != null) {
-                                    _medicineId = value.id;
-                                  } else {
-                                    _medicineId = null;
-                                  }
-
-                                  if (_medicineId == '941') {
-                                    setStateMedicine(() {
-                                      //_isotherMedicineVisible = true;
-                                    });
-                                  } else {
-                                    setStateMedicine(() {
-                                      //_isotherMedicineVisible = false;
-                                    });
-                                  }
-
-                                  //print(_isotherMedicineVisible);
-                                },
-                                //decoration: BoxDecoration(
-                                //    border: Border.all(color: Colors.blue)),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: DropdownButtonFormField<String>(
+                          validator: _validateDropDown,
+                          isDense: true,
+                          onChanged: (value) {
+                            print(value);
+                            setState(() {
+                              typePrescriptionId = int.parse(value!);
+                              if (value == '1') {
+                                _heigthShowMedicineVaccine = 600;
+                              } else {
+                                _heigthShowMedicineVaccine = 350;
+                              }
+                            });
+                          },
+                          items: examConsultationList.keys.map((key) {
+                            return DropdownMenuItem<String>(
+                              value: key,
+                              child: Text(examConsultationList[key]!),
+                            );
+                          }).toList(),
+                          decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.0),
                               ),
-                              const SizedBox(height: 10.0),
-                              Visibility(
-                                visible: false, //_isotherMedicineVisible,
-                                child: TextFormField(
-                                  controller: _otherMedicineController,
-                                  decoration: const InputDecoration(
-                                    labelText: 'Outro Medicameneto',
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(
-                                              8.0)), // Raio dos cantos da borda
-                                      borderSide: BorderSide(
-                                          color: Colors.black, width: 1.0),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
+                              filled: true,
+                              fillColor: Colors.white,
+                              labelText: 'Exame ou Consulta?'),
+                          value: (typeForwardingId == null
+                              ? null
+                              : typeForwardingId.toString()),
                         ),
                       ),
+                      if (typeForwardingId == 1) ...[
+                        const SizedBox(width: 10.0),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: <Widget>[
+                                DropdownSearch<MedicineModel>(
+                                  popupProps: const PopupProps.menu(
+                                    showSearchBox: true,
+                                  ),
+                                  dropdownDecoratorProps:
+                                      DropDownDecoratorProps(
+                                    dropdownSearchDecoration: InputDecoration(
+                                      labelText: "Selecinar Medicamento",
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                      ),
+                                    ),
+                                  ),
+                                  items: MedicineData()
+                                      .medicineList
+                                      .where((medicines) =>
+                                          medicines.id == '941' ||
+                                          medicines.specieId ==
+                                              _serviceQueue.specieId)
+                                      .toList(),
+                                  itemAsString: (MedicineModel medicine) =>
+                                      medicine.name,
+                                  onChanged: (value) {
+                                    if (value != null) {
+                                      _medicineId = value.id;
+                                    } else {
+                                      _medicineId = null;
+                                    }
+                                    setState(() {
+                                      veterinaryUse = value!.veterinaryUse;
+                                    });
+
+                                    if (_medicineId == '941') {
+                                      setState(() {
+                                        _isotherMedicineVisible = true;
+                                      });
+                                    } else {
+                                      setState(() {
+                                        _isotherMedicineVisible = false;
+                                      });
+                                    }
+                                  },
+                                ),
+                                Visibility(
+                                  visible: _isotherMedicineVisible,
+                                  child: const SizedBox(height: 10.0),
+                                ),
+                                Visibility(
+                                  visible: _isotherMedicineVisible,
+                                  child: TextFormField(
+                                    controller: _otherMedicineController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Outro Medicamento',
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(
+                                                8.0)), // Raio dos cantos da borda
+                                        borderSide: BorderSide(
+                                            color: Colors.black, width: 1.0),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10.0),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: DropdownButtonFormField<String>(
+                                        validator: _validateDropDown,
+                                        isDense: true,
+                                        onChanged: (value) {
+                                          print(value);
+                                          setState(() {
+                                            useTypeId = int.parse(value!);
+                                          });
+                                        },
+                                        items: useTypeList.keys.map((key) {
+                                          return DropdownMenuItem<String>(
+                                            value: key,
+                                            child: Text(useTypeList[key]!),
+                                          );
+                                        }).toList(),
+                                        decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10.0),
+                                            ),
+                                            filled: true,
+                                            fillColor: Colors.white,
+                                            labelText: 'Tipo de Uso?'),
+                                        value: (useTypeId == null
+                                            ? null
+                                            : useTypeId.toString()),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    Row(
+                                      children: [
+                                        const Text(
+                                          'Uso Veterinário?',
+                                          style: TextStyle(fontSize: 10),
+                                        ),
+                                        Column(
+                                          children: [
+                                            Text(
+                                              veterinaryUse ? 'Sim' : 'Não',
+                                              style: TextStyle(fontSize: 10),
+                                            ),
+                                            Switch(
+                                              value: veterinaryUse,
+                                              onChanged: (bool value) {
+                                                setState(() {
+                                                  veterinaryUse = value;
+                                                });
+                                              },
+                                              activeTrackColor:
+                                                  Colors.lightGreen,
+                                              activeColor: Colors.green,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(width: 10.0),
+                                    Expanded(
+                                      flex: 1,
+                                      child: TextFormField(
+                                        style: const TextStyle(fontSize: 15.0),
+                                        controller: _amountMedicineController,
+                                        decoration: const InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(
+                                                    8.0)), // Raio dos cantos da borda
+                                            borderSide: BorderSide(
+                                                color: Colors.black,
+                                                width:
+                                                    1.0), // Cor e largura da borda
+                                          ),
+                                          labelText: 'Quantidade',
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 10.0),
+                                Container(
+                                  height: 200,
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Colors.black,
+                                      width: 1.0,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8.0),
+                                  ),
+                                  child: TextFormField(
+                                    keyboardType: TextInputType.multiline,
+                                    maxLines: null,
+                                    style: const TextStyle(fontSize: 15.0),
+                                    controller: _dosageController,
+                                    decoration: const InputDecoration(
+                                      border: InputBorder
+                                          .none, // Remova a borda padrão do TextFormField
+                                      labelText: 'Posologia',
+                                      contentPadding: EdgeInsets.all(
+                                          8.0), // Adicione espaço interno
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                      if (typeForwardingId == 2) ...[
+                        const SizedBox(width: 10.0),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: DropdownButtonFormField<VaccineModel>(
+                            validator: (value) =>
+                                value == null ? 'Campo obrigatório' : null,
+                            isDense: true,
+                            onChanged: (value) {
+                              print(value);
+                              setState(() {
+                                _vaccineId = value!.vaccineId;
+                              });
+                            },
+                            items: VaccineData()
+                                .vaccineList
+                                .where((vaccines) =>
+                                    vaccines.specieId == _specieId)
+                                .map((vaccine) {
+                              return DropdownMenuItem<VaccineModel>(
+                                value: vaccine,
+                                child: Text(vaccine.name),
+                              );
+                            }).toList(),
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                labelText: 'Selecione uma Vacina'),
+                            value: _vaccineId != null
+                                ? VaccineData().vaccineList.firstWhere(
+                                    (vaccine) =>
+                                        vaccine.vaccineId == _vaccineId)
+                                : null,
+                          ),
+                        ),
+                        const SizedBox(width: 10.0),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: DropdownButtonFormField<VaccineDoseModel>(
+                            validator: (value) =>
+                                value == null ? 'Campo obrigatório' : null,
+                            isDense: true,
+                            onChanged: (value) {
+                              print(value!.vaccineDoseId);
+                              setState(() {
+                                _vaccineDoseId =
+                                    value!.vaccineDoseId.toString();
+                              });
+                            },
+                            items: VaccineDoseData()
+                                .vaccineDoseList
+                                .where((vaccinesDose) =>
+                                    vaccinesDose.vaccineId == _vaccineId)
+                                .map((vaccineDose) {
+                              return DropdownMenuItem<VaccineDoseModel>(
+                                value: vaccineDose,
+                                child: Text(vaccineDose.name),
+                              );
+                            }).toList(),
+                            decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                filled: true,
+                                fillColor: Colors.white,
+                                labelText: 'Selecione uma Dose'),
+                            /*
+                            value: _vaccineDoseId != null
+                                ? VaccineDoseData().vaccineDoseList.firstWhere(
+                                    (vaccineDose) =>
+                                        vaccineDose.vaccineDoseId ==
+                                        _vaccineDoseId)
+                                : null, */
+                          ),
+                        ),
+                      ],
                       Container(
                         padding: const EdgeInsets.all(16.0),
                         height: 60,
@@ -8866,12 +9581,10 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                             const SizedBox(width: 10.0),
                             ElevatedButton(
                               onPressed: () {
-                                setStateMedicine(() {
+                                setState(() {
                                   _typeRegister = 'C';
-                                  /*
                                   _registerMedicine(context).then((value) {});
                                   Navigator.of(context).pop();
-                                  */
                                 });
                               },
                               child: const Text('Cadastrar'),

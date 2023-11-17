@@ -14,14 +14,13 @@ class VaccineData {
   List<VaccineModel> vaccineList = [];
 
   VaccineModel getVaccineById(String index) {
-    return vaccineList.firstWhere((element) => (element.vaccineId.toString() == index));
+    return vaccineList
+        .firstWhere((element) => (element.vaccineId.toString() == index));
   }
 
-  List<VaccineModel> getVaccineByCanine() {
-    return vaccineList.where((element) => (element.canine == true)).toList();
-  }
-
-  List<VaccineModel> getVaccineByFeline() {
-    return vaccineList.where((element) => (element.canine == true)).toList();
+  List<VaccineModel> getVaccineBySpecieId(int specieId) {
+    return vaccineList
+        .where((element) => (element.specieId == specieId))
+        .toList();
   }
 }

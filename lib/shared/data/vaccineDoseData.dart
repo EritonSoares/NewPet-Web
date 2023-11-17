@@ -12,12 +12,4 @@ class VaccineDoseData {
   VaccineDoseData._internal();
 
   List<VaccineDoseModel> vaccineDoseList = [];
-
-  VaccineDoseModel getVaccineDoseById(String index) {
-    return vaccineDoseList.firstWhere((element) => (element.vaccineDoseId.toString() == index));
-  }
-
-  removeVaccineDoseById(String index) {
-    vaccineDoseList.removeWhere((element) => (element.vaccineDoseId.toString() == index));
-  }
 }

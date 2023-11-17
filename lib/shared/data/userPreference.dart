@@ -171,4 +171,30 @@ class UserPreferences {
     return prefs.getString('queue');
   }
   /****************************************************************************************/
+
+  /****************************************************************************************/
+  /* Listagem de Vacinas  */
+  static Future<void> saveVaccine(String vaccine) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('vaccine', vaccine);
+  }
+
+  static Future<String?> getVaccine() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('vaccine');
+  }
+  /****************************************************************************************/
+
+  /****************************************************************************************/
+  /* Listagem de Dose Vacina  */
+  static Future<void> saveVaccineDose(String vaccineDose) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('vaccineDose', vaccineDose);
+  }
+
+  static Future<String?> getVaccineDose() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('vaccineDose');
+  }
+  /****************************************************************************************/
 }

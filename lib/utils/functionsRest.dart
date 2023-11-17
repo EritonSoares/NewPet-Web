@@ -53,7 +53,7 @@ import 'package:petner_web/models/petVaccineCardModel.dart';
 import 'package:petner_web/models/raceModel.dart';
 import 'package:petner_web/models/speciedModel.dart';
 import 'package:petner_web/models/vaccineBrandModel.dart';
-import 'package:petner_web/models/vaccineDoseModel.dart';
+import 'package:petner_web/models/petVaccineDoseModel.dart';
 import 'package:petner_web/models/vaccineModel.dart';
 import 'package:petner_web/shared/data/petData.dart';
 import 'package:petner_web/shared/data/petFileListData.dart';
@@ -66,7 +66,7 @@ import 'package:petner_web/shared/data/tutorData.dart';
 import 'package:petner_web/shared/data/userPreference.dart';
 import 'package:petner_web/shared/data/vaccineBrandData.dart';
 import 'package:petner_web/shared/data/vaccineData.dart';
-import 'package:petner_web/shared/data/vaccineDoseData.dart';
+import 'package:petner_web/shared/data/petVaccineDoseData.dart';
 import 'package:petner_web/utils/functions.dart';
 
 const headerBasic = 'Basic BZpR465EewtRd795gfh\$_dyRE34*%';
@@ -130,6 +130,8 @@ Future<Map<String, dynamic>> validateUserApi(
         await medicineListApi();
         await symptomListApi();
         await healthProgramListApi();
+        await vaccineListApi();
+        await vaccineDoseListApi();
 
         /*
         print('==================================');
@@ -623,33 +625,36 @@ Future<List<VaccineBrandModel>> vaccineBrandListApi(
   return vaccineBrandList;
 }
 
-Future<List<VaccineModel>> vaccineListApi(
-    [String? petId, String? specie]) async {
+Future<void> vaccineListApi() async {
   final random = Random();
   int randomInt = random.nextInt(10000);
   String url =
       'https://adm.petner.com.br/VaccineList?param=' + randomInt.toString();
   List<VaccineModel> vaccineList = [];
 
-  Map<String, dynamic> jsonSend = {'petId': petId, 'specie': specie};
-
   try {
-    final response = await http.post(
+    final response = await http.get(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': headerBasic
       },
-      body: jsonEncode(jsonSend),
     );
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
+
+      print('XXXXXXXXXXX');
+      print(response.body);
+      print('XXXXXXXXXXX');
+      UserPreferences.saveVaccine(response.body);
+      /*
       for (var item in jsonData) {
         VaccineModel vaccine = VaccineModel.fromJson(item);
         vaccineList.add(vaccine);
       }
       VaccineData().vaccineList = vaccineList;
+      */
     } else {
       // A resposta não foi bem-sucedida
       print('_Erro na solicitação POST vaccineList: ${response.statusCode}');
@@ -658,8 +663,6 @@ Future<List<VaccineModel>> vaccineListApi(
     // Ocorreu um erro durante a solicitação
     print('Erro na solicitação POST vaccineList: $e');
   }
-
-  return vaccineList;
 }
 
 Future<Map<String, dynamic>> registerVaccineApi(
@@ -704,13 +707,13 @@ Future<Map<String, dynamic>> registerVaccineApi(
   return responseData;
 }
 
-Future<List<VaccineDoseModel>> vaccineDoseListApi(
+Future<List<PetVaccineDoseModel>> petVaccineDoseListApi(
     [String? petId, String? vaccineId]) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
-  String url =
-      'https://adm.petner.com.br/VaccineDoseList?param=' + randomInt.toString();
-  List<VaccineDoseModel> vaccineDoseList = [];
+  String url = 'https://adm.petner.com.br/PetVaccineDoseList?param=' +
+      randomInt.toString();
+  List<PetVaccineDoseModel> petVaccineDoseList = [];
 
   Map<String, dynamic> jsonSend = {'petId': petId, 'vaccineId': vaccineId};
 
@@ -727,24 +730,24 @@ Future<List<VaccineDoseModel>> vaccineDoseListApi(
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       for (var item in jsonData) {
-        VaccineDoseModel vaccineDose = VaccineDoseModel.fromJson(item);
-        vaccineDoseList.add(vaccineDose);
+        PetVaccineDoseModel petVaccineDose = PetVaccineDoseModel.fromJson(item);
+        petVaccineDoseList.add(petVaccineDose);
       }
-      VaccineDoseData().vaccineDoseList = vaccineDoseList;
+      PetVaccineDoseData().petVaccineDoseList = petVaccineDoseList;
     } else {
       // A resposta não foi bem-sucedida
       print(
-          '_Erro na solicitação POST vaccineDoseList: ${response.statusCode}');
+          '_Erro na solicitação POST petVaccineDoseList: ${response.statusCode}');
     }
   } catch (e) {
     // Ocorreu um erro durante a solicitação
-    print('Erro na solicitação POST vaccineDoseList: $e');
+    print('Erro na solicitação POST petVaccineDoseList: $e');
   }
 
-  return vaccineDoseList;
+  return petVaccineDoseList;
 }
 
-Future<Map<String, dynamic>> registerVaccineDoseApi([
+Future<Map<String, dynamic>> registerPetVaccineDoseApi([
   String? option,
   String? queueId,
   String? vaccineCardId,
@@ -752,7 +755,7 @@ Future<Map<String, dynamic>> registerVaccineDoseApi([
   bool? applied,
   String? petId,
   String? vaccinePetId,
-  String? vaccineDoseId,
+  String? petVaccineDoseId,
   String? brand,
   String? lot,
   String? veterinary,
@@ -763,7 +766,7 @@ Future<Map<String, dynamic>> registerVaccineDoseApi([
   String directoryPath = '';
   final random = Random();
   int randomInt = random.nextInt(10000);
-  String url = 'https://adm.petner.com.br/RegisterVaccineDose?param=' +
+  String url = 'https://adm.petner.com.br/RegisterPetVaccineDose?param=' +
       randomInt.toString();
   Map<String, dynamic>? responseData;
   Map<String, dynamic>? jsonSend;
@@ -781,7 +784,7 @@ Future<Map<String, dynamic>> registerVaccineDoseApi([
       'applicationDate': applicationDate,
       'applied': applied,
       'vaccinePetId': vaccinePetId,
-      'vaccineDoseId': vaccineDoseId,
+      'petVaccineDoseId': petVaccineDoseId,
       'brand': brand,
       'lot': lot,
       'veterinary': veterinary,
@@ -809,7 +812,7 @@ Future<Map<String, dynamic>> registerVaccineDoseApi([
       if (option == 'C') {
         final jsonData = jsonDecode(response.body);
         for (var item in jsonData) {
-          PetVaccinationCardModel vaccineDose =
+          PetVaccinationCardModel petVaccineDose =
               PetVaccinationCardModel.fromJson(item);
 
           PetVaccineData().addVaccinationCardByVaccineId(
@@ -817,25 +820,25 @@ Future<Map<String, dynamic>> registerVaccineDoseApi([
                 .getVaccineCardById(vaccinePetId.toString())
                 .petVaccineId
                 .toString(),
-            vaccineDose,
+            petVaccineDose,
           );
         }
       }
       */
 
-      responseData = {'validateRegisterVaccineDose': 1};
+      responseData = {'validateRegisterPetVaccineDose': 1};
 
       //PetVaccineData().petVaccineList = await petVaccineCardListApi(petId);
     } else {
-      responseData = {'validateRegisterVaccineDose': 2};
+      responseData = {'validateRegisterPetVaccineDose': 2};
       // A resposta não foi bem-sucedida
       print(
-          '_Erro na solicitação POST registerVaccineDose: ${response.statusCode}');
+          '_Erro na solicitação POST registerPetVaccineDose: ${response.statusCode}');
     }
   } catch (e) {
-    responseData = {'validateRegisterVaccineDose': 3};
+    responseData = {'validateRegisterPetVaccineDose': 3};
     // Ocorreu um erro durante a solicitação
-    print('Erro na solicitação POST registerVaccineDose: $e');
+    print('Erro na solicitação POST registerPetVaccineDose: $e');
   }
 
   return responseData;
@@ -1900,12 +1903,22 @@ Future<List<PetDiseaseModel>> petDiseaseListApi([
 }
 
 Future<Map<String, dynamic>> registerMedicineApi([
+  int? type,
   String? option,
   String? petId,
+  String? serviceId,
   String? medicineId,
   String? petMedicineId,
   String? otherMedicine,
   bool? continuousUser,
+  int? useTypeId,
+  String? amountMedicine,
+  String? dosage,
+  bool? veterinaryUse,
+  int? typePrescriptionId,
+  String? vaccineId,
+  String? petVaccineId,
+  String? vaccineDoseId,
 ]) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
@@ -1914,20 +1927,34 @@ Future<Map<String, dynamic>> registerMedicineApi([
   Map<String, dynamic> responseData;
 
   Map<String, dynamic> jsonSend = {
+    'type': type,
     'option': option,
     'petId': petId,
+    'serviceId': serviceId,
     'medicineId': medicineId,
     'otherMedicine': otherMedicine,
     'continuousUser': continuousUser,
+    'useTypeId': useTypeId,
+    'amountMedicine': amountMedicine,
+    'dosage': dosage,
+    'veterinaryUse': veterinaryUse,
+    'typePrescriptionId': typePrescriptionId,
+    'vaccineId': vaccineId,
+    'petVaccineId': petVaccineId,
+    'vaccineDoseId': vaccineDoseId,
   };
 
   if (option == 'D') {
     jsonSend = {
+      'type': type,
       'option': option,
       'petMedicineId': petMedicineId,
+      'petVaccineId': petVaccineId,
+      'typePrescriptionId': petMedicineId != '0' ? 1 : 2,
     };
   }
 
+  print(petMedicineId!.isNotEmpty);
   print(jsonEncode(jsonSend));
 
   try {
@@ -2042,7 +2069,9 @@ Future<void> medicineListApi() async {
 }
 
 Future<List<PetMedicineModel>> petMedicineListApi([
+  int? type,
   String? petId,
+  String? serviceId,
 ]) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
@@ -2051,7 +2080,9 @@ Future<List<PetMedicineModel>> petMedicineListApi([
   List<PetMedicineModel> petMedicineList = [];
 
   Map<String, dynamic> jsonSend = {
+    'type': type,
     'petId': petId,
+    'serviceId': serviceId,
   };
 
   try {
@@ -2063,6 +2094,8 @@ Future<List<PetMedicineModel>> petMedicineListApi([
       },
       body: jsonEncode(jsonSend),
     );
+
+    print(jsonEncode(jsonSend));
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
@@ -2872,5 +2905,34 @@ Future<void> registerPrescriptionConsultChatGPTApi(
   } catch (e) {
     // Ocorreu um erro durante a solicitação
     print('Erro na solicitação POST listConsultChatGPTApi: $e');
+  }
+}
+
+Future<void> vaccineDoseListApi() async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url =
+      'https://adm.petner.com.br/VaccineDoseList?param=' + randomInt.toString();
+
+  try {
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = jsonDecode(response.body);
+      UserPreferences.saveVaccineDose(response.body);
+    } else {
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST vaccineDoseList: ${response.statusCode}');
+    }
+  } catch (e) {
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação POST vaccineDoseList: $e');
   }
 }
