@@ -45,6 +45,8 @@ class ServiceQueueModel {
   late final int? screeningId;
   late final String? screeningName;
   late final List<ScreeningModel>? screeningList;
+  late final bool? thereEmergency;
+  late final bool? emergencyReleased;
 
   ServiceQueueModel({
     required this.queueId,
@@ -89,6 +91,8 @@ class ServiceQueueModel {
     required this.screeningId,
     required this.screeningName,
     required this.screeningList,
+    required this.thereEmergency,
+    required this.emergencyReleased,
   });
 
   factory ServiceQueueModel.fromJson(Map<String, dynamic> json) {
@@ -140,6 +144,8 @@ class ServiceQueueModel {
       screeningId: json['screeningId'],
       screeningName: json['screeningName'],
       screeningList: screeningList,
+      thereEmergency: json['thereEmergency'],
+      emergencyReleased: json['emergencyReleased'],
     );
   }
 
@@ -189,7 +195,9 @@ class ServiceQueueModel {
       'productName': productName,
       'screeningId': screeningId,
       'screeningName': screeningName,
-      'screeningList': screeningListJson
+      'screeningList': screeningListJson,
+      'thereEmergency': thereEmergency,
+      'emergencyReleased': emergencyReleased,
     };
   }
 }

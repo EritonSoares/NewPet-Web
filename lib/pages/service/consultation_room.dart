@@ -256,7 +256,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       {6: 'Finalização'},
     ];
 
-    Timer.periodic(Duration(seconds: 1), (timer) {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mounted) {
         setState(() {
           seconds++;
@@ -876,7 +876,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
     _tutorNameController.text = _serviceQueue.tutorName!;
     _petNameController.text = _serviceQueue.petName!;
-    if (_serviceQueue.plan!.length > 0) {
+    if (_serviceQueue.plan!.isNotEmpty) {
       _petPlanController.text = _serviceQueue.plan!;
     }
 
@@ -960,10 +960,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     vaccineDoseList = VaccineDoseData().vaccineDoseList.toList();
 
     final jsonExam = await UserPreferences.getExam();
-    ExamData().examList =
-        (jsonDecode(jsonExam!) as List<dynamic>)
-            .map((e) => ExamModel.fromJson(e))
-            .toList();
+    ExamData().examList = (jsonDecode(jsonExam!) as List<dynamic>)
+        .map((e) => ExamModel.fromJson(e))
+        .toList();
     examList = ExamData().examList.toList();
 
     final jsonConsultation = await UserPreferences.getConsultation();
@@ -3611,8 +3610,9 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                             18),
                                                               ),
                                                               IconButton(
-                                                                icon: Icon(Icons
-                                                                    .delete),
+                                                                icon: const Icon(
+                                                                    Icons
+                                                                        .delete),
                                                                 color:
                                                                     Colors.red,
                                                                 onPressed: () {
@@ -3633,18 +3633,18 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                         child:
                                                                             AlertDialog(
                                                                           title:
-                                                                              Text('Excluir Doença Crônica?'),
+                                                                              const Text('Excluir Doença Crônica?'),
                                                                           content:
-                                                                              Text('A Doença será Excluída. Confirma?'),
+                                                                              const Text('A Doença será Excluída. Confirma?'),
                                                                           actions: <Widget>[
                                                                             TextButton(
-                                                                              child: Text('Não'),
+                                                                              child: const Text('Não'),
                                                                               onPressed: () {
                                                                                 Navigator.of(context).pop();
                                                                               },
                                                                             ),
                                                                             TextButton(
-                                                                              child: Text('Sim'),
+                                                                              child: const Text('Sim'),
                                                                               onPressed: () {
                                                                                 _typeRegister = 'D';
                                                                                 _registerChronicDisease(context).then(
@@ -3815,7 +3815,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                         18),
                                                           ),
                                                           IconButton(
-                                                            icon: Icon(
+                                                            icon: const Icon(
                                                                 Icons.delete),
                                                             color: Colors.red,
                                                             onPressed: () {
@@ -3835,14 +3835,15 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                         _formKey,
                                                                     child:
                                                                         AlertDialog(
-                                                                      title: Text(
+                                                                      title: const Text(
                                                                           'Excluir Medicamento?'),
-                                                                      content: Text(
-                                                                          'O medicamento será excluído. Confirma?'),
+                                                                      content:
+                                                                          const Text(
+                                                                              'O medicamento será excluído. Confirma?'),
                                                                       actions: <Widget>[
                                                                         TextButton(
                                                                           child:
-                                                                              Text('Não'),
+                                                                              const Text('Não'),
                                                                           onPressed:
                                                                               () {
                                                                             Navigator.of(context).pop();
@@ -3850,7 +3851,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                         ),
                                                                         TextButton(
                                                                           child:
-                                                                              Text('Sim'),
+                                                                              const Text('Sim'),
                                                                           onPressed:
                                                                               () {
                                                                             _typeRegister =
@@ -4016,7 +4017,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                   fontSize: 18),
                                                         ),
                                                         IconButton(
-                                                          icon: Icon(
+                                                          icon: const Icon(
                                                               Icons.delete),
                                                           color: Colors.red,
                                                           onPressed: () {
@@ -4034,13 +4035,14 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                   key: _formKey,
                                                                   child:
                                                                       AlertDialog(
-                                                                    title: Text(
+                                                                    title: const Text(
                                                                         'Excluir Alergia?'),
-                                                                    content: Text(
-                                                                        'A alergia será excluída. Confirma?'),
+                                                                    content:
+                                                                        const Text(
+                                                                            'A alergia será excluída. Confirma?'),
                                                                     actions: <Widget>[
                                                                       TextButton(
-                                                                        child: Text(
+                                                                        child: const Text(
                                                                             'Não'),
                                                                         onPressed:
                                                                             () {
@@ -4049,7 +4051,7 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
                                                                         },
                                                                       ),
                                                                       TextButton(
-                                                                        child: Text(
+                                                                        child: const Text(
                                                                             'Sim'),
                                                                         onPressed:
                                                                             () {
@@ -5743,7 +5745,7 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                                     fontSize: 18),
                                               ),
                                               IconButton(
-                                                icon: Icon(Icons.delete),
+                                                icon: const Icon(Icons.delete),
                                                 color: Colors.red,
                                                 onPressed: () {
                                                   setState(() {
@@ -5757,14 +5759,14 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                                       return Form(
                                                         key: _formKey,
                                                         child: AlertDialog(
-                                                          title: Text(
+                                                          title: const Text(
                                                               'Excluir Sintoma?'),
-                                                          content: Text(
+                                                          content: const Text(
                                                               'O sintoma será excluído. Confirma?'),
                                                           actions: <Widget>[
                                                             TextButton(
-                                                              child:
-                                                                  Text('Não'),
+                                                              child: const Text(
+                                                                  'Não'),
                                                               onPressed: () {
                                                                 Navigator.of(
                                                                         context)
@@ -5772,8 +5774,8 @@ class _AnamnesisPage extends State<AnamnesisPage> {
                                                               },
                                                             ),
                                                             TextButton(
-                                                              child:
-                                                                  Text('Sim'),
+                                                              child: const Text(
+                                                                  'Sim'),
                                                               onPressed: () {
                                                                 _typeRegister =
                                                                     'D';
@@ -6557,7 +6559,7 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                                                         18),
                                                           ),
                                                           IconButton(
-                                                            icon: Icon(
+                                                            icon: const Icon(
                                                                 Icons.delete),
                                                             color: Colors.red,
                                                             onPressed: () {
@@ -6575,14 +6577,15 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                                                         _formKey,
                                                                     child:
                                                                         AlertDialog(
-                                                                      title: Text(
+                                                                      title: const Text(
                                                                           'Excluir Programa de Saúde?'),
-                                                                      content: Text(
-                                                                          'O programa de saúde será excluído. Confirma?'),
+                                                                      content:
+                                                                          const Text(
+                                                                              'O programa de saúde será excluído. Confirma?'),
                                                                       actions: <Widget>[
                                                                         TextButton(
                                                                           child:
-                                                                              Text('Não'),
+                                                                              const Text('Não'),
                                                                           onPressed:
                                                                               () {
                                                                             Navigator.of(context).pop();
@@ -6590,7 +6593,7 @@ class _HealthProgramPage extends State<HealthProgramPage> {
                                                                         ),
                                                                         TextButton(
                                                                           child:
-                                                                              Text('Sim'),
+                                                                              const Text('Sim'),
                                                                           onPressed:
                                                                               () {
                                                                             setState(() {
@@ -6969,16 +6972,12 @@ class _ServiceHistoryPage extends State<ServiceHistoryPage> {
                                                   MainAxisAlignment.start,
                                               children: [
                                                 Text(petServiceHistory
-                                                            .exameList!
-                                                            .length ==
-                                                        0
+                                                        .exameList!.isEmpty
                                                     ? 'Nenhum Exame Solicitado'
                                                     : 'Foram Solicitados Exames'),
                                                 const SizedBox(width: 10.0),
                                                 Text(petServiceHistory
-                                                            .medicineList!
-                                                            .length ==
-                                                        0
+                                                        .medicineList!.isEmpty
                                                     ? 'Sem Prescrição de Medicamento'
                                                     : 'Com Prescrição de Medicamento'),
                                               ],
@@ -7630,7 +7629,8 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
                                                       fontSize: 18),
                                                 ),
                                                 IconButton(
-                                                  icon: Icon(Icons.delete),
+                                                  icon:
+                                                      const Icon(Icons.delete),
                                                   color: Colors.red,
                                                   onPressed: () {
                                                     //setState(() {
@@ -7646,14 +7646,15 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
                                                         return Form(
                                                           key: _formKey,
                                                           child: AlertDialog(
-                                                            title: Text(
+                                                            title: const Text(
                                                                 'Excluir Doença?'),
-                                                            content: Text(
+                                                            content: const Text(
                                                                 'A Doença será Excluída. Confirma?'),
                                                             actions: <Widget>[
                                                               TextButton(
                                                                 child:
-                                                                    Text('Não'),
+                                                                    const Text(
+                                                                        'Não'),
                                                                 onPressed: () {
                                                                   Navigator.of(
                                                                           context)
@@ -7662,7 +7663,8 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
                                                               ),
                                                               TextButton(
                                                                 child:
-                                                                    Text('Sim'),
+                                                                    const Text(
+                                                                        'Sim'),
                                                                 onPressed: () {
                                                                   _typeRegister =
                                                                       'D';
@@ -8213,8 +8215,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
 
   Future<List<dynamic>> _fetchPetForwarding() async {
     List<PetForwardingModel> petForwardingList;
-    petForwardingList =
-        await petForwardingListApi(_serviceQueue.queueId);
+    petForwardingList = await petForwardingListApi(_serviceQueue.queueId);
 
     return petForwardingList;
   }
@@ -8310,12 +8311,12 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                 future: _fetchPetMedicines(),
                                 builder: (context, snapshot) {
                                   /*if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                      child:
-                                          null, //CircularProgressIndicator(),
-                                    );
-                                  } else */
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child:
+                                      null, //CircularProgressIndicator(),
+                                );
+                              } else */
                                   if (snapshot.hasError) {
                                     return Center(
                                       child: Text('Error: ${snapshot.error}'),
@@ -8455,8 +8456,9 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                   ),
                                                                 ),
                                                                 IconButton(
-                                                                  icon: Icon(Icons
-                                                                      .delete),
+                                                                  icon: const Icon(
+                                                                      Icons
+                                                                          .delete),
                                                                   color: Colors
                                                                       .red,
                                                                   onPressed:
@@ -8479,18 +8481,18 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                           child:
                                                                               AlertDialog(
                                                                             title:
-                                                                                Text('Excluir Prescrição?'),
+                                                                                const Text('Excluir Prescrição?'),
                                                                             content:
-                                                                                Text('A Prescrição será Excluída. Confirma?'),
+                                                                                const Text('A Prescrição será Excluída. Confirma?'),
                                                                             actions: <Widget>[
                                                                               TextButton(
-                                                                                child: Text('Não'),
+                                                                                child: const Text('Não'),
                                                                                 onPressed: () {
                                                                                   Navigator.of(context).pop();
                                                                                 },
                                                                               ),
                                                                               TextButton(
-                                                                                child: Text('Sim'),
+                                                                                child: const Text('Sim'),
                                                                                 onPressed: () {
                                                                                   _typeRegister = 'D';
                                                                                   _registerMedicine(context).then(
@@ -8553,8 +8555,9 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                   ),
                                                                 ),
                                                                 IconButton(
-                                                                  icon: Icon(Icons
-                                                                      .delete),
+                                                                  icon: const Icon(
+                                                                      Icons
+                                                                          .delete),
                                                                   color: Colors
                                                                       .red,
                                                                   onPressed:
@@ -8579,18 +8582,18 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                           child:
                                                                               AlertDialog(
                                                                             title:
-                                                                                Text('Excluir Prescrição?'),
+                                                                                const Text('Excluir Prescrição?'),
                                                                             content:
-                                                                                Text('A Prescrição será Excluída. Confirma?'),
+                                                                                const Text('A Prescrição será Excluída. Confirma?'),
                                                                             actions: <Widget>[
                                                                               TextButton(
-                                                                                child: Text('Não'),
+                                                                                child: const Text('Não'),
                                                                                 onPressed: () {
                                                                                   Navigator.of(context).pop();
                                                                                 },
                                                                               ),
                                                                               TextButton(
-                                                                                child: Text('Sim'),
+                                                                                child: const Text('Sim'),
                                                                                 onPressed: () {
                                                                                   _typeRegister = 'D';
                                                                                   _registerMedicine(context).then(
@@ -8691,11 +8694,11 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                 future: _fetchPetForwarding(),
                                 builder: (context, snapshot) {
                                   /*if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                                  } else */
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else */
                                   if (snapshot.hasError) {
                                     return Center(
                                       child: Text('Error: ${snapshot.error}'),
@@ -8745,7 +8748,8 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                   child: InkWell(
                                                     onTap: () {
                                                       _petForwardingId =
-                                                          petForwordnig.petForwardingId;
+                                                          petForwordnig
+                                                              .petForwardingId;
                                                     },
                                                     child: Padding(
                                                       padding:
@@ -8757,23 +8761,21 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                 .spaceBetween,
                                                         children: [
                                                           Text(
-                                                            petForwordnig.forwardingName!,
+                                                            '${petForwordnig.forwardingType!}: ${petForwordnig.forwardingName!}',
                                                             style:
                                                                 const TextStyle(
                                                                     fontSize:
                                                                         18),
                                                           ),
                                                           IconButton(
-                                                            icon: Icon(
+                                                            icon: const Icon(
                                                                 Icons.delete),
                                                             color: Colors.red,
                                                             onPressed: () {
-                                                              print('petForwordnig.petForwardingId');
-                                                              print(petForwordnig.petForwardingId);
-                                                              print('petForwordnig.petForwardingId');
                                                               setState(() {
                                                                 _petForwardingId =
-                                                          petForwordnig.petForwardingId;
+                                                                    petForwordnig
+                                                                        .petForwardingId;
                                                               });
                                                               showDialog(
                                                                 context:
@@ -8786,14 +8788,15 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                         _formKey,
                                                                     child:
                                                                         AlertDialog(
-                                                                      title: Text(
+                                                                      title: const Text(
                                                                           'Excluir Encaminhamento?'),
-                                                                      content: Text(
-                                                                          'O encaminhamento será excluído. Confirma?'),
+                                                                      content:
+                                                                          const Text(
+                                                                              'O encaminhamento será excluído. Confirma?'),
                                                                       actions: <Widget>[
                                                                         TextButton(
                                                                           child:
-                                                                              Text('Não'),
+                                                                              const Text('Não'),
                                                                           onPressed:
                                                                               () {
                                                                             Navigator.of(context).pop();
@@ -8801,18 +8804,17 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                                                         ),
                                                                         TextButton(
                                                                           child:
-                                                                              Text('Sim'),
+                                                                              const Text('Sim'),
                                                                           onPressed:
                                                                               () {
                                                                             _typeRegister =
                                                                                 'D';
-                                                                            
+
                                                                             _registerForwarding(context).then(
                                                                               (value) {
                                                                                 Navigator.of(context).pop();
                                                                               },
                                                                             );
-                                                                           
                                                                           },
                                                                         ),
                                                                       ],
@@ -8848,10 +8850,10 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                           onPressed: () {
                             // Adicionar ação de "Adicionar" aqui
                             /*
-                            setState(() {
-                              _isotherMedicineVisible = false;
-                            });
-                            */
+                        setState(() {
+                          _isotherMedicineVisible = false;
+                        });
+                        */
                             typeForwardingId = null;
                             _forwardingId = null;
                             _heigthShowMedicineVaccine = 200;
@@ -9084,7 +9086,8 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                           children: [
                                             Text(
                                               veterinaryUse ? 'Sim' : 'Não',
-                                              style: TextStyle(fontSize: 10),
+                                              style:
+                                                  const TextStyle(fontSize: 10),
                                             ),
                                             Switch(
                                               value: veterinaryUse,
@@ -9377,17 +9380,22 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                 popupProps: const PopupProps.menu(
                                   showSearchBox: true,
                                 ),
-                                dropdownDecoratorProps:
-                                    DropDownDecoratorProps(
+                                dropdownDecoratorProps: DropDownDecoratorProps(
                                   dropdownSearchDecoration: InputDecoration(
                                     labelText: "Selecinar Exame",
                                     border: OutlineInputBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(8.0),
+                                      borderRadius: BorderRadius.circular(8.0),
                                     ),
                                   ),
                                 ),
-                                items: ExamData().examList.where((exam) => (exam.dog == true && _serviceQueue.specieId == 1) || (exam.cat == true && _serviceQueue.specieId == 2)).toList(),
+                                items: ExamData()
+                                    .examList
+                                    .where((exam) =>
+                                        (exam.dog == true &&
+                                            _serviceQueue.specieId == 1) ||
+                                        (exam.cat == true &&
+                                            _serviceQueue.specieId == 2))
+                                    .toList(),
                                 itemAsString: (ExamModel exam) => exam.name,
                                 onChanged: (value) {
                                   if (value != null) {
@@ -9416,7 +9424,8 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                               });
                             },
                             items: ConsultationData()
-                                .consultationList.map((consultation) {
+                                .consultationList
+                                .map((consultation) {
                               return DropdownMenuItem<ConsultationModel>(
                                 value: consultation,
                                 child: Text(consultation.name),
@@ -9430,13 +9439,13 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                 fillColor: Colors.white,
                                 labelText: 'Selecione uma Consutla'),
                             value: _forwardingId != null
-                                ? ConsultationData().consultationList.firstWhere(
-                                    (consultation) =>
+                                ? ConsultationData()
+                                    .consultationList
+                                    .firstWhere((consultation) =>
                                         consultation.id == _forwardingId)
                                 : null,
                           ),
                         ),
-
                       ],
                       Container(
                         padding: const EdgeInsets.all(16.0),
