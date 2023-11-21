@@ -771,7 +771,7 @@ Future<Map<String, dynamic>> registerPetVaccineDoseApi([
   String directoryPath = '';
   final random = Random();
   int randomInt = random.nextInt(10000);
-  String url = 'https://adm.petner.com.br/RegisterPetVaccineDose?param=' +
+  String url = 'https://adm.petner.com.br/RegisterVaccineDose?param=' +
       randomInt.toString();
   Map<String, dynamic>? responseData;
   Map<String, dynamic>? jsonSend;
@@ -789,7 +789,7 @@ Future<Map<String, dynamic>> registerPetVaccineDoseApi([
       'applicationDate': applicationDate,
       'applied': applied,
       'vaccinePetId': vaccinePetId,
-      'petVaccineDoseId': petVaccineDoseId,
+      'vaccineDoseId': petVaccineDoseId,
       'brand': brand,
       'lot': lot,
       'veterinary': veterinary,
@@ -810,8 +810,10 @@ Future<Map<String, dynamic>> registerPetVaccineDoseApi([
       body: jsonEncode(jsonSend),
     );
 
+    print(jsonEncode(jsonSend));
+
     if (response.statusCode == 200) {
-      saveBase64Image(base64Image!, '$directoryPath/$imageFile');
+      //saveBase64Image(base64Image!, '$directoryPath/$imageFile');
 
       /*
       if (option == 'C') {
@@ -2955,8 +2957,7 @@ Future<void> examListApi() async {
       UserPreferences.saveExam(response.body);
     } else {
       // A resposta não foi bem-sucedida
-      print(
-          '_Erro na solicitação POST examListApi: ${response.statusCode}');
+      print('_Erro na solicitação POST examListApi: ${response.statusCode}');
     }
   } catch (e) {
     // Ocorreu um erro durante a solicitação
@@ -2967,8 +2968,8 @@ Future<void> examListApi() async {
 Future<void> consultationListApi() async {
   final random = Random();
   int randomInt = random.nextInt(10000);
-  String url =
-      'https://adm.petner.com.br/ConsultationList?param=' + randomInt.toString();
+  String url = 'https://adm.petner.com.br/ConsultationList?param=' +
+      randomInt.toString();
 
   try {
     final response = await http.get(
@@ -3001,8 +3002,8 @@ Future<Map<String, int>> registerForwardingApi([
 ]) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
-  String url =
-      'https://adm.petner.com.br/RegisterForwardingService?param=' + randomInt.toString();
+  String url = 'https://adm.petner.com.br/RegisterForwardingService?param=' +
+      randomInt.toString();
   Map<String, int> responseData;
 
   Map<String, dynamic> jsonSend = {
@@ -3054,8 +3055,8 @@ Future<List<PetForwardingModel>> petForwardingListApi([
 ]) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
-  String url =
-      'https://adm.petner.com.br/PetForwardingList?param=' + randomInt.toString();
+  String url = 'https://adm.petner.com.br/PetForwardingList?param=' +
+      randomInt.toString();
   List<PetForwardingModel> petForwardingList = [];
 
   Map<String, dynamic> jsonSend = {
@@ -3078,7 +3079,8 @@ Future<List<PetForwardingModel>> petForwardingListApi([
       final jsonData = jsonDecode(response.body);
       for (var item in jsonData) {
         print(item);
-        PetForwardingModel petForwardingModel = PetForwardingModel.fromJson(item);
+        PetForwardingModel petForwardingModel =
+            PetForwardingModel.fromJson(item);
         petForwardingList.add(petForwardingModel);
       }
       PetForwardingData().petForwardingList = petForwardingList;
