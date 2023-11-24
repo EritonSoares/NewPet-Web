@@ -45,8 +45,14 @@ class ServiceQueueModel {
   late final int? screeningId;
   late final String? screeningName;
   late final List<ScreeningModel>? screeningList;
+  late final bool? hasTeleOrientation;
+  late final bool? haveTeleConsultation;
   late final bool? thereEmergency;
   late final bool? emergencyReleased;
+  late final String? emergencyMessage;
+  late final bool? thereHome;
+  late final bool? homeReleased;
+  late final String? homeMessage;
 
   ServiceQueueModel({
     required this.queueId,
@@ -91,8 +97,14 @@ class ServiceQueueModel {
     required this.screeningId,
     required this.screeningName,
     required this.screeningList,
+    required this.hasTeleOrientation,
+    required this.haveTeleConsultation,
     required this.thereEmergency,
     required this.emergencyReleased,
+    required this.emergencyMessage,
+    required this.thereHome,
+    required this.homeReleased,
+    required this.homeMessage,
   });
 
   factory ServiceQueueModel.fromJson(Map<String, dynamic> json) {
@@ -144,8 +156,14 @@ class ServiceQueueModel {
       screeningId: json['screeningId'],
       screeningName: json['screeningName'],
       screeningList: screeningList,
+      hasTeleOrientation: json['hasTeleOrientation'],
+      haveTeleConsultation: json['haveTeleConsultation'],
       thereEmergency: json['thereEmergency'],
       emergencyReleased: json['emergencyReleased'],
+      emergencyMessage: json['emergencyMessage'],
+      thereHome: json['thereEmergency'],
+      homeReleased: json['emergencyReleased'],
+      homeMessage: json['emergencyMessage'],
     );
   }
 
@@ -196,8 +214,14 @@ class ServiceQueueModel {
       'screeningId': screeningId,
       'screeningName': screeningName,
       'screeningList': screeningListJson,
+      'hasTeleOrientation': hasTeleOrientation,
+      'haveTeleConsultation': haveTeleConsultation,
       'thereEmergency': thereEmergency,
       'emergencyReleased': emergencyReleased,
+      'emergencyMessage': emergencyMessage,
+      'thereHome': thereHome,
+      'homeReleased': homeReleased,
+      'homeMessage': homeMessage,
     };
   }
 }
