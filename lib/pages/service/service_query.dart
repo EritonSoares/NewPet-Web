@@ -397,24 +397,28 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextFormField(
-              style: const TextStyle(fontSize: 15.0),
-              enabled: false,
-              controller: _tutorNameController,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(8.0)), // Raio dos cantos da borda
-                  borderSide: BorderSide(
-                      color: Colors.black,
-                      width: 1.0), // Cor e largura da borda
+            SizedBox(
+              height: 40,
+              child: TextFormField(
+                style: const TextStyle(fontSize: 12.0),
+                enabled: false,
+                controller: _tutorNameController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(
+                        Radius.circular(8.0)), // Raio dos cantos da borda
+                    borderSide: BorderSide(
+                        color: Colors.black,
+                        width: 1.0), // Cor e largura da borda
+                  ),
+                  labelText: 'Tutor',
+                  //contentPadding: EdgeInsets.symmetric(vertical: 5.0),
                 ),
-                labelText: 'Tutor',
               ),
             ),
             const SizedBox(height: 10.0),
             TextFormField(
-              style: const TextStyle(fontSize: 15.0),
+              style: const TextStyle(fontSize: 10.0),
               enabled: false,
               controller: _petNameController,
               decoration: const InputDecoration(
@@ -430,7 +434,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
             ),
             const SizedBox(height: 10.0),
             TextFormField(
-              style: const TextStyle(fontSize: 15.0),
+              style: const TextStyle(fontSize: 10.0),
               enabled: false,
               controller: _raceController,
               decoration: const InputDecoration(
@@ -449,7 +453,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
               children: [
                 Expanded(
                   child: TextFormField(
-                    style: const TextStyle(fontSize: 15.0),
+                    style: const TextStyle(fontSize: 10.0),
                     enabled: false,
                     controller: _specieController,
                     decoration: const InputDecoration(
@@ -467,7 +471,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                 const SizedBox(width: 10.0),
                 Expanded(
                   child: TextFormField(
-                    style: const TextStyle(fontSize: 15.0),
+                    style: const TextStyle(fontSize: 10.0),
                     enabled: false,
                     controller: _genderController,
                     decoration: const InputDecoration(
@@ -487,7 +491,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
             const SizedBox(height: 10.0),
             if (serviceQueueList[index].screeningList!.isNotEmpty) ...[
               TextFormField(
-                style: const TextStyle(fontSize: 15.0),
+                style: const TextStyle(fontSize: 8.0),
                 enabled: false,
                 controller: _screningController,
                 decoration: const InputDecoration(

@@ -53,6 +53,7 @@ class ServiceQueueModel {
   late final bool? thereHome;
   late final bool? homeReleased;
   late final String? homeMessage;
+  late final List<PetFileListModel> fileList;
 
   ServiceQueueModel({
     required this.queueId,
@@ -105,6 +106,7 @@ class ServiceQueueModel {
     required this.thereHome,
     required this.homeReleased,
     required this.homeMessage,
+    required this.fileList,
   });
 
   factory ServiceQueueModel.fromJson(Map<String, dynamic> json) {
@@ -113,6 +115,10 @@ class ServiceQueueModel {
         .map((screeningJson) => ScreeningModel.fromJson(screeningJson))
         .toList();
 
+    List<dynamic> fileListJson = json['fileList'];
+    List<PetFileListModel> fileList = fileListJson
+        .map((fileJson) => PetFileListModel.fromJson(fileJson))
+        .toList();
     return ServiceQueueModel(
       queueId: json['queueId'],
       queueType: json['queueType'],
@@ -164,12 +170,16 @@ class ServiceQueueModel {
       thereHome: json['thereEmergency'],
       homeReleased: json['emergencyReleased'],
       homeMessage: json['emergencyMessage'],
+      fileList: fileList,
     );
   }
 
   Map<String, dynamic> toJson() {
     List<Map<String, dynamic>> screeningListJson =
         screeningList!.map((screening) => screening.toJson()).toList();
+
+    List<Map<String, dynamic>> fileListJson =
+        fileList.map((file) => file.toJson()).toList();
 
     return {
       'queueId': queueId,
@@ -222,6 +232,7 @@ class ServiceQueueModel {
       'thereHome': thereHome,
       'homeReleased': homeReleased,
       'homeMessage': homeMessage,
+      'fileList': fileListJson,
     };
   }
 }
@@ -245,6 +256,29 @@ class ScreeningModel {
     return {
       'question': question,
       'answer': answer,
+    };
+  }
+}
+
+class PetFileListModel {
+  late final String fileName;
+  late final String url;
+  PetFileListModel({
+    required this.fileName,
+    required this.url,
+  });
+
+  factory PetFileListModel.fromJson(Map<String, dynamic> json) {
+    return PetFileListModel(
+      fileName: json['fileName'],
+      url: json['url'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fileName': fileName,
+      'url': url,
     };
   }
 }

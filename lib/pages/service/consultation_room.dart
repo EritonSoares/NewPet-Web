@@ -85,6 +85,7 @@ const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
 late ServiceQueueModel _serviceQueue;
 
 // Variaveis e controlers
+int _selectedTypeService = 1;
 bool _isLoading = false;
 late final String _petPhoto;
 late int? _temperamentId;
@@ -223,7 +224,6 @@ class ConsultationRoomPage extends StatefulWidget {
 class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   late final RtcEngine _engine;
   late final List<Map<int, String>> typeService;
-  int _selectedTypeService = 1;
   late List<Map<int, String>> consultaOptions;
   late List<Widget> _pages;
   late List<bool Function()> _validationFunctions;
@@ -347,6 +347,10 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   void _validateTypeService() {
+    print('xxxxxxxxxxxxxxxx');
+    print(_selectedTypeService);
+    print('xxxxxxxxxxxxxxxx');
+
     _currentPageIndex = 0;
     if (_selectedTypeService == 1) {
       _isQuestionComplaintVisible = true;
@@ -1166,55 +1170,67 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                     Row(
                       children: [
                         Expanded(
-                          child: TextFormField(
-                            style: const TextStyle(fontSize: 15.0),
-                            enabled: false,
-                            controller: _tutorNameController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    8.0)), // Raio dos cantos da borda
-                                borderSide: BorderSide(
-                                    color: Colors.black,
-                                    width: 1.0), // Cor e largura da borda
+                          child: SizedBox(
+                            height: 40,
+                            child: TextFormField(
+                              style: const TextStyle(fontSize: 12.0),
+                              enabled: false,
+                              controller: _tutorNameController,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          8.0)), // Raio dos cantos da borda
+                                  borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 1.0), // Cor e largura da borda
+                                ),
+                                labelText: 'Tutor',
                               ),
-                              labelText: 'Tutor',
                             ),
                           ),
                         ),
                         const SizedBox(width: 10.0),
                         Expanded(
-                          child: TextFormField(
-                            style: const TextStyle(fontSize: 15.0),
-                            enabled: false,
-                            controller: _petNameController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    8.0)), // Raio dos cantos da borda
-                                borderSide: BorderSide(
-                                    color: Colors.black,
-                                    width: 1.0), // Cor e largura da borda
+                          child: SizedBox(
+                            height: 40,
+                            child: TextFormField(
+                              style: const TextStyle(fontSize: 12.0),
+                              enabled: false,
+                              controller: _petNameController,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          8.0)), // Raio dos cantos da borda
+                                  borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 1.0), // Cor e largura da borda
+                                ),
+                                labelText: 'Pet',
                               ),
-                              labelText: 'Pet',
                             ),
                           ),
                         ),
                         const SizedBox(width: 10.0),
                         Expanded(
-                          child: TextFormField(
-                            style: const TextStyle(fontSize: 15.0),
-                            enabled: false,
-                            controller: _petPlanController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    8.0)), // Raio dos cantos da borda
-                                borderSide: BorderSide(
-                                    color: Colors.black,
-                                    width: 1.0), // Cor e largura da borda
+                          child: SizedBox(
+                            height: 40,
+                            child: TextFormField(
+                              style: const TextStyle(fontSize: 12.0),
+                              enabled: false,
+                              controller: _petPlanController,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          8.0)), // Raio dos cantos da borda
+                                  borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 1.0), // Cor e largura da borda
+                                ),
+                                labelText: 'Plano',
                               ),
-                              labelText: 'Plano',
                             ),
                           ),
                         ),
@@ -1647,95 +1663,139 @@ class _WelcomePageState extends State<WelcomePage> {
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Boas-Vindas', style: TextStyle(fontSize: 30)),
+                    Text('Boas-Vindas', style: TextStyle(fontSize: 25)),
                   ],
-                ),
-                const SizedBox(height: 10.0),
-                TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  enabled: false,
-                  controller: _tutorNameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Tutor',
-                  ),
-                ),
-                const SizedBox(height: 10.0),
-                TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  enabled: false,
-                  controller: _petNickNameController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
-                    ),
-                    labelText: 'Apelido',
-                  ),
                 ),
                 const SizedBox(height: 10.0),
                 Row(
                   children: [
                     Expanded(
-                      child: TextFormField(
-                        style: const TextStyle(fontSize: 15.0),
-                        enabled: false,
-                        controller: _specieController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Raio dos cantos da borda
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0), // Cor e largura da borda
+                      child: SizedBox(
+                        height: 40,
+                        child: TextFormField(
+                          style: const TextStyle(fontSize: 12.0),
+                          enabled: false,
+                          controller: _tutorNameController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  8.0)), // Raio dos cantos da borda
+                              borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0), // Cor e largura da borda
+                            ),
+                            labelText: 'Tutor',
                           ),
-                          labelText: 'Espécie',
                         ),
                       ),
                     ),
                     const SizedBox(width: 10.0),
                     Expanded(
-                      child: TextFormField(
-                        style: const TextStyle(fontSize: 15.0),
-                        enabled: false,
-                        controller: _raceController,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(
-                                8.0)), // Raio dos cantos da borda
-                            borderSide: BorderSide(
-                                color: Colors.black,
-                                width: 1.0), // Cor e largura da borda
+                      child: SizedBox(
+                        height: 40,
+                        child: TextFormField(
+                          style: const TextStyle(fontSize: 12.0),
+                          enabled: false,
+                          controller: _petNameController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  8.0)), // Raio dos cantos da borda
+                              borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0), // Cor e largura da borda
+                            ),
+                            labelText: 'Pet',
                           ),
-                          labelText: 'Raça',
                         ),
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10.0),
-                TextFormField(
-                  style: const TextStyle(fontSize: 15.0),
-                  enabled: false,
-                  controller: _productController,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                          Radius.circular(8.0)), // Raio dos cantos da borda
-                      borderSide: BorderSide(
-                          color: Colors.black,
-                          width: 1.0), // Cor e largura da borda
+                const SizedBox(height: 15.0),
+                Row(
+                  children: [
+                    Expanded(
+                      child: SizedBox(
+                        height: 40,
+                        child: TextFormField(
+                          style: const TextStyle(fontSize: 12.0),
+                          enabled: false,
+                          controller: _petNickNameController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  8.0)), // Raio dos cantos da borda
+                              borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0), // Cor e largura da borda
+                            ),
+                            labelText: 'Apelido',
+                          ),
+                        ),
+                      ),
                     ),
-                    labelText: 'Produto Contratado',
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: SizedBox(
+                        height: 40,
+                        child: TextFormField(
+                          style: const TextStyle(fontSize: 12.0),
+                          enabled: false,
+                          controller: _specieController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  8.0)), // Raio dos cantos da borda
+                              borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0), // Cor e largura da borda
+                            ),
+                            labelText: 'Espécie',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10.0),
+                    Expanded(
+                      child: SizedBox(
+                        height: 40,
+                        child: TextFormField(
+                          style: const TextStyle(fontSize: 12.0),
+                          enabled: false,
+                          controller: _raceController,
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.all(Radius.circular(
+                                  8.0)), // Raio dos cantos da borda
+                              borderSide: BorderSide(
+                                  color: Colors.black,
+                                  width: 1.0), // Cor e largura da borda
+                            ),
+                            labelText: 'Raça',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 15.0),
+                SizedBox(
+                  height: 40,
+                  child: TextFormField(
+                    style: const TextStyle(fontSize: 12.0),
+                    enabled: false,
+                    controller: _productController,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.all(
+                            Radius.circular(8.0)), // Raio dos cantos da borda
+                        borderSide: BorderSide(
+                            color: Colors.black,
+                            width: 1.0), // Cor e largura da borda
+                      ),
+                      labelText: 'Produto Contratado',
+                    ),
                   ),
                 ),
                 const SizedBox(height: 10.0),
@@ -1937,56 +1997,65 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                 ],
               ),
               const SizedBox(height: 10.0),
-              TextFormField(
-                style: const TextStyle(fontSize: 15.0),
-                enabled: false,
-                controller: _tutorNameController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(8.0)), // Raio dos cantos da borda
-                    borderSide: BorderSide(
-                        color: Colors.black,
-                        width: 1.0), // Cor e largura da borda
+              SizedBox(
+                height: 40,
+                child: TextFormField(
+                  style: const TextStyle(fontSize: 12.0),
+                  enabled: false,
+                  controller: _tutorNameController,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(8.0)), // Raio dos cantos da borda
+                      borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0), // Cor e largura da borda
+                    ),
+                    labelText: 'Tutor',
                   ),
-                  labelText: 'Tutor',
                 ),
               ),
               const SizedBox(height: 10.0),
               Row(
                 children: [
                   Expanded(
-                    child: TextFormField(
-                      style: const TextStyle(fontSize: 15.0),
-                      //enabled: false,
-                      controller: _petNameController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(8.0)), // Raio dos cantos da borda
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 1.0), // Cor e largura da borda
+                    child: SizedBox(
+                      height: 40,
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 12.0),
+                        //enabled: false,
+                        controller: _petNameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Pet',
                         ),
-                        labelText: 'Pet',
                       ),
                     ),
                   ),
                   const SizedBox(width: 10.0),
                   Expanded(
-                    child: TextFormField(
-                      style: const TextStyle(fontSize: 15.0),
-                      //enabled: false,
-                      controller: _petNickNameController,
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(8.0)), // Raio dos cantos da borda
-                          borderSide: BorderSide(
-                              color: Colors.black,
-                              width: 1.0), // Cor e largura da borda
+                    child: SizedBox(
+                      height: 40,
+                      child: TextFormField(
+                        style: const TextStyle(fontSize: 12.0),
+                        //enabled: false,
+                        controller: _petNickNameController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(
+                                8.0)), // Raio dos cantos da borda
+                            borderSide: BorderSide(
+                                color: Colors.black,
+                                width: 1.0), // Cor e largura da borda
+                          ),
+                          labelText: 'Apelido',
                         ),
-                        labelText: 'Apelido',
                       ),
                     ),
                   ),
@@ -1997,17 +2066,26 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: speciesDropdown(),
+                    child: SizedBox(
+                      height: 40,
+                      child: speciesDropdown(),
+                    ),
                   ),
                   const SizedBox(width: 10.0),
                   Expanded(
                     flex: 3,
-                    child: racesDropdown(),
+                    child: SizedBox(
+                      height: 40,
+                      child: racesDropdown(),
+                    ),
                   ),
                   const SizedBox(width: 10.0),
                   Expanded(
                     flex: 1,
-                    child: sizeDropdown(),
+                    child: SizedBox(
+                      height: 40,
+                      child: sizeDropdown(),
+                    ),
                   ),
                 ],
               ),
@@ -2016,7 +2094,10 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: gendersDropDown(),
+                    child: SizedBox(
+                      height: 40,
+                      child: gendersDropDown(),
+                    ),
                   ),
                   const SizedBox(width: 10.0),
                   Expanded(
@@ -2025,45 +2106,58 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                       children: [
                         Expanded(
                           flex: 2,
-                          child: TextFormField(
-                            decoration: InputDecoration(
-                              border: const OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    8.0)), // Raio dos cantos da borda
-                                borderSide: BorderSide(
-                                    color: Colors.black,
-                                    width: 1.0), // Cor e largura da borda
+                          child: SizedBox(
+                            height: 40,
+                            child: TextFormField(
+                              style: const TextStyle(fontSize: 12.0),
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          8.0)), // Raio dos cantos da borda
+                                  borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 1.0), // Cor e largura da borda
+                                ),
+                                labelText: 'Data de Nascimento',
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 2, 10, 2),
+                                suffixIcon: IconButton(
+                                  icon: const Icon(Icons.calendar_today),
+                                  onPressed: () => _selectBirthDay(context),
+                                ),
                               ),
-                              labelText: 'Data de Nascimento',
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.calendar_today),
-                                onPressed: () => _selectBirthDay(context),
-                              ),
+                              controller: _birthdayController,
+                              readOnly: true,
+                              onTap: () => _selectBirthDay(context),
+                              validator: (input) => input?.isEmpty == true
+                                  ? 'Por favor informar a Data de Nascimento'
+                                  : null,
                             ),
-                            controller: _birthdayController,
-                            readOnly: true,
-                            onTap: () => _selectBirthDay(context),
-                            validator: (input) => input?.isEmpty == true
-                                ? 'Por favor informar a Data de Nascimento'
-                                : null,
                           ),
                         ),
                         const SizedBox(width: 10.0),
                         Expanded(
-                          flex: 2,
-                          child: TextFormField(
-                            style: const TextStyle(fontSize: 15.0),
-                            enabled: false,
-                            controller: _ageController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.all(Radius.circular(
-                                    8.0)), // Raio dos cantos da borda
-                                borderSide: BorderSide(
-                                    color: Colors.black,
-                                    width: 1.0), // Cor e largura da borda
+                          flex: 3,
+                          child: SizedBox(
+                            height: 40,
+                            child: TextFormField(
+                              style: const TextStyle(fontSize: 12.0),
+                              enabled: false,
+                              controller: _ageController,
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                          8.0)), // Raio dos cantos da borda
+                                  borderSide: BorderSide(
+                                      color: Colors.black,
+                                      width: 1.0), // Cor e largura da borda
+                                ),
+                                labelText: 'Idade',
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(10, 2, 10, 2),
                               ),
-                              labelText: 'Idade',
                             ),
                           ),
                         ),
@@ -2079,7 +2173,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                                   });
                                 },
                               ),
-                              const Text('Idade Real?'),
+                              const Text('Idade Real?',
+                                  style: TextStyle(fontSize: 12.0)),
                             ],
                           ),
                         ),
@@ -2113,7 +2208,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                             });
                           },
                         ),
-                        const Text('Castrado?'),
+                        const Text('Castrado?',
+                            style: TextStyle(fontSize: 12.0)),
                       ],
                     ),
                   ),
@@ -2185,7 +2281,10 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: SpecieData().specieList.map((species) {
         return DropdownMenuItem<String>(
           value: species['id'],
-          child: Text(species['name']),
+          child: Text(
+            species['name'],
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
@@ -2195,6 +2294,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
         filled: true,
         fillColor: Colors.white,
         labelText: 'Espécie',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
       ),
     );
   }
@@ -2211,16 +2312,22 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: SizeData().sizeList.map((size) {
         return DropdownMenuItem<String>(
           value: size['id'],
-          child: Text(size['name']),
+          child: Text(
+            size['name'],
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          labelText: 'Porte'),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelText: 'Porte',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+      ),
       value: (_sizeId == null ? null : _sizeId.toString()),
     );
   }
@@ -2236,7 +2343,10 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: raceList.map((races) {
         return DropdownMenuItem<String>(
           value: races.id.toString(),
-          child: Text(races.name),
+          child: Text(
+            races.name,
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
@@ -2246,6 +2356,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
         filled: true,
         fillColor: Colors.white,
         labelText: 'Raça',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
       ),
     );
   }
@@ -2261,7 +2373,10 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: GenderData().genderList.map((gender) {
         return DropdownMenuItem<String>(
           value: gender['id'],
-          child: Text(gender['name']),
+          child: Text(
+            gender['name'],
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       value: _genderId,
@@ -2272,6 +2387,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
         filled: true,
         fillColor: Colors.white,
         labelText: 'Gênero',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
       ),
     );
   }
@@ -2286,7 +2403,10 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: coatList.map((coats) {
         return DropdownMenuItem<String>(
           value: coats.id.toString(),
-          child: Text(coats.name),
+          child: Text(
+            coats.name,
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
@@ -2296,6 +2416,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
         filled: true,
         fillColor: Colors.white,
         labelText: 'Pelagem',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
       ),
       value: (_coatId == null ? null : _coatId.toString()),
     );
@@ -2313,7 +2435,10 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: TemperamentData().temperamentList.map((size) {
         return DropdownMenuItem<String>(
           value: size['id'],
-          child: Text(size['name']),
+          child: Text(
+            size['name'],
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
@@ -2323,6 +2448,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
         filled: true,
         fillColor: Colors.white,
         labelText: 'Temperamento',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
       ),
       value: (_temperamentId == null ? null : _temperamentId.toString()),
     );
@@ -2340,7 +2467,10 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: EnvironmentData().environmentList.map((size) {
         return DropdownMenuItem<String>(
           value: size['id'],
-          child: Text(size['name']),
+          child: Text(
+            size['name'],
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
@@ -2350,6 +2480,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
         filled: true,
         fillColor: Colors.white,
         labelText: 'Ambiente que vive',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
       ),
       value: (_environmentId == null ? null : _environmentId.toString()),
     );
@@ -2367,16 +2499,22 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: FoodData().getFoodBySpecie(_specieId).map((size) {
         return DropdownMenuItem<String>(
           value: size['id'],
-          child: Text(size['name']),
+          child: Text(
+            size['name'],
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          labelText: 'Alimentação'),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelText: 'Alimentação',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+      ),
       value: (_foodId == null ? null : _foodId.toString()),
     );
   }
@@ -2393,16 +2531,22 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: BodyScoreData().bodyScoreList.map((size) {
         return DropdownMenuItem<String>(
           value: size['id'],
-          child: Text(size['name']),
+          child: Text(
+            size['name'],
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          labelText: 'Score Corporal'),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelText: 'Score Corporal',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+      ),
       value: (_bodyScoreId == null ? null : _bodyScoreId.toString()),
     );
   }
@@ -2422,16 +2566,22 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: StateData().getStateList().map((size) {
         return DropdownMenuItem<String>(
           value: size['uf'],
-          child: Text(size['name']),
+          child: Text(
+            size['name'],
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-          ),
-          filled: true,
-          fillColor: Colors.white,
-          labelText: 'Estado'),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        filled: true,
+        fillColor: Colors.white,
+        labelText: 'Estado',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
+      ),
       value: (_state == null ? null : _state.toString()),
     );
   }
@@ -2448,7 +2598,10 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
       items: listCity.map((city) {
         return DropdownMenuItem<String>(
           value: city.name,
-          child: Text(city.name.toString()),
+          child: Text(
+            city.name.toString(),
+            style: const TextStyle(fontSize: 12.0),
+          ),
         );
       }).toList(),
       decoration: InputDecoration(
@@ -2458,6 +2611,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
         filled: true,
         fillColor: Colors.white,
         labelText: 'Cidade',
+        labelStyle: const TextStyle(fontSize: 12.0),
+        contentPadding: EdgeInsets.fromLTRB(10, 2, 10, 2),
       ),
       value: _city,
     );
@@ -6703,30 +6858,35 @@ class _RiskClassificationPage extends State<RiskClassificationPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('Classificação de Risco Preliminar',
-                      style: TextStyle(fontSize: 30)),
-                ],
-              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     _serviceQueue.queueType == 0
                         ? 'Emergência'
-                        : (_serviceQueue.queueType == 1
+                        : ((_serviceQueue.queueType == 1 &&
+                                _selectedTypeService != 4)
                             ? 'Consulta Agendada'
-                            : 'Consulta'),
+                            : _selectedTypeService == 4
+                                ? 'Tele Orientação'
+                                : 'Consulta'),
                     style: TextStyle(
                         fontSize: 30,
                         color: _serviceQueue.queueType == 0
                             ? Colors.red
-                            : (_serviceQueue.queueType == 1
+                            : ((_serviceQueue.queueType == 1 &&
+                                    _selectedTypeService != 4)
                                 ? Colors.yellow
                                 : Colors.blue)),
                   ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Classificação de Risco Preliminar',
+                      style: TextStyle(fontSize: 30)),
                 ],
               ),
               const SizedBox(height: 10.0),
