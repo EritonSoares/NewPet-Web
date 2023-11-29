@@ -54,6 +54,7 @@ class ServiceQueueModel {
   late final bool? homeReleased;
   late final String? homeMessage;
   late final List<PetFileListModel> fileList;
+  late final List<HospitalListModel> hospitalList;
 
   ServiceQueueModel({
     required this.queueId,
@@ -107,6 +108,7 @@ class ServiceQueueModel {
     required this.homeReleased,
     required this.homeMessage,
     required this.fileList,
+    required this.hospitalList,
   });
 
   factory ServiceQueueModel.fromJson(Map<String, dynamic> json) {
@@ -119,6 +121,12 @@ class ServiceQueueModel {
     List<PetFileListModel> fileList = fileListJson
         .map((fileJson) => PetFileListModel.fromJson(fileJson))
         .toList();
+
+    List<dynamic> hospitalListJson = json['hospitalList'];
+    List<HospitalListModel> hospitalList = hospitalListJson
+        .map((hospitalJson) => HospitalListModel.fromJson(hospitalJson))
+        .toList();
+
     return ServiceQueueModel(
       queueId: json['queueId'],
       queueType: json['queueType'],
@@ -169,8 +177,9 @@ class ServiceQueueModel {
       emergencyMessage: json['emergencyMessage'],
       thereHome: json['thereEmergency'],
       homeReleased: json['emergencyReleased'],
-      homeMessage: json['emergencyMessage'],
+      homeMessage: json['homeMessage'],
       fileList: fileList,
+      hospitalList: hospitalList,
     );
   }
 
@@ -180,6 +189,9 @@ class ServiceQueueModel {
 
     List<Map<String, dynamic>> fileListJson =
         fileList.map((file) => file.toJson()).toList();
+
+    List<Map<String, dynamic>> hospitalListJson =
+        hospitalList.map((hospital) => hospital.toJson()).toList();
 
     return {
       'queueId': queueId,
@@ -233,6 +245,7 @@ class ServiceQueueModel {
       'homeReleased': homeReleased,
       'homeMessage': homeMessage,
       'fileList': fileListJson,
+      'hospitalList': hospitalListJson,
     };
   }
 }
@@ -279,6 +292,33 @@ class PetFileListModel {
     return {
       'fileName': fileName,
       'url': url,
+    };
+  }
+}
+
+class HospitalListModel {
+  late final int hospitalId;
+  late final String hospitalName;
+  late final String hospitalAddress;
+  HospitalListModel({
+    required this.hospitalId,
+    required this.hospitalName,
+    required this.hospitalAddress,
+  });
+
+  factory HospitalListModel.fromJson(Map<String, dynamic> json) {
+    return HospitalListModel(
+      hospitalId: json['hospitalId'],
+      hospitalName: json['hospitalName'],
+      hospitalAddress: json['hospitalAddress'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'hospitalId': hospitalId,
+      'hospitalName': hospitalName,
+      'hospitalAddress': hospitalAddress,
     };
   }
 }

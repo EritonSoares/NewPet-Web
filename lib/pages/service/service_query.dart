@@ -136,10 +136,6 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
       _startService = true;
     }
 
-    print(difference.inMinutes);
-
-    print(_startService);
-
     int hours = seconds ~/ 3600;
     int minutes = (seconds % 3600) ~/ 60;
     seconds = seconds % 60;

@@ -1681,6 +1681,7 @@ Future<List<ServiceQueueModel>> serviceQueueApi() async {
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       for (var item in jsonData) {
+        print(item);
         ServiceQueueModel healthEventFileType =
             ServiceQueueModel.fromJson(item);
         serviceQueueList.add(healthEventFileType);
@@ -1723,6 +1724,7 @@ Future<List<ServiceQueueModel>> serviceQueueListApi(int veterinaryId) async {
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       for (var item in jsonData) {
+        print(item);
         ServiceQueueModel healthEventFileType =
             ServiceQueueModel.fromJson(item);
         serviceQueueList.add(healthEventFileType);
@@ -2519,6 +2521,7 @@ Future<Map<String, dynamic>> registerFinalGuidelinesApi(
   int? queueId,
   String? ultimatRisk,
   String? guidelines,
+  int hospitalId,
 ) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
@@ -2530,6 +2533,7 @@ Future<Map<String, dynamic>> registerFinalGuidelinesApi(
     'queueId': queueId,
     'ultimatRisk': ultimatRisk,
     'guidelines': guidelines,
+    'hospitalId': hospitalId,
   };
 
   //print(jsonEncode(petner));
@@ -2642,8 +2646,6 @@ Future<List<ConsultChatGPTModel>> listConsultChatGPTApi(
       final jsonData = jsonDecode(response.body);
 
       for (var item in jsonData) {
-        print('yyyyyyyyyyyyyyyyy');
-        print(item);
         ConsultChatGPTModel consultChatGPTModel =
             ConsultChatGPTModel.fromJson(item);
         consultChatGPTList.add(consultChatGPTModel);
