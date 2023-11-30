@@ -5269,6 +5269,32 @@ class _AnamnesisPage extends State<AnamnesisPage>
     });
   }
 
+  Future<int?> _registerSymptomQuestion(int symptomId) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerSymptomApi(
+          'C',
+          _serviceQueue.petId.toString(),
+          _serviceQueue.queueId.toString(),
+          symptomId.toString(),
+          '0',
+          '');
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterSymptom'];
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return 4;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -5453,6 +5479,12 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               appetitId = int.parse(value!);
+                              if (appetitId == 1) {
+                                _registerSymptomQuestion(46);
+                              }
+                              if (appetitId == 3) {
+                                _registerSymptomQuestion(120);
+                              }
                             });
                           },
                           items: appetiteList.keys.map((key) {
@@ -5490,6 +5522,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               waterIntakeId = int.parse(value!);
+                              if (waterIntakeId == 3) {
+                                _registerSymptomQuestion(52);
+                              }
                             });
                           },
                           items: waterIntakeList.keys.map((key) {
@@ -5571,6 +5606,12 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               urineVolumeId = int.parse(value!);
+                              if (waterIntakeId == 1) {
+                                _registerSymptomQuestion(53);
+                              }
+                              if (waterIntakeId == 3) {
+                                _registerSymptomQuestion(51);
+                              }
                             });
                           },
                           items: urineVolumeList.keys.map((key) {
@@ -5614,6 +5655,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               stoolColoringId = int.parse(value!);
+                              if (stoolColoringId == 4) {
+                                _registerSymptomQuestion(64);
+                              }
                             });
                           },
                           items: stoolColoringList.keys.map((key) {
@@ -5652,6 +5696,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               stoolConsistencyId = int.parse(value!);
+                              if (stoolConsistencyId == 1) {
+                                _registerSymptomQuestion(17);
+                              }
                             });
                           },
                           items: stoolConsistencyList.keys.map((key) {
@@ -5776,6 +5823,12 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               hotEarId = int.parse(value!);
+
+                              if (noseTypeId == 1 &&
+                                  noseTemperatureId == 1 &&
+                                  hotEarId == 1) {
+                                _registerSymptomQuestion(78);
+                              }
                             });
                           },
                           items: hotEarList.keys.map((key) {
@@ -5892,6 +5945,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               tightBellyId = int.parse(value!);
+                              if (tightBellyId == 1) {
+                                _registerSymptomQuestion(12);
+                              }
                             });
                           },
                           items: tightBellyList.keys.map((key) {
@@ -5935,6 +5991,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               touchPainId = int.parse(value!);
+                              if (touchPainId == 1) {
+                                _registerSymptomQuestion(12);
+                              }
                             });
                           },
                           items: touchPainList.keys.map((key) {
@@ -5973,6 +6032,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               walksBentOverId = int.parse(value!);
+                              if (walksBentOverId == 1) {
+                                _registerSymptomQuestion(3);
+                              }
                             });
                           },
                           items: walksBentOverList.keys.map((key) {
@@ -6016,6 +6078,12 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               gumTongueId = int.parse(value!);
+                              if (gumTongueId == 1) {
+                                _registerSymptomQuestion(36);
+                              }
+                              if (gumTongueId == 3) {
+                                _registerSymptomQuestion(143);
+                              }
                             });
                           },
                           items: gumTongueList.keys.map((key) {
@@ -6182,6 +6250,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               hairFailureId = int.parse(value!);
+                              if (hairFailureId == 1) {
+                                _registerSymptomQuestion(65);
+                              }
                             });
                           },
                           items: hairFailureList.keys.map((key) {
@@ -6267,6 +6338,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               abnormalPlacementId = int.parse(value!);
+                              if (abnormalPlacementId == 1) {
+                                _registerSymptomQuestion(80);
+                              }
                             });
                           },
                           items: abnormalPlacementList.keys.map((key) {
@@ -6354,6 +6428,14 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               bodyScoreId = int.parse(value!);
+
+                              if (bodyScoreId == 1 || bodyScoreId == 2) {
+                                _registerSymptomQuestion(24);
+                              }
+
+                              if (bodyScoreId == 6 || bodyScoreId == 7) {
+                                _registerSymptomQuestion(45);
+                              }
                             });
                           },
                           items: bodyScoreList.keys.map((key) {
