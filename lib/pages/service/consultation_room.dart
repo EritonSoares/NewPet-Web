@@ -877,7 +877,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       queueId,
       finalClassificationId,
       finalGuideliness,
-      hospitalId!,
+      hospitalId,
     );
   }
 
@@ -1447,6 +1447,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop(true);
+                        print('xxxxxxxxxxxxxxxxxxx');
                         setState(() {
                           _isCheckOut = true;
                           _selectedTypeService = 6;

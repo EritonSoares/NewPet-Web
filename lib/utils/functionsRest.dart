@@ -2521,7 +2521,7 @@ Future<Map<String, dynamic>> registerFinalGuidelinesApi(
   int? queueId,
   String? ultimatRisk,
   String? guidelines,
-  int hospitalId,
+  int? hospitalId,
 ) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
@@ -2536,7 +2536,7 @@ Future<Map<String, dynamic>> registerFinalGuidelinesApi(
     'hospitalId': hospitalId,
   };
 
-  //print(jsonEncode(petner));
+  print(jsonEncode(petner));
 
   try {
     final response = await http.post(
