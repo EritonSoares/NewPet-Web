@@ -635,7 +635,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       }
 
       if (appetitId == null) {
-        _textValidation += 'Como Está o Apetite e Alimentação?\n';
+        _textValidation += 'Como está o Apetite e Alimentação?\n';
         validation = false;
       }
 
@@ -4896,7 +4896,6 @@ class _AnamnesisPage extends State<AnamnesisPage>
     super.initState();
 
     _tabController = TabController(length: 3, vsync: this);
-
     // Adiciona um ouvinte para detectar mudanças de tab
     _tabController.addListener(() {
       print('$_currentIndex - ${_tabController.index}');
@@ -4911,7 +4910,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
             _tabController.animateTo(0);
             _showInfoMessage(context);
           }
-        } /*else if (_currentIndex == 1) {
+        } else if (_currentIndex == 1) {
           if (_validateSymptom()) {
             _tabController.animateTo(_tabController.index);
             _currentIndex = _tabController.index;
@@ -4919,25 +4918,8 @@ class _AnamnesisPage extends State<AnamnesisPage>
             _tabController.animateTo(1);
             _showInfoMessage(context);
           }
-        }*/
-      }
-
-/*
-      if (_currentIndex != _tabController.index) {
-        if (_isCurrentTabValid(_currentIndex)) {
-          // Atualize o estado para permitir a mudança de tab
-          setState(() {
-            _isTabValid = true;
-          });
-          _currentIndex = _tabController.index;
-        } else {
-          _tabController.animateTo(_currentIndex);
-          _showInfoMessage(context);
-
-          //_tabController.previousIndex;
         }
       }
-      */
     });
 
     setState(() {
@@ -4946,9 +4928,6 @@ class _AnamnesisPage extends State<AnamnesisPage>
   }
 
   bool _isCurrentTabValid(int _currentIndex) {
-    print('_currentIndex');
-    print(_currentIndex);
-    print('_currentIndex');
     if (_currentIndex == 0) {
       return _validateQuestionry();
     } else if (_currentIndex == 1) {
@@ -4968,7 +4947,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
     }
 
     if (appetitId == null) {
-      _textValidation += 'Como Está o Apetite e Alimentação?\n';
+      _textValidation += 'Como está o Apetite e Alimentação?\n';
       validation = false;
     }
 
@@ -5270,24 +5249,24 @@ class _AnamnesisPage extends State<AnamnesisPage>
     });
   }
 
-  Future<int?> _registerSymptomQuestion(int symptomId) async {
-    final form = _formKey.currentState;
-    if (form!.validate()) {
-      Map<String, dynamic> responseData = await registerSymptomApi(
-          'C',
-          _serviceQueue.petId.toString(),
-          _serviceQueue.queueId.toString(),
-          symptomId.toString(),
-          '0',
-          '');
+  Future<int?> _registerSymptomQuestion(String type, int symptomId) async {
+    //final form = _formKey.currentState;
+    //if (form!.validate()) {
+    Map<String, dynamic> responseData = await registerSymptomApi(
+        type,
+        _serviceQueue.petId.toString(),
+        _serviceQueue.queueId.toString(),
+        symptomId.toString(),
+        symptomId.toString(),
+        '');
 
-      setState(() {
-        _isLoading = false;
-      });
+    setState(() {
+      _isLoading = false;
+    });
 
-      //return 1;
-      return responseData['validateRegisterSymptom'];
-    }
+    //return 1;
+    return responseData['validateRegisterSymptom'];
+    //}
 
     setState(() {
       _isLoading = false;
@@ -5481,10 +5460,14 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               appetitId = int.parse(value!);
                               if (appetitId == 1) {
-                                _registerSymptomQuestion(46);
-                              }
-                              if (appetitId == 3) {
-                                _registerSymptomQuestion(120);
+                                _registerSymptomQuestion('C', 46);
+                                _registerSymptomQuestion('E', 120);
+                              } else if (appetitId == 3) {
+                                _registerSymptomQuestion('C', 120);
+                                _registerSymptomQuestion('E', 46);
+                              } else {
+                                _registerSymptomQuestion('E', 46);
+                                _registerSymptomQuestion('E', 120);
                               }
                             });
                           },
@@ -5503,7 +5486,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             ),
                             filled: true,
                             fillColor: Colors.white,
-                            labelText: 'Como Está o Apetite e Alimentação?(*)',
+                            labelText: 'Como está o Apetite e Alimentação?(*)',
                             labelStyle: const TextStyle(fontSize: 13.0),
                             contentPadding:
                                 const EdgeInsets.fromLTRB(10, 2, 10, 2),
@@ -5524,7 +5507,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               waterIntakeId = int.parse(value!);
                               if (waterIntakeId == 3) {
-                                _registerSymptomQuestion(52);
+                                _registerSymptomQuestion('C', 52);
+                              } else {
+                                _registerSymptomQuestion('E', 52);
                               }
                             });
                           },
@@ -5608,10 +5593,14 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               urineVolumeId = int.parse(value!);
                               if (waterIntakeId == 1) {
-                                _registerSymptomQuestion(53);
-                              }
-                              if (waterIntakeId == 3) {
-                                _registerSymptomQuestion(51);
+                                _registerSymptomQuestion('C', 53);
+                                _registerSymptomQuestion('E', 51);
+                              } else if (waterIntakeId == 3) {
+                                _registerSymptomQuestion('C', 51);
+                                _registerSymptomQuestion('E', 53);
+                              } else {
+                                _registerSymptomQuestion('E', 51);
+                                _registerSymptomQuestion('E', 53);
                               }
                             });
                           },
@@ -5657,7 +5646,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               stoolColoringId = int.parse(value!);
                               if (stoolColoringId == 4) {
-                                _registerSymptomQuestion(64);
+                                _registerSymptomQuestion('C', 64);
+                              } else {
+                                _registerSymptomQuestion('E', 64);
                               }
                             });
                           },
@@ -5698,7 +5689,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               stoolConsistencyId = int.parse(value!);
                               if (stoolConsistencyId == 1) {
-                                _registerSymptomQuestion(17);
+                                _registerSymptomQuestion('C', 17);
+                              } else {
+                                _registerSymptomQuestion('E', 17);
                               }
                             });
                           },
@@ -5828,7 +5821,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                               if (noseTypeId == 1 &&
                                   noseTemperatureId == 1 &&
                                   hotEarId == 1) {
-                                _registerSymptomQuestion(78);
+                                _registerSymptomQuestion('C', 78);
+                              } else {
+                                _registerSymptomQuestion('E', 78);
                               }
                             });
                           },
@@ -5947,7 +5942,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               tightBellyId = int.parse(value!);
                               if (tightBellyId == 1) {
-                                _registerSymptomQuestion(12);
+                                _registerSymptomQuestion('C', 12);
+                              } else {
+                                _registerSymptomQuestion('E', 12);
                               }
                             });
                           },
@@ -5993,7 +5990,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               touchPainId = int.parse(value!);
                               if (touchPainId == 1) {
-                                _registerSymptomQuestion(12);
+                                _registerSymptomQuestion('C', 12);
+                              } else {
+                                _registerSymptomQuestion('E', 12);
                               }
                             });
                           },
@@ -6034,7 +6033,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               walksBentOverId = int.parse(value!);
                               if (walksBentOverId == 1) {
-                                _registerSymptomQuestion(3);
+                                _registerSymptomQuestion('C', 3);
+                              } else {
+                                _registerSymptomQuestion('E', 3);
                               }
                             });
                           },
@@ -6080,10 +6081,14 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               gumTongueId = int.parse(value!);
                               if (gumTongueId == 1) {
-                                _registerSymptomQuestion(36);
-                              }
-                              if (gumTongueId == 3) {
-                                _registerSymptomQuestion(143);
+                                _registerSymptomQuestion('C', 36);
+                                _registerSymptomQuestion('E', 143);
+                              } else if (gumTongueId == 3) {
+                                _registerSymptomQuestion('C', 143);
+                                _registerSymptomQuestion('E', 36);
+                              } else {
+                                _registerSymptomQuestion('E', 36);
+                                _registerSymptomQuestion('E', 143);
                               }
                             });
                           },
@@ -6252,7 +6257,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               hairFailureId = int.parse(value!);
                               if (hairFailureId == 1) {
-                                _registerSymptomQuestion(65);
+                                _registerSymptomQuestion('C', 65);
+                              } else {
+                                _registerSymptomQuestion('E', 65);
                               }
                             });
                           },
@@ -6340,7 +6347,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               abnormalPlacementId = int.parse(value!);
                               if (abnormalPlacementId == 1) {
-                                _registerSymptomQuestion(80);
+                                _registerSymptomQuestion('C', 80);
+                              } else {
+                                _registerSymptomQuestion('E', 80);
                               }
                             });
                           },
@@ -6431,11 +6440,14 @@ class _AnamnesisPage extends State<AnamnesisPage>
                               bodyScoreId = int.parse(value!);
 
                               if (bodyScoreId == 1 || bodyScoreId == 2) {
-                                _registerSymptomQuestion(24);
-                              }
-
-                              if (bodyScoreId == 6 || bodyScoreId == 7) {
-                                _registerSymptomQuestion(45);
+                                _registerSymptomQuestion('C', 24);
+                                _registerSymptomQuestion('E', 45);
+                              } else if (bodyScoreId == 6 || bodyScoreId == 7) {
+                                _registerSymptomQuestion('C', 45);
+                                _registerSymptomQuestion('E', 24);
+                              } else {
+                                _registerSymptomQuestion('E', 24);
+                                _registerSymptomQuestion('E', 45);
                               }
                             });
                           },

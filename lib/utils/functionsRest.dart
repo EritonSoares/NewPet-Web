@@ -2022,6 +2022,14 @@ Future<Map<String, int>> registerSymptomApi([
     };
   }
 
+  if (option == 'E') {
+    jsonSend = {
+      'option': option,
+      'queueId': queueId,
+      'symptomId': symptomId,
+    };
+  }
+
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2033,7 +2041,8 @@ Future<Map<String, int>> registerSymptomApi([
     );
 
     if (response.statusCode == 200) {
-      responseData = jsonDecode(response.body);
+      //responseData = jsonDecode(response.body);
+      responseData = {'registerSymptom': 1};
     } else {
       responseData = {'registerSymptom': 2};
       // A resposta não foi bem-sucedida

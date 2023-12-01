@@ -124,11 +124,42 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: _toggleObscure,
                         ),
                       ),
+                      onEditingComplete: () {
+                        // Ação que será executada ao pressionar "Enter"
+                        _submit(context).then((value) {
+                          switch (value) {
+                            case 0:
+                              _showAlertDialog(
+                                  context, 'Usuário não encontrado');
+                              break;
+                            case 1:
+                              _showAlertDialog(context, 'Senha inválida');
+                              break;
+                            case 2:
+                              //Ir para HOME
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const HomePage(),
+                                ),
+                              );
+                              break;
+                            case 3:
+                              _showAlertDialog(context,
+                                  'Usuário não tem acesso ao Sistema.');
+                              break;
+                            default:
+                              _showAlertDialog(
+                                  context, 'Erro ao efetuar Validação');
+                              break;
+                          }
+                        });
+                      },
                       /*
                       validator: (input) => (input?.length ?? 0) < 6
                           ? 'A senha deve ter pelo menos 6 caracteres'
                           : null,
-                      */    
+                      */
                     ),
                     const SizedBox(height: 50.0),
                     ElevatedButton(
