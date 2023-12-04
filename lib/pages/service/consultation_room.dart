@@ -230,9 +230,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   late final RtcEngine _engine;
   late final List<Map<int, String>> typeService;
   late List<Map<int, String>> consultaOptions;
-  late List<Widget> _pages;
+  List<Widget> _pages = [];
   late List<bool Function()> _validationFunctions;
-  late int _currentPageIndex;
+  int _currentPageIndex = 0;
   late String? _token, _channel, _crmv;
   bool _isEnabledVirtualBackgroundImage = false;
   bool isJoined = false,
@@ -250,44 +250,54 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _resetVariable();
 
     _roomConfiguration();
-    _getQueue();
+    _getQueue().then((value) {
+      validationEmergency = false;
 
-    validationEmergency = false;
+      consultaOptions = [
+        {1: 'Atendimento de Boas Vindas'},
+        {2: 'Consulta por Queixa'},
+        {3: 'Consulta'},
+        {4: 'Tele Orientação'},
+        {5: 'Acompanhamento de Evolução'},
+        {6: 'Consulta de Rotina'},
+        {7: 'Consulta Dominiciliar Inicial'},
+        {8: 'Consulta Dominiciliar'},
+        {100: 'Finalização'},
+      ];
 
-    consultaOptions = [
-      {1: 'Atendimento de Boas Vindas'},
-      {2: 'Consulta por Queixa'},
-      {3: 'Consulta'},
-      {4: 'Tele Orientação'},
-      {5: 'Acompanhamento de Evolução'},
-      {6: 'Finalização'},
-    ];
+      Timer.periodic(const Duration(seconds: 1), (timer) {
+        if (mounted) {
+          setState(() {
+            seconds++;
+            if (seconds == 60) {
+              seconds = 0;
+              minutes++;
+            }
+            if (minutes == 60) {
+              minutes = 0;
+              hours++;
+            }
 
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (mounted) {
-        setState(() {
-          seconds++;
-          if (seconds == 60) {
-            seconds = 0;
-            minutes++;
-          }
-          if (minutes == 60) {
-            minutes = 0;
-            hours++;
-          }
+            formattedTime =
+                '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+          });
+        }
+      });
 
-          formattedTime =
-              '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-        });
-      }
+/*
+    if (_serviceQueue.queueTypeId == 1) {
+      
+    }
+*/
+      _selectedTypeService = _serviceQueue.queueTypeId;
+
+      _validateTypeService();
+
+      _isCheckOut = false;
+
+      //Descomentar PARA ATIVAR A CHAMADA DE VÍDEO
+      _initEngine();
     });
-
-    _validateTypeService();
-
-    _isCheckOut = false;
-
-    //Descomentar PARA ATIVAR A CHAMADA DE VÍDEO
-    _initEngine();
   }
 
   void _resetVariable() {
@@ -460,7 +470,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       ];
 
       _screningController.text = _serviceQueue.screeningName!;
-    } else if (_selectedTypeService == 6) {
+    } else if (_selectedTypeService == 100) {
       _pages = [
         const CheckoutPage(),
       ];
@@ -716,7 +726,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
       if (abnormalPlacementId == null) {
         _textValidation +=
-            'Apresenta coloração fora do normal em alguma área?\n';
+            'Apresenta coloração de pele fora do normal em alguma área?\n';
         validation = false;
       }
 
@@ -1065,6 +1075,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     _engine = await RtcEngine.create(appId);
 
     await _engine.enableVideo();
+    await _engine.enableLocalVideo(true);
     await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
     await _engine.setClientRole(ClientRole.Broadcaster);
     await _engine.startPreview();
@@ -1273,6 +1284,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                         )
                       ],
                     ),
+                    /*
                     DropdownButtonFormField<int>(
                       decoration: const InputDecoration(
                         labelText: 'Tipo de Ficha', // Texto no decoration
@@ -1295,6 +1307,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                         );
                       }).toList(),
                     ),
+                    */
                     const SizedBox(height: 10.0),
                     Expanded(
                       child: PageView.builder(
@@ -1450,11 +1463,11 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                         print('xxxxxxxxxxxxxxxxxxx');
                         setState(() {
                           _isCheckOut = true;
-                          _selectedTypeService = 6;
+                          _selectedTypeService = 100;
                           _validateTypeService();
                         });
-                        Navigator.of(context)
-                            .pop(true); // Passa true se finalizar
+                        //Navigator.of(context)
+                        //   .pop(true); // Passa true se finalizar
                       },
                       child: const Text('Sim'),
                     ),
@@ -2273,6 +2286,123 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
               ),
               const SizedBox(height: 10.0),
               Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      height: 40.0,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black, // Cor da borda
+                          width: 1.0, // Largura da borda
+                        ),
+                        borderRadius: BorderRadius.circular(
+                            8.0), // Raio dos cantos da borda
+                      ),
+                      child: const Text('Tele Orientação Liberado'),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      height: 40.0,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black, // Cor da borda
+                          width: 1.0, // Largura da borda
+                        ),
+                        borderRadius: BorderRadius.circular(
+                            8.0), // Raio dos cantos da borda
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _serviceQueue.haveTeleConsultation! == true
+                                ? 'Tele Consulta Liberado'
+                                : 'Tele Consulta Bloqueado',
+                            style: TextStyle(
+                              color: (!_serviceQueue.haveTeleConsultation!
+                                  ? Colors.red
+                                  : Colors.black),
+                            ),
+                          ),
+                          Visibility(
+                            visible: !_serviceQueue.haveTeleConsultation!,
+                            child: Text(_serviceQueue.productId! == 1
+                                ? 'Motivo: Plano Contrato sem cobertura'
+                                : ''),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      height: 40.0,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black, // Cor da borda
+                          width: 1.0, // Largura da borda
+                        ),
+                        borderRadius: BorderRadius.circular(
+                            8.0), // Raio dos cantos da borda
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              _serviceQueue.emergencyReleased! == true
+                                  ? 'Emergência Liberada'
+                                  : 'Emergência Bloqueada',
+                              style: TextStyle(
+                                  color: (!_serviceQueue.emergencyReleased!
+                                      ? Colors.red
+                                      : Colors.black))),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10.0),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      height: 40.0,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.black, // Cor da borda
+                          width: 1.0, // Largura da borda
+                        ),
+                        borderRadius: BorderRadius.circular(
+                            8.0), // Raio dos cantos da borda
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              _serviceQueue.homeReleased! == true
+                                  ? 'Consulta Domiciliar Liberada'
+                                  : 'Consulta Domiciliar Bloqueada',
+                              style: TextStyle(
+                                  color: (!_serviceQueue.homeReleased!
+                                      ? Colors.red
+                                      : Colors.black))),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              /*
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Expanded(
@@ -2308,13 +2438,15 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                                _serviceQueue.haveTeleConsultation! == true
-                                    ? 'Tele Consulta Liberado'
-                                    : 'Tele Consulta Bloqueado',
-                                style: TextStyle(
-                                    color: (!_serviceQueue.haveTeleConsultation!
-                                        ? Colors.red
-                                        : Colors.black))),
+                              _serviceQueue.haveTeleConsultation! == true
+                                  ? 'Tele Consulta Liberado'
+                                  : 'Tele Consulta Bloqueado',
+                              style: TextStyle(
+                                color: (!_serviceQueue.haveTeleConsultation!
+                                    ? Colors.red
+                                    : Colors.black),
+                              ),
+                            ),
                             Visibility(
                               visible: !_serviceQueue.haveTeleConsultation!,
                               child: Text(_serviceQueue.productId! == 1
@@ -2407,6 +2539,7 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                   ),
                 ],
               ),
+              */
             ],
           ),
         ),
@@ -3707,6 +3840,9 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
   }
 
   Future<List<dynamic>> _fetchPetMedicines() async {
+    print('xxxxxxxxxxxxxxxxx');
+    print(_serviceQueue.petId.toString());
+    print('xxxxxxxxxxxxxxxxx');
     List<PetMedicineModel> petMedicineList;
     petMedicineList =
         await petMedicineListApi(1, _serviceQueue.petId.toString(), '0');
@@ -4899,7 +5035,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
     // Adiciona um ouvinte para detectar mudanças de tab
     _tabController.addListener(() {
       print('$_currentIndex - ${_tabController.index}');
-
+/*
       if (_currentIndex != _tabController.index) {
         if (_currentIndex == 0) {
           if (_validateQuestionry()) {
@@ -4920,6 +5056,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
           }
         }
       }
+*/
     });
 
     setState(() {
@@ -5027,7 +5164,8 @@ class _AnamnesisPage extends State<AnamnesisPage>
     }
 
     if (abnormalPlacementId == null) {
-      _textValidation += 'Apresenta coloração fora do normal em alguma área?\n';
+      _textValidation +=
+          'Apresenta coloração de pele fora do normal em alguma área?\n';
       validation = false;
     }
 
@@ -5736,6 +5874,14 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               noseTypeId = int.parse(value!);
+
+                              if (noseTypeId == 1 &&
+                                  noseTemperatureId == 1 &&
+                                  hotEarId == 1) {
+                                _registerSymptomQuestion('C', 78);
+                              } else {
+                                _registerSymptomQuestion('E', 78);
+                              }
                             });
                           },
                           items: noseTypeList.keys.map((key) {
@@ -5774,6 +5920,14 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               noseTemperatureId = int.parse(value!);
+
+                              if (noseTypeId == 1 &&
+                                  noseTemperatureId == 1 &&
+                                  hotEarId == 1) {
+                                _registerSymptomQuestion('C', 78);
+                              } else {
+                                _registerSymptomQuestion('E', 78);
+                              }
                             });
                           },
                           items: noseTemperatureList.keys.map((key) {
@@ -6369,7 +6523,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             filled: true,
                             fillColor: Colors.white,
                             labelText:
-                                'Apresenta coloração fora do normal em alguma área?(*)',
+                                'Apresenta coloração de pele fora do normal em alguma área?(*)',
                             labelStyle: const TextStyle(fontSize: 13.0),
                             contentPadding:
                                 const EdgeInsets.fromLTRB(10, 2, 10, 2),
@@ -7556,9 +7710,9 @@ class _RiskClassificationPage extends State<RiskClassificationPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    _serviceQueue.queueType == 0
+                    _serviceQueue.queueOrder == 0
                         ? 'Emergência'
-                        : ((_serviceQueue.queueType == 1 &&
+                        : ((_serviceQueue.queueOrder == 1 &&
                                 _selectedTypeService != 4)
                             ? 'Consulta Agendada'
                             : _selectedTypeService == 4
@@ -7566,9 +7720,9 @@ class _RiskClassificationPage extends State<RiskClassificationPage> {
                                 : 'Consulta'),
                     style: TextStyle(
                         fontSize: 30,
-                        color: _serviceQueue.queueType == 0
+                        color: _serviceQueue.queueOrder == 0
                             ? Colors.red
-                            : ((_serviceQueue.queueType == 1 &&
+                            : ((_serviceQueue.queueOrder == 1 &&
                                     _selectedTypeService != 4)
                                 ? Colors.yellow
                                 : Colors.blue)),
@@ -8268,28 +8422,19 @@ class _FinalGuidelinesPage extends State<FinalGuidelinesPage> {
                 borderRadius:
                     BorderRadius.circular(8.0), // Raio dos cantos da borda
               ),
-              child: Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                        _serviceQueue.emergencyReleased! == true
-                            ? 'Emergência Liberada'
-                            : 'Emergência Bloqueada - ${_serviceQueue.emergencyMessage!}',
-                        style: TextStyle(
-                            fontSize: 13.0,
-                            color: (!_serviceQueue.emergencyReleased!
-                                ? Colors.red
-                                : Colors.black))),
-                    /*
-                    Visibility(
-                      visible: !_serviceQueue.emergencyReleased!,
-                      child: Text(
-                          'Motivo: ${_serviceQueue.emergencyMessage!}'),
-                    ),
-                    */
-                  ],
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                      _serviceQueue.emergencyReleased! == true
+                          ? 'Emergência Liberada'
+                          : 'Emergência Bloqueada - ${_serviceQueue.emergencyMessage!}',
+                      style: TextStyle(
+                          fontSize: 13.0,
+                          color: (!_serviceQueue.emergencyReleased!
+                              ? Colors.red
+                              : Colors.black))),
+                ],
               ),
             ),
           ),
@@ -9114,6 +9259,9 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
   }
 
   Future<List<dynamic>> _fetchPetMedicines() async {
+    print('xxxxxxxxxxxxxxxxx');
+    print(_serviceQueue.petId.toString());
+    print('xxxxxxxxxxxxxxxxx');
     List<PetMedicineModel> petMedicineList;
     petMedicineList = await petMedicineListApi(
       2,
@@ -9897,7 +10045,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                               if (value == '1') {
                                 _heigthShowMedicineVaccine = 300;
                               } else {
-                                _heigthShowMedicineVaccine = 300;
+                                _heigthShowMedicineVaccine = 500;
                               }
                             });
                           },
@@ -10293,6 +10441,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                             print(value);
                             setState(() {
                               typeForwardingId = int.parse(value!);
+                              _forwardingId = null;
                               if (value == '1') {
                                 _heigthShowMedicineVaccine = 280;
                               } else {

@@ -2030,6 +2030,8 @@ Future<Map<String, int>> registerSymptomApi([
     };
   }
 
+  print(jsonSend);
+
   try {
     final response = await http.post(
       Uri.parse(url),

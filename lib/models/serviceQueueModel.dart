@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 
 class ServiceQueueModel {
   late final int queueId;
-  late final int queueType;
+  late final int queueOrder;
+  late final int queueTypeId;
   late final String queueTypeName;
   late final String queueDate;
   //late final DateTime queueTime;
@@ -58,7 +59,8 @@ class ServiceQueueModel {
 
   ServiceQueueModel({
     required this.queueId,
-    required this.queueType,
+    required this.queueOrder,
+    required this.queueTypeId,
     required this.queueTypeName,
     required this.queueDate,
     //required this.queueTime,
@@ -129,7 +131,8 @@ class ServiceQueueModel {
 
     return ServiceQueueModel(
       queueId: json['queueId'],
-      queueType: json['queueType'],
+      queueOrder: json['queueOrder'],
+      queueTypeId: json['queueTypeId'],
       queueTypeName: json['queueTypeName'],
       queueDate: json['queueDate'],
       //queueTime: DateTime.parse(json['queueTime']),
@@ -195,7 +198,8 @@ class ServiceQueueModel {
 
     return {
       'queueId': queueId,
-      'queueType': queueType,
+      'queueOrder': queueOrder,
+      'queueTypeId': queueTypeId,
       'queueTypeName': queueTypeName,
       'queueDate': queueDate,
       //'queueTime': queueTime,

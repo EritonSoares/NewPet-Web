@@ -248,11 +248,11 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                               border: Border(
                                                 left: BorderSide(
                                                   color: serviceQueueList[index]
-                                                              .queueType ==
+                                                              .queueOrder ==
                                                           0
                                                       ? Colors.red
                                                       : serviceQueueList[index]
-                                                                  .queueType ==
+                                                                  .queueOrder ==
                                                               1
                                                           ? Colors.yellow
                                                           : const Color
