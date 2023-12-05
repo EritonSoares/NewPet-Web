@@ -2938,6 +2938,10 @@ Future<void> vaccineDoseListApi() async {
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
+
+      print('222222222222222222222222');
+      print(response.body);
+      print('333333333333333333333333');
       UserPreferences.saveVaccineDose(response.body);
     } else {
       // A resposta não foi bem-sucedida
