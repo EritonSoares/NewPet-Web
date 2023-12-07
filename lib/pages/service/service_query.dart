@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:petner_web/custom/custom_appbar.dart';
@@ -29,6 +30,8 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
   final TextEditingController _specieController = TextEditingController();
   final TextEditingController _genderController = TextEditingController();
   final TextEditingController _screningController = TextEditingController();
+
+  bool _isCameraInUse = false;
 
   List<ServiceQueueModel> serviceQueueList = [];
   bool _queueSelected = false;
@@ -551,7 +554,42 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                     onPressed: /*!_startService
                         ? null
                         :*/
+
                         () async {
+                      _isCameraInUse = true;
+                      try {
+                        await html.window.navigator
+                            .getUserMedia(audio: true, video: true);
+                        _isCameraInUse = false;
+                      } catch (e) {
+                        _showInfoMessage(context);
+                      }
+
+                      if (!_isCameraInUse) {
+                        _getVeterinaryCrmv();
+                        roomToken = await _getRTCToken(
+                            serviceQueueList[index].petId,
+                            serviceQueueList[index].queueId,
+                            int.parse(_crmv!),
+                            int.parse(_veterinaryId!));
+
+                        if (roomToken == '0') {
+                          print('erro 0');
+                        } else if (roomToken == '-1') {
+                          print('erro 1');
+                        } else if (roomToken == '-2') {
+                          print('erro 2');
+                        } else {
+                          UserPreferences.saveRoom(roomToken,
+                              serviceQueueList[index].queueId.toString());
+                          UserPreferences.saveQueue(
+                              jsonEncode(serviceQueueList[index].toJson()));
+                          Navigator.of(Routes.navigatorKey!.currentContext!)
+                              .pushReplacementNamed('/consultationRoom');
+                        }
+                      }
+
+/*
                       _getVeterinaryCrmv();
                       roomToken = await _getRTCToken(
                           serviceQueueList[index].petId,
@@ -573,6 +611,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                         Navigator.of(Routes.navigatorKey!.currentContext!)
                             .pushReplacementNamed('/consultationRoom');
                       }
+                      */
                     },
                     child: const Text('Iniciar Atendimento'),
                   ),
@@ -582,6 +621,31 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showInfoMessage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Erro ao acessar a Câmera.'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                  'Feche o aplicativo que está utilizando a Câmera e tente novamente'), // Use a variável _textValidation no Text
+              const SizedBox(height: 20), // Espaçamento entre o texto e o botão
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

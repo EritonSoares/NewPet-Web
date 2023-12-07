@@ -646,11 +646,6 @@ Future<void> vaccineListApi() async {
     );
 
     if (response.statusCode == 200) {
-      final jsonData = jsonDecode(response.body);
-
-      print('XXXXXXXXXXX');
-      print(response.body);
-      print('XXXXXXXXXXX');
       UserPreferences.saveVaccine(response.body);
       /*
       for (var item in jsonData) {
@@ -730,7 +725,6 @@ Future<List<PetVaccineDoseModel>> petVaccineDoseListApi(
       },
       body: jsonEncode(jsonSend),
     );
-    print(jsonEncode(jsonSend));
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
@@ -809,8 +803,6 @@ Future<Map<String, dynamic>> registerPetVaccineDoseApi([
       },
       body: jsonEncode(jsonSend),
     );
-
-    print(jsonEncode(jsonSend));
 
     if (response.statusCode == 200) {
       //saveBase64Image(base64Image!, '$directoryPath/$imageFile');
@@ -1681,7 +1673,6 @@ Future<List<ServiceQueueModel>> serviceQueueApi() async {
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       for (var item in jsonData) {
-        print(item);
         ServiceQueueModel healthEventFileType =
             ServiceQueueModel.fromJson(item);
         serviceQueueList.add(healthEventFileType);
@@ -1724,7 +1715,6 @@ Future<List<ServiceQueueModel>> serviceQueueListApi(int veterinaryId) async {
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       for (var item in jsonData) {
-        print(item);
         ServiceQueueModel healthEventFileType =
             ServiceQueueModel.fromJson(item);
         serviceQueueList.add(healthEventFileType);
@@ -1810,8 +1800,6 @@ Future<Map<String, dynamic>> registerDiseaseApi([
       'petDiseaseId': petDiseaseId,
     };
   }
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -1963,9 +1951,6 @@ Future<Map<String, dynamic>> registerMedicineApi([
     };
   }
 
-  print(petMedicineId!.isNotEmpty);
-  print(jsonEncode(jsonSend));
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2029,8 +2014,6 @@ Future<Map<String, int>> registerSymptomApi([
       'symptomId': symptomId,
     };
   }
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -2112,8 +2095,6 @@ Future<List<PetMedicineModel>> petMedicineListApi([
       },
       body: jsonEncode(jsonSend),
     );
-
-    print(jsonEncode(jsonSend));
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
@@ -2360,8 +2341,6 @@ Future<List<PetServiceHistoryModel>> petServiceHistoryListApi(
     'petId': petId,
   };
 
-  print(jsonSend);
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2403,8 +2382,6 @@ Future<List<PetHealthProgramModel>> petHealthProgramListApi(
   Map<String, dynamic> jsonSend = {
     'petId': petId,
   };
-
-  print(jsonSend);
 
   try {
     final response = await http.post(
@@ -2547,8 +2524,6 @@ Future<Map<String, dynamic>> registerFinalGuidelinesApi(
     'hospitalId': hospitalId,
   };
 
-  print(jsonEncode(petner));
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2591,8 +2566,6 @@ Future<List<ConsultChatGPTModel>> consultChatGPTApi(
     'queueId': queueId,
   };
 
-  print(jsonEncode(petner));
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2607,7 +2580,6 @@ Future<List<ConsultChatGPTModel>> consultChatGPTApi(
       final jsonData = jsonDecode(response.body);
 
       for (var item in jsonData) {
-        print(item);
         ConsultChatGPTModel consultChatGPTModel =
             ConsultChatGPTModel.fromJson(item);
         consultChatGPTList.add(consultChatGPTModel);
@@ -2691,8 +2663,6 @@ Future<void> registerDiseaseConsultChatGPTApi(
     'selected': selected,
   };
 
-  print(jsonEncode(petner));
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2743,8 +2713,6 @@ Future<Map<String, dynamic>> registerHealthProgramApi([
     };
   }
 
-  print(jsonEncode(jsonSend));
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2754,8 +2722,6 @@ Future<Map<String, dynamic>> registerHealthProgramApi([
       },
       body: jsonEncode(jsonSend),
     );
-
-    print(jsonEncode(jsonSend));
 
     if (response.statusCode == 200) {
       responseData = jsonDecode(response.body);
@@ -2805,8 +2771,6 @@ Future<Map<String, dynamic>> registerDiseaseServiceApi([
     };
   }
 
-  print(jsonEncode(jsonSend));
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2816,8 +2780,6 @@ Future<Map<String, dynamic>> registerDiseaseServiceApi([
       },
       body: jsonEncode(jsonSend),
     );
-
-    print(jsonEncode(jsonSend));
 
     if (response.statusCode == 200) {
       responseData = jsonDecode(response.body);
@@ -2939,9 +2901,6 @@ Future<void> vaccineDoseListApi() async {
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
 
-      print('222222222222222222222222');
-      print(response.body);
-      print('333333333333333333333333');
       UserPreferences.saveVaccineDose(response.body);
     } else {
       // A resposta não foi bem-sucedida
@@ -3036,10 +2995,6 @@ Future<Map<String, int>> registerForwardingApi([
     };
   }
 
-  print('jsonEncode(jsonSend)');
-  print(jsonEncode(jsonSend));
-  print('jsonEncode(jsonSend)');
-
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -3090,12 +3045,9 @@ Future<List<PetForwardingModel>> petForwardingListApi([
       body: jsonEncode(jsonSend),
     );
 
-    print(jsonEncode(jsonSend));
-
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
       for (var item in jsonData) {
-        print(item);
         PetForwardingModel petForwardingModel =
             PetForwardingModel.fromJson(item);
         petForwardingList.add(petForwardingModel);

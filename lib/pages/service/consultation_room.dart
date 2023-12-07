@@ -248,6 +248,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   void initState() {
     super.initState();
 
+    _isEmergency = false;
+
     _resetVariable();
 
     _roomConfiguration();
@@ -295,7 +297,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
       _validateTypeService();
 
-      print(2);
       _isCheckOut = false;
 
       //Descomentar PARA ATIVAR A CHAMADA DE VÍDEO
@@ -1075,7 +1076,12 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _initEngine() async {
-    await html.window.navigator.getUserMedia(audio: true, video: true);
+    try {
+      await html.window.navigator.getUserMedia(audio: true, video: true);
+    } catch (e) {
+      print('Erro ao verificar a câmera: $e');
+    }
+
     //await <Permission>[Permission.microphone, Permission.camera].request();
     _engine = await RtcEngine.create(appId);
 
@@ -1267,24 +1273,37 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                         ElevatedButton(
                           onPressed: () {
                             setState(() {
-                              if (_selectedTypeService == 1) {
-                                _currentPageIndex = 6;
-                              } else if (_selectedTypeService == 2) {
-                                _currentPageIndex = 9;
-                              } else if (_selectedTypeService == 4) {
-                                _currentPageIndex = 7;
-                              }
                               finalClassificationId = 2;
-                              validationEmergency = true;
-                              _isEmergency = true;
+                              validationEmergency = !_isEmergency;
+                              _isEmergency = !_isEmergency;
+
+                              if (_isEmergency) {
+                                if (_selectedTypeService == 1) {
+                                  _currentPageIndex = 6;
+                                } else if (_selectedTypeService == 2) {
+                                  _currentPageIndex = 9;
+                                } else if (_selectedTypeService == 4) {
+                                  _currentPageIndex = 7;
+                                }
+                              } else {
+                                _currentPageIndex = 0;
+                              }
+
+                              print('_isEmergency');
+                              print(_isEmergency);
+                              print('_isEmergency');
                             });
                           },
                           style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.red),
+                            backgroundColor: !_isEmergency
+                                ? MaterialStateProperty.all<Color>(Colors.red)
+                                : MaterialStateProperty.all<Color>(
+                                    Colors.green),
                           ),
-                          child: const Text(
-                            'Emergência?',
+                          child: Text(
+                            !_isEmergency
+                                ? 'É Emergência?'
+                                : 'Não é Emregência!',
                             style: TextStyle(color: Colors.black),
                           ),
                         )
@@ -1466,7 +1485,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop(true);
-                        print('xxxxxxxxxxxxxxxxxxx');
                         setState(() {
                           _isCheckOut = true;
                           _selectedTypeService = 100;
@@ -3846,9 +3864,6 @@ class _ChronicHealthConditionPage extends State<ChronicHealthConditionPage> {
   }
 
   Future<List<dynamic>> _fetchPetMedicines() async {
-    print('xxxxxxxxxxxxxxxxx');
-    print(_serviceQueue.petId.toString());
-    print('xxxxxxxxxxxxxxxxx');
     List<PetMedicineModel> petMedicineList;
     petMedicineList =
         await petMedicineListApi(1, _serviceQueue.petId.toString(), '0');
@@ -9307,9 +9322,6 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
   }
 
   Future<List<dynamic>> _fetchPetMedicines() async {
-    print('xxxxxxxxxxxxxxxxx');
-    print(_serviceQueue.petId.toString());
-    print('xxxxxxxxxxxxxxxxx');
     List<PetMedicineModel> petMedicineList;
     petMedicineList = await petMedicineListApi(
       2,
