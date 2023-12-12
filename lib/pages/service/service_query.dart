@@ -562,6 +562,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                             .getUserMedia(audio: true, video: true);
                         _isCameraInUse = false;
                       } catch (e) {
+                        print('Erro ao verificar a câmera: $e');
                         _showInfoMessage(context);
                       }
 
