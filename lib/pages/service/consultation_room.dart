@@ -486,7 +486,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   bool _validateNothing() {
-    print('nothing');
+    //print('nothing');
     return true;
   }
 
@@ -1099,13 +1099,13 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
           });
         },
         userJoined: (int uid, int elapsed) {
-          print("remote user $uid joined");
+          //print("remote user $uid joined");
           setState(() {
             _remoteUid = uid;
           });
         },
         userOffline: (int uid, UserOfflineReason reason) {
-          print("remote user $uid left channel");
+          //print("remote user $uid left channel");
           setState(() {
             _remoteUid = null;
           });
@@ -1117,8 +1117,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _joinChannel() async {
-    print(
-        'joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
+    //print('joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
     await _engine.joinChannel(_token, _channel!, null, int.parse(_crmv!));
   }
 
@@ -1288,10 +1287,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                               } else {
                                 _currentPageIndex = 0;
                               }
-
-                              print('_isEmergency');
-                              print(_isEmergency);
-                              print('_isEmergency');
                             });
                           },
                           style: ButtonStyle(
@@ -5056,10 +5051,9 @@ class _AnamnesisPage extends State<AnamnesisPage>
     _tabController = TabController(length: 3, vsync: this);
     // Adiciona um ouvinte para detectar mudanças de tab
     _tabController.addListener(() {
-      print('$_currentIndex - ${_tabController.index}');
+      //print('$_currentIndex - ${_tabController.index}');
 
       //Descomentar para validar os Campos preenchidos
-/*
       if (_currentIndex != _tabController.index) {
         if (_currentIndex == 0) {
           if (_validateQuestionry()) {
@@ -5080,7 +5074,6 @@ class _AnamnesisPage extends State<AnamnesisPage>
           }
         }
       }
-*/
     });
 
     setState(() {
@@ -7124,7 +7117,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
                                                         value: chatGPT.selected,
                                                         onChanged:
                                                             (bool value) {
-                                                          print(_chatGPTId);
+                                                          //print(_chatGPTId);
                                                           setState(() {
                                                             _fetchRegisterDiseaseConsultChatGPT(
                                                                 chatGPT
@@ -8066,7 +8059,7 @@ class _ServiceHistoryPage extends State<ServiceHistoryPage> {
                                                   petServiceHistory
                                                       .serviceFormId;
                                               _showAnexo(context);
-                                              print('Texto clicado!');
+                                              //print('Texto clicado!');
                                             },
                                             child: Text(
                                               petServiceHistory.attachment
@@ -8598,11 +8591,6 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
   Future<int?> _registerDiseaseService(BuildContext context) async {
     final form = _formKey.currentState;
 
-    print(_typeRegister);
-    print(_serviceQueue.queueId);
-    print(_diseaseId!);
-    print(_otherDiseaseController.text);
-    print(_petDiseaseServiceId);
     if (form!.validate()) {
       Map<String, dynamic> responseData = await registerDiseaseServiceApi(
         _typeRegister,
@@ -9174,7 +9162,7 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
                                                 Switch(
                                                   value: chatGPT.selected,
                                                   onChanged: (bool value) {
-                                                    print(chatGPT.chatGPTId);
+                                                    //print(chatGPT.chatGPTId);
                                                     setState(() {
                                                       _fetchRegisterPrescriptionConsultChatGPT(
                                                           chatGPT.chatGPTId,
@@ -10099,7 +10087,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                           validator: _validateDropDown,
                           isDense: true,
                           onChanged: (value) {
-                            print(value);
+                            //print(value);
                             setState(() {
                               typePrescriptionId = int.parse(value!);
                               if (value == '1') {
@@ -10207,7 +10195,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                         validator: _validateDropDown,
                                         isDense: true,
                                         onChanged: (value) {
-                                          print(value);
+                                          //print(value);
                                           setState(() {
                                             useTypeId = int.parse(value!);
                                           });
@@ -10320,7 +10308,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                 value == null ? 'Campo obrigatório' : null,
                             isDense: true,
                             onChanged: (value) {
-                              print(value);
+                              //print(value);
                               setState(() {
                                 _vaccineId = value!.vaccineId;
                               });
@@ -10357,7 +10345,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                 value == null ? 'Campo obrigatório' : null,
                             isDense: true,
                             onChanged: (value) {
-                              print(value!.vaccineDoseId);
+                              //print(value!.vaccineDoseId);
                               setState(() {
                                 _vaccineDoseId =
                                     value!.vaccineDoseId.toString();
@@ -10498,7 +10486,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                           validator: _validateDropDown,
                           isDense: true,
                           onChanged: (value) {
-                            print(value);
+                            //print(value);
                             setState(() {
                               typeForwardingId = int.parse(value!);
                               _forwardingId = null;
@@ -10575,7 +10563,7 @@ class _PrescriptionReferralPage extends State<PrescriptionReferralPage> {
                                 value == null ? 'Campo obrigatório' : null,
                             isDense: true,
                             onChanged: (value) {
-                              print(value);
+                              //print(value);
                               setState(() {
                                 _forwardingId = value!.id;
                               });
