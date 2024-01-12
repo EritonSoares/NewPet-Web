@@ -89,7 +89,9 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
       timer2 = Timer.periodic(const Duration(seconds: 10), (timer) {
         if (mounted) {
           setState(() {
+            print('Iniciando leitura da Fila');
             _future = _fetchServiceQueue();
+            print('Fim da leitura da Fila');
           });
         }
       });

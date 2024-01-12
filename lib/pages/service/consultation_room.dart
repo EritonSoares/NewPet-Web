@@ -1098,6 +1098,12 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             isJoined = true;
           });
         },
+        remoteAudioStateChanged: (uid, state, reason, elapsed) {
+          print('remoteAudioStateChanged____ $state');
+        },
+        error: (err) {
+          print('__________________ error___________________ $err');
+        },
         userJoined: (int uid, int elapsed) {
           //print("remote user $uid joined");
           setState(() {
