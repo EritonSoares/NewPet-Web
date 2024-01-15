@@ -762,7 +762,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     if (validation) {
       _fetchRegisterAnamnese(
         _serviceQueue.queueId,
-        _complaintController.text,
+        _complaint == true || _complaint == null ? _complaintController.text : '',
         appetitId,
         waterIntakeId,
         urineStainingId,
@@ -1102,7 +1102,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
           print('remoteAudioStateChanged____ $state');
         },
         error: (err) {
-          print('__________________ error___________________ $err');
+          print('__________________ error____ $err');
         },
         userJoined: (int uid, int elapsed) {
           //print("remote user $uid joined");
@@ -5250,7 +5250,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
   final Map<String, String> stoolConsistencyList = {
     '1': 'Líquida',
     '2': 'Pastosa sem Formato',
-    '3': 'pastosa com Formato',
+    '3': 'Pastosa com Formato',
     '4': 'Seca',
   };
 
