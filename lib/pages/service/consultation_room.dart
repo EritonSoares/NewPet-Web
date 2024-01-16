@@ -162,6 +162,7 @@ String? _typeRegister;
 bool isWelcome = false;
 bool isProduct = false;
 bool isCompany = false;
+bool isRefusedHospital = false;
 bool isFaceToFaceConsultation = false;
 bool isHealthProgram = false;
 bool _isAgeReal = false;
@@ -208,6 +209,7 @@ int? brittleHairId;
 int? bodyStateId;
 int? bodyScoreId;
 int? finalClassificationId;
+int? reasonRefusedHospitalId;
 String _textValidation = '';
 int seconds = 0;
 int minutes = 0;
@@ -215,7 +217,9 @@ int hours = 0;
 String? _option;
 bool? validationEmergency;
 bool _isEmergency = false;
+bool _isHospitalAddress = false;
 int? hospitalId;
+String? hospitalAddress = 'Teste';
 
 late TabController _tabController;
 bool _isTabValid = true;
@@ -441,7 +445,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         _validateNothing,
         _validateNothing,
         _validateNothing,
-        _validateAnamnesisPage,
+        _validateNothing, //_validateAnamnesisPage,
         _validateNothing,
         _validateNothing,
         _validateFinalGuidelines,
@@ -762,7 +766,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     if (validation) {
       _fetchRegisterAnamnese(
         _serviceQueue.queueId,
-        _complaint == true || _complaint == null ? _complaintController.text : '',
+        _complaint == true || _complaint == null
+            ? _complaintController.text
+            : '',
         appetitId,
         waterIntakeId,
         urineStainingId,
@@ -890,11 +896,12 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     int? hospitalId,
   ) async {
     Map<String, dynamic> responseData = await registerFinalGuidelinesApi(
-      queueId,
-      finalClassificationId,
-      finalGuideliness,
-      hospitalId,
-    );
+        queueId,
+        finalClassificationId,
+        finalGuideliness,
+        hospitalId,
+        isRefusedHospital,
+        reasonRefusedHospitalId);
   }
 
   Future<void> _roomConfiguration() async {
@@ -1211,7 +1218,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                       children: [
                         Expanded(
                           child: SizedBox(
-                            height: 40,
+                            height: 45,
                             child: TextFormField(
                               style: const TextStyle(fontSize: 13.0),
                               enabled: false,
@@ -1233,7 +1240,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                         const SizedBox(width: 10.0),
                         Expanded(
                           child: SizedBox(
-                            height: 40,
+                            height: 45,
                             child: TextFormField(
                               style: const TextStyle(fontSize: 13.0),
                               enabled: false,
@@ -5753,10 +5760,10 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               urineVolumeId = int.parse(value!);
-                              if (waterIntakeId == 1) {
+                              if (urineVolumeId == 1) {
                                 _registerSymptomQuestion('C', 53);
                                 _registerSymptomQuestion('E', 51);
-                              } else if (waterIntakeId == 3) {
+                              } else if (urineVolumeId == 3) {
                                 _registerSymptomQuestion('C', 51);
                                 _registerSymptomQuestion('E', 53);
                               } else {
@@ -6118,6 +6125,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               tightBellyId = int.parse(value!);
+                              print('tightBellyId___ $tightBellyId');
                               if (tightBellyId == 1) {
                                 _registerSymptomQuestion('C', 12);
                               } else {
@@ -6188,7 +6196,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             ),
                             filled: true,
                             fillColor: Colors.white,
-                            labelText: 'Apresenta dor ao toque?(*)',
+                            labelText: 'Apresenta dor ao toque Abdominal?(*)',
                             labelStyle: const TextStyle(fontSize: 13.0),
                             contentPadding:
                                 const EdgeInsets.fromLTRB(10, 2, 10, 2),
@@ -7026,132 +7034,113 @@ class _AnamnesisPage extends State<AnamnesisPage>
                         child: Text('Error: ${snapshot.error}'),
                       );
                     } else {
-                      // final List<dynamic> data = snapshot.data!;
-                      if (snapshot.data!.isEmpty) {
-                        return Padding(
-                          padding: const EdgeInsets.all(15.0),
-                          child: Center(
-                            child: Text(_firstConsultation
-                                ? 'Clique no botão abaixo para efetuar a Consulta.'
-                                : 'Desculpe a pesquisa não retornou nenhuma informação.'),
-                          ),
-                        );
-                      } else {
-                        return Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Scrollbar(
-                              thumbVisibility: true,
-                              child: ListView.builder(
-                                itemCount: ConsultChatGPTData()
-                                    .consultChatGPTList
-                                    .length,
-                                itemBuilder: (context, index) {
-                                  final chatGPT = ConsultChatGPTData()
-                                      .consultChatGPTList[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Container(
-                                      height:
-                                          60, // Defina a altura desejada para o card
-                                      width: double
-                                          .infinity, // Defina a largura desejada para o card
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            child: ListView.builder(
+                              itemCount: ConsultChatGPTData()
+                                  .consultChatGPTList
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final chatGPT = ConsultChatGPTData()
+                                    .consultChatGPTList[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height:
+                                        60, // Defina a altura desejada para o card
+                                    width: double
+                                        .infinity, // Defina a largura desejada para o card
 
-                                      // Estilize o card com o BoxDecoration ou o Card widget
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.circular(10),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.5),
-                                            spreadRadius: 2,
-                                            blurRadius: 5,
-                                            offset: const Offset(0, 3),
-                                          ),
-                                        ],
-                                      ),
-                                      child: InkWell(
-                                        onTap: () {
-                                          //print(petVaccine.);
-                                          _chatGPTId = chatGPT.chatGPTId;
-                                          _showInfoDesease(
-                                              chatGPT.description!);
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Container(
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              0.0),
-                                                      child: Row(
-                                                        children: [
-                                                          Text(
-                                                            chatGPT
-                                                                .diseaseName!,
-                                                            style:
-                                                                const TextStyle(
-                                                                    fontSize:
-                                                                        18),
-                                                          ),
-                                                        ],
-                                                      ),
+                                    // Estilize o card com o BoxDecoration ou o Card widget
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        //print(petVaccine.);
+                                        _chatGPTId = chatGPT.chatGPTId;
+                                        _showInfoDesease(chatGPT.description!);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Container(
+                                                  alignment:
+                                                      Alignment.centerRight,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            0.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          chatGPT.diseaseName!,
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 18),
+                                                        ),
+                                                      ],
                                                     ),
                                                   ),
-                                                  Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    children: <Widget>[
-                                                      const Text(
-                                                        'Selecionar',
-                                                        style: TextStyle(
-                                                            fontSize: 10),
-                                                      ),
-                                                      Switch(
-                                                        value: chatGPT.selected,
-                                                        onChanged:
-                                                            (bool value) {
-                                                          //print(_chatGPTId);
-                                                          setState(() {
-                                                            _fetchRegisterDiseaseConsultChatGPT(
-                                                                chatGPT
-                                                                    .chatGPTId,
-                                                                value);
-                                                          });
-                                                        },
-                                                        activeTrackColor:
-                                                            Colors.lightGreen,
-                                                        activeColor:
-                                                            Colors.green,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    const Text(
+                                                      'Selecionar',
+                                                      style: TextStyle(
+                                                          fontSize: 10),
+                                                    ),
+                                                    Switch(
+                                                      value: chatGPT.selected,
+                                                      onChanged: (bool value) {
+                                                        //print(_chatGPTId);
+                                                        setState(() {
+                                                          _fetchRegisterDiseaseConsultChatGPT(
+                                                              chatGPT.chatGPTId,
+                                                              value);
+                                                        });
+                                                      },
+                                                      activeTrackColor:
+                                                          Colors.lightGreen,
+                                                      activeColor: Colors.green,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ),
-                                  );
-                                },
-                              ),
+                                  ),
+                                );
+                              },
                             ),
                           ),
-                        );
-                      }
+                        ),
+                      );
                     }
                   }),
             ],
@@ -8398,6 +8387,11 @@ class _FinalGuidelinesPage extends State<FinalGuidelinesPage> {
     '2': 'Emergência',
   };
 
+  final Map<String, String> reasonRefusedHospitalList = {
+    '1': 'Tutor fora da Área de Cobertura',
+    '2': 'Tutor recusou Hospitais Disponíveis',
+  };
+
   @override
   void initState() {
     super.initState();
@@ -8512,6 +8506,11 @@ class _FinalGuidelinesPage extends State<FinalGuidelinesPage> {
                 onChanged: (value) {
                   setState(() {
                     hospitalId = int.parse(value!);
+                    HospitalListModel? hospitalModel =
+                        _serviceQueue.hospitalList.firstWhere(
+                            (hospital) => hospital.hospitalId == hospitalId);
+                    hospitalAddress = hospitalModel.hospitalAddress;
+                    _isHospitalAddress = true;
                   });
                 },
                 items: _serviceQueue.hospitalList.map((hospital) {
@@ -8534,6 +8533,95 @@ class _FinalGuidelinesPage extends State<FinalGuidelinesPage> {
                   contentPadding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
                 ),
                 value: (hospitalId == null ? null : hospitalId.toString()),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          Visibility(
+            visible: _isHospitalAddress,
+            child: Container(
+              padding: const EdgeInsets.all(10),
+              width: double.maxFinite,
+              height: _serviceQueue.emergencyReleased! == true ? 40.0 : 80.0,
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.black, // Cor da borda
+                  width: 1.0, // Largura da borda
+                ),
+                borderRadius:
+                    BorderRadius.circular(8.0), // Raio dos cantos da borda
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Endereço: $hospitalAddress!',
+                      style: const TextStyle(fontSize: 13.0)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          Visibility(
+            visible: validationEmergency! &&
+                _serviceQueue.emergencyReleased! == true,
+            child: Row(
+              children: [
+                Checkbox(
+                  value: isRefusedHospital,
+                  onChanged: (bool? newValue) {
+                    setState(() {
+                      isRefusedHospital = newValue!;
+                    });
+                  },
+                ),
+                InkWell(
+                  onTap: () {
+                    setState(() {
+                      isRefusedHospital = !isRefusedHospital;
+                    });
+                  },
+                  child: const Text('Tutor não irá encaminhar PET ao Hospital.',
+                      style: const TextStyle(fontSize: 13.0)),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10.0),
+          Visibility(
+            visible: isRefusedHospital,
+            child: SizedBox(
+              height: 40,
+              child: DropdownButtonFormField<String>(
+                //validator: _validateDropDown,
+                isDense: true,
+                onChanged: (value) {
+                  setState(() {
+                    reasonRefusedHospitalId = int.parse(value!);
+                  });
+                },
+                items: reasonRefusedHospitalList.keys.map((key) {
+                  return DropdownMenuItem<String>(
+                    enabled: true,
+                    value: key,
+                    child: Text(
+                      reasonRefusedHospitalList[key]!,
+                      style: const TextStyle(fontSize: 13.0),
+                    ),
+                  );
+                }).toList(),
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  filled: true,
+                  fillColor: Colors.white,
+                  labelText: 'Motivo do não encaminhamento do PET ao Hospital?',
+                  labelStyle: const TextStyle(fontSize: 13.0),
+                  contentPadding: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                ),
+                value: (reasonRefusedHospitalId == null
+                    ? null
+                    : reasonRefusedHospitalId.toString()),
               ),
             ),
           ),
@@ -8659,7 +8747,7 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
           const SizedBox(height: 10.0),
           Container(
             width: double.maxFinite,
-            height: 500,
+            height: 452,
             decoration: BoxDecoration(
               color: Colors.white,
               border:
@@ -8668,7 +8756,7 @@ class _DiagnosticClosure extends State<DiagnosticClosure> {
             ),
             //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
             child: DefaultTabController(
-              length: 3, // Número de abas
+              length: 2, // Número de abas
               child: Scaffold(
                 appBar: AppBar(
                   toolbarHeight: 0,

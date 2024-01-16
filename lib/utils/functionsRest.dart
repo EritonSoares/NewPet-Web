@@ -2015,6 +2015,8 @@ Future<Map<String, int>> registerSymptomApi([
     };
   }
 
+  print(jsonEncode(jsonSend));
+
   try {
     final response = await http.post(
       Uri.parse(url),
@@ -2506,11 +2508,12 @@ Future<Map<String, dynamic>> registerAnamneseApi(
 }
 
 Future<Map<String, dynamic>> registerFinalGuidelinesApi(
-  int? queueId,
-  String? ultimatRisk,
-  String? guidelines,
-  int? hospitalId,
-) async {
+    int? queueId,
+    String? ultimatRisk,
+    String? guidelines,
+    int? hospitalId,
+    bool? isRefusedHospital,
+    int? reasonRefusedHospitalId) async {
   final random = Random();
   int randomInt = random.nextInt(10000);
   String url = 'https://adm.petner.com.br/RegisterFinalGuideLines?param=' +
@@ -2522,6 +2525,8 @@ Future<Map<String, dynamic>> registerFinalGuidelinesApi(
     'ultimatRisk': ultimatRisk,
     'guidelines': guidelines,
     'hospitalId': hospitalId,
+    'isRefusedHospital': isRefusedHospital,
+    'reasonRefusedHospitalId': reasonRefusedHospitalId,
   };
 
   try {
@@ -2578,6 +2583,8 @@ Future<List<ConsultChatGPTModel>> consultChatGPTApi(
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
+
+      print('consultChatGPTApi____ ${jsonDecode(response.body)}');
 
       for (var item in jsonData) {
         ConsultChatGPTModel consultChatGPTModel =
