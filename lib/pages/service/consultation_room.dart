@@ -445,7 +445,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         _validateNothing,
         _validateNothing,
         _validateNothing,
-        _validateNothing, //_validateAnamnesisPage,
+        _validateAnamnesisPage,
         _validateNothing,
         _validateNothing,
         _validateFinalGuidelines,
