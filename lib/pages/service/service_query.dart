@@ -282,6 +282,7 @@ class _ServiceQueryPageState extends State<ServiceQueryPage> {
                                             ),
                                             child: InkWell(
                                               onTap: () {
+                                                print(serviceQueueList[index].toJson());
                                                 _queueInformation(index);
                                               },
                                               child: Padding(

@@ -912,6 +912,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
   Future<void> _getQueue() async {
     String? serviceQueue = await UserPreferences.getQueue();
+
+    print(jsonDecode(serviceQueue!));
+    
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
 
     _tutorNameController.text = _serviceQueue.tutorName!;
@@ -2421,8 +2424,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                         children: [
                           Text(
                               _serviceQueue.homeReleased! == true
-                                  ? 'Consulta Domiciliar Liberada'
-                                  : 'Consulta Domiciliar Bloqueada',
+                                  ? 'Consulta Domiciliar Liberada ${_serviceQueue.homeReleased}'
+                                  : 'Consulta Domiciliar Bloqueada ${_serviceQueue.homeReleased}',
                               style: TextStyle(
                                   color: (!_serviceQueue.homeReleased!
                                       ? Colors.red
