@@ -6,7 +6,6 @@ import 'dart:developer';
 
 import 'package:custom_searchable_dropdown/custom_searchable_dropdown.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:flutter_screen_recording/flutter_screen_recording.dart';
 import 'package:flutter_titled_container/flutter_titled_container.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -448,7 +447,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         _validateNothing,
         _validateNothing,
         _validateNothing,
-        _validateNothing, //_validateAnamnesisPage,
+        _validateAnamnesisPage,
         _validateNothing,
         _validateNothing,
         _validateFinalGuidelines,
@@ -915,6 +914,9 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
   Future<void> _getQueue() async {
     String? serviceQueue = await UserPreferences.getQueue();
+
+    print(jsonDecode(serviceQueue!));
+
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
 
     _tutorNameController.text = _serviceQueue.tutorName!;
@@ -2424,8 +2426,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                         children: [
                           Text(
                               _serviceQueue.homeReleased! == true
-                                  ? 'Consulta Domiciliar Liberada'
-                                  : 'Consulta Domiciliar Bloqueada',
+                                  ? 'Consulta Domiciliar Liberada ${_serviceQueue.homeReleased}'
+                                  : 'Consulta Domiciliar Bloqueada ${_serviceQueue.homeReleased}',
                               style: TextStyle(
                                   color: (!_serviceQueue.homeReleased!
                                       ? Colors.red

@@ -1714,6 +1714,7 @@ Future<List<ServiceQueueModel>> serviceQueueListApi(int veterinaryId) async {
 
     if (response.statusCode == 200) {
       final jsonData = jsonDecode(response.body);
+
       for (var item in jsonData) {
         ServiceQueueModel healthEventFileType =
             ServiceQueueModel.fromJson(item);
