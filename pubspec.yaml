@@ -34,7 +34,7 @@ dependencies:
   firebase_core: ^2.16.0
   firebase_messaging: ^14.6.6
   flutter_local_notifications: ^15.1.0+1
-  agora_rtc_engine: ^5.1.1
+  agora_rtc_engine: ^5.3.1
   shared_preferences: ^2.1.1
   crypto: ^3.0.3
   http: ^1.1.0

@@ -6,6 +6,7 @@ import 'dart:developer';
 
 import 'package:custom_searchable_dropdown/custom_searchable_dropdown.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:flutter_screen_recording/flutter_screen_recording.dart';
 import 'package:flutter_titled_container/flutter_titled_container.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -289,6 +290,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             formattedTime =
                 '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
           });
+
+          //isJoined
         }
       });
 
