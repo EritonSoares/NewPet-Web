@@ -232,7 +232,7 @@ class ConsultationRoomPage extends StatefulWidget {
 }
 
 class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
-  late final RtcEngine _engine;
+  RtcEngine? _engine;
   late final List<Map<int, String>> typeService;
   late List<Map<int, String>> consultaOptions;
   List<Widget> _pages = [];
@@ -288,6 +288,13 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
             formattedTime =
                 '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+
+            if (seconds % 6 == 0 && !isJoined) {
+              print(
+                  'Não conectou no canal. tentando reconexão às $formattedTime');
+
+              _initEngine();
+            }
           });
 
           //isJoined
@@ -1031,15 +1038,15 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _dispose() async {
-    await _engine.stopScreenCapture();
-    await _engine.leaveChannel();
-    await _engine.destroy();
+    await _engine!.stopScreenCapture();
+    await _engine!.leaveChannel();
+    await _engine!.destroy();
   }
 
   Future<void> _startScreenShare() async {
     if (!shareScreen) {
       if (_engine != null) {
-        await _engine.startScreenCaptureByDisplayId(0);
+        await _engine!.startScreenCaptureByDisplayId(0);
 
         setState(() {
           shareScreen = true;
@@ -1047,7 +1054,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       }
     } else {
       if (_engine != null) {
-        await _engine.stopScreenCapture();
+        await _engine!.stopScreenCapture();
         // Potentially restart the camera feed here
         setState(() {
           shareScreen = false;
@@ -1077,7 +1084,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             source: 'shared/images/logo.jpg'));
     */
 
-    await _engine.enableVirtualBackground(
+    await _engine!.enableVirtualBackground(
         !_isEnabledVirtualBackgroundImage,
         VirtualBackgroundSource(
             backgroundSourceType: VirtualBackgroundSourceType.Blur,
@@ -1085,6 +1092,12 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     setState(() {
       _isEnabledVirtualBackgroundImage = !_isEnabledVirtualBackgroundImage;
     });
+  }
+
+  Future<String> _sendRTCTokenTutor(int petId, int queueId) async {
+    final roomToken = await sendRTCTokenTutorApi(petId, queueId);
+
+    return roomToken;
   }
 
   Future<void> _initEngine() async {
@@ -1097,16 +1110,18 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     //await <Permission>[Permission.microphone, Permission.camera].request();
     _engine = await RtcEngine.create(appId);
 
-    await _engine.enableVideo();
-    await _engine.enableLocalVideo(true);
-    await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
-    await _engine.setClientRole(ClientRole.Broadcaster);
-    await _engine.startPreview();
+    await _engine!.enableVideo();
+    await _engine!.enableLocalVideo(true);
+    await _engine!.setChannelProfile(ChannelProfile.LiveBroadcasting);
+    await _engine!.setClientRole(ClientRole.Broadcaster);
+    await _engine!.startPreview();
 
-    _engine.setEventHandler(
+    _engine!.setEventHandler(
       RtcEngineEventHandler(
         joinChannelSuccess: (String channelName, int uid, int elapsed) {
+          _sendRTCTokenTutor(_serviceQueue.petId, _serviceQueue.queueId);
           setState(() {
+            print('Conectou no canal.');
             isJoined = true;
           });
         },
@@ -1136,26 +1151,26 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
   Future<void> _joinChannel() async {
     //print('joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
-    await _engine.joinChannel(_token, _channel!, null, int.parse(_crmv!));
+    await _engine!.joinChannel(_token, _channel!, null, int.parse(_crmv!));
   }
 
   Future<void> _toggleMicrophone() async {
-    await _engine.enableLocalAudio(!enabledAudio);
+    await _engine!.enableLocalAudio(!enabledAudio);
     setState(() {
       enabledAudio = !enabledAudio;
     });
   }
 
   Future<void> _toggleCamera() async {
-    await _engine.enableLocalVideo(!enableCamera);
+    await _engine!.enableLocalVideo(!enableCamera);
     setState(() {
       enableCamera = !enableCamera;
     });
   }
 
   Future<void> _leaveChannel() async {
-    await _engine.stopScreenCapture();
-    await _engine.leaveChannel();
+    await _engine!.stopScreenCapture();
+    await _engine!.leaveChannel();
     //Navigator.of(context).pop();
   }
 

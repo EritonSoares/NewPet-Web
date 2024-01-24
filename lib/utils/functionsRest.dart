@@ -1773,6 +1773,47 @@ Future<String> getRTCTokenApi(
   return token;
 }
 
+Future<String> sendRTCTokenTutorApi(int petId, int roomNameId) async {
+  final random = Random();
+  int randomInt = random.nextInt(10000);
+  String url = 'https://adm.petner.com.br/SendRTCTokenTutor?param=' +
+      randomInt.toString();
+  String token = '0';
+
+  Map<String, dynamic> sendRoom = {
+    'petId': petId,
+    'roomNameId': roomNameId,
+  };
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': headerBasic
+      },
+      body: jsonEncode(sendRoom),
+    );
+
+    print(jsonEncode(sendRoom));
+
+    if (response.statusCode == 200) {
+      token = jsonDecode(response.body);
+    } else {
+      token = '-1';
+      // A resposta não foi bem-sucedida
+      print(
+          '_Erro na solicitação POST sendRTCTokenTutorApi: ${response.statusCode}');
+    }
+  } catch (e) {
+    token = '-2';
+    // Ocorreu um erro durante a solicitação
+    print('Erro na solicitação GET sendRTCTokenTutorApi: $e');
+  }
+
+  return token;
+}
+
 Future<Map<String, dynamic>> registerDiseaseApi([
   String? option,
   String? petId,
