@@ -79,7 +79,7 @@ import 'package:petner_web/utils/functions.dart';
 import 'package:petner_web/utils/functionsRest.dart';
 import 'package:petner_web/utils/routes.dart';
 
-const appId = "a12600dd0e80435ca0a1efc4660cbe6b";
+const appId = "c1dc5ada18ed420a8fd3ef4b24ecc6c8";
 //const token = "006a12600dd0e80435ca0a1efc4660cbe6bIABA0Ug4bFpjYxdjWXx//De36mr93wxw9jsOjttA0Li+BEwKp+vpr4RpIgBOqzEBnUoEZQQAAQAtBwNlAgAtBwNlAwAtBwNlBAAtBwNl";
 //const channel = "petner";
 late ServiceQueueModel _serviceQueue;
@@ -289,11 +289,16 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             formattedTime =
                 '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
-            if (seconds % 6 == 0 && !isJoined) {
+            if (seconds % 12 == 0 && !isJoined) {
               print(
                   'Não conectou no canal. tentando reconexão às $formattedTime');
-
+              print('____________ Dispose _____________')    ;
+              _dispose();
+              print('____________ Camera _____________')    ;
+              html.window.navigator.getUserMedia(audio: true, video: true);
+              print('____________ iniEngine _____________')    ;
               _initEngine();
+              print('____________ XXXXXX _____________')    ;
             }
           });
 
@@ -1150,7 +1155,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _joinChannel() async {
-    //print('joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
+    print('joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
     await _engine!.joinChannel(_token, _channel!, null, int.parse(_crmv!));
   }
 
