@@ -19,7 +19,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             height: 150, // Altura desejada do logotipo
           ),
           const SizedBox(width: 10), // Espaço entre a imagem e o texto
-          const Text('Sistema de Atendimento Veterinário (1.0.0.21)',
+          const Text('Sistema de Atendimento Veterinário (1.0.0.43)',
               textAlign: TextAlign.center),
         ],
       ),

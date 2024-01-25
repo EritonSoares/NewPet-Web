@@ -221,6 +221,7 @@ bool _isHospitalAddress = false;
 bool _isRemoteAudio = true;
 int? hospitalId;
 String? hospitalAddress = 'Teste';
+int xteste = 0;
 
 late TabController _tabController;
 bool _isTabValid = true;
@@ -233,7 +234,7 @@ class ConsultationRoomPage extends StatefulWidget {
 }
 
 class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
-  late final RtcEngine _engine;
+  late RtcEngine _engine;
   late final List<Map<int, String>> typeService;
   late List<Map<int, String>> consultaOptions;
   List<Widget> _pages = [];
@@ -241,10 +242,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   int _currentPageIndex = 0;
   late String? _token, _channel, _crmv;
   bool _isEnabledVirtualBackgroundImage = false;
-  bool isJoined = false,
-      enabledAudio = true,
-      enableCamera = true,
-      shareScreen = false;
+  bool isJoined = false;
+  bool enabledAudio = true, enableCamera = true, shareScreen = false;
   int? _remoteUid;
   String? formattedTime =
       '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
@@ -290,18 +289,18 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             formattedTime =
                 '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
-            if (seconds % 10 == 0 && !isJoined) {
+            if (seconds % 7 == 0 && !isJoined) {
               print(
                   'Não conectou no canal. tentando reconexão às $formattedTime');
-              //print('____________ Dispose _____________');
-              _dispose();
-              print('____________ Camera _____________');
-              html.window.navigator.getUserMedia(audio: true, video: true);
-              //print('____________ iniEngine _____________');
-              //_initEngine();
-              print('____________ _joinChannel _____________');
-              _joinChannel();
-              print('____________ XXXXXX _____________');
+              _dispose2().then((value) {
+                print('____________ Camera _____________');
+                html.window.navigator.getUserMedia(audio: true, video: true);
+                print('____________ iniEngine _____________');
+                _initEngine();
+              });
+              //print('____________ _joinChannel _____________');
+              //_joinChannel();
+              //print('____________ XXXXXX _____________');
             }
           });
 
@@ -1044,9 +1043,30 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _dispose() async {
-    await _engine.stopScreenCapture();
-    await _engine.leaveChannel();
-    await _engine.destroy();
+    try {
+      print('___________________ Iniciou o Dispose');
+      await _engine.stopScreenCapture();
+      await _engine.stopPreview();
+      await _engine.leaveChannel();
+      await _engine.destroy();
+      print('___________________ Finalizou o Dispose');
+    } catch (e) {
+      print(
+          '------------------------------------------------ erro dispose ----------------------- ${e.toString()}');
+    }
+  }
+
+  Future<void> _dispose2() async {
+    try {
+      print('___________________ Iniciou o Dispose2');
+      await _engine.stopScreenCapture();
+      await _engine.stopPreview();
+      await _engine.leaveChannel();
+      print('___________________ Finalizou o Dispose2');
+    } catch (e) {
+      print(
+          '------------------------------------------------ erro dispose ----------------------- ${e.toString()}');
+    }
   }
 
   Future<void> _startScreenShare() async {
@@ -1107,20 +1127,45 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _initEngine() async {
-    try {
-      await html.window.navigator.getUserMedia(audio: true, video: true);
-    } catch (e) {
-      print('Erro ao verificar a câmera: $e');
+    if (xteste == 0) {
+      print('___________________ Iniciou Verificação da Câmera');
+      try {
+        await html.window.navigator.getUserMedia(audio: true, video: true);
+      } catch (e) {
+        print('Erro ao verificar a câmera: $e');
+      }
+      print('___________________ Terminou Verificação da Câmera');
     }
 
     //await <Permission>[Permission.microphone, Permission.camera].request();
-    _engine = await RtcEngine.create(appId);
+    print('___________________ Iniciou _engine - $xteste ----');
+    if (xteste == 0) {
+      _engine = await RtcEngine.create(appId);
+      xteste += 1;
+    }
 
+    print('---------------------------------- 1');
     await _engine.enableVideo();
+    print('---------------------------------- 2');
     await _engine.enableLocalVideo(true);
+    print('---------------------------------- 3');
     await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
+    print('---------------------------------- 4');
     await _engine.setClientRole(ClientRole.Broadcaster);
-    await _engine.startPreview();
+    print('---------------------------------- 5');
+
+/*
+    if(xteste == 0){
+      xteste += 1;
+      throw TimeoutException('------------------------- Tempo limite atingido');      
+    }
+*/
+    await _engine.startPreview().timeout(const Duration(seconds: 3),
+        onTimeout: () {
+      print("---------------------------------- não abriu a câmera");
+      throw TimeoutException('------------------------- Tempo limite atingido');
+    });
+    print('---------------------------------- 6');
 
     _engine.setEventHandler(
       RtcEngineEventHandler(
@@ -1145,6 +1190,12 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         error: (err) {
           print('__________________ error____ $err');
         },
+        rejoinChannelSuccess: (channel, uid, elapsed) {
+          print('________________ rejoinChannelSuccess');
+          print(channel);
+          print(uid);
+          print(elapsed);
+        },
         userJoined: (int uid, int elapsed) {
           //print("remote user $uid joined");
           setState(() {
@@ -1160,7 +1211,11 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       ),
     );
 
+    print('___________________ Finalizou _engine');
+
+    print('___________________ Iniciou o JOIN');
     _joinChannel();
+    print('___________________ Finalizou o JOIN');
   }
 
   Future<void> _joinChannel() async {
@@ -1600,11 +1655,10 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             child: Container(
               height: 70,
               color: Colors.black.withOpacity(0.3),
-              width: MediaQuery.of(context).size.width,
+              width: (MediaQuery.of(context).size.width * 60 / 100),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  /*
                   Text(
                     'Tutor desativou o Áudio',
                     style: TextStyle(
@@ -1617,7 +1671,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                   const SizedBox(
                     width: 16,
                   ),
-                  */
                   MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
@@ -1704,43 +1757,33 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                   const SizedBox(
                     width: 16,
                   ),
-                  MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTap: () {
-                        //_startScreenShare();
-                        _enableVirtualBackground();
-                      },
-                      child: Container(
-                        height: 48,
-                        width: 48,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          color: Colors.white,
-                        ),
-                        child: Center(
-                          child: Icon(
-                            shareScreen
-                                ? Icons.stop_circle
-                                : Icons.screen_share,
-                            color: Colors.black,
-                          ),
+                  /*
+                MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTap: () {
+                      //_startScreenShare();
+                      _enableVirtualBackground();
+                    },
+                    child: Container(
+                      height: 48,
+                      width: 48,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(24),
+                        color: Colors.white,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          shareScreen
+                              ? Icons.stop_circle
+                              : Icons.screen_share,
+                          color: Colors.black,
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(
-                    width: 16,
-                  ),
-                  Text(
-                    'Tutor desativou o Áudio',
-                    style: TextStyle(
-                        color:
-                            !_isRemoteAudio ? Colors.red : Colors.transparent,
-                        backgroundColor: !_isRemoteAudio
-                            ? Colors.white
-                            : Colors.transparent),
-                  ),
+                ),
+                */
                 ],
               ),
             ),
