@@ -1795,8 +1795,6 @@ Future<String> sendRTCTokenTutorApi(int petId, int roomNameId) async {
       body: jsonEncode(sendRoom),
     );
 
-    print(jsonEncode(sendRoom));
-
     if (response.statusCode == 200) {
       token = jsonDecode(response.body);
     } else {

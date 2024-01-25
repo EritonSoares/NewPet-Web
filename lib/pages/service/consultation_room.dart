@@ -218,6 +218,7 @@ String? _option;
 bool? validationEmergency;
 bool _isEmergency = false;
 bool _isHospitalAddress = false;
+bool _isRemoteAudio = true;
 int? hospitalId;
 String? hospitalAddress = 'Teste';
 
@@ -232,7 +233,7 @@ class ConsultationRoomPage extends StatefulWidget {
 }
 
 class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
-  RtcEngine? _engine;
+  late final RtcEngine _engine;
   late final List<Map<int, String>> typeService;
   late List<Map<int, String>> consultaOptions;
   List<Widget> _pages = [];
@@ -289,16 +290,18 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             formattedTime =
                 '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
-            if (seconds % 12 == 0 && !isJoined) {
+            if (seconds % 10 == 0 && !isJoined) {
               print(
                   'Não conectou no canal. tentando reconexão às $formattedTime');
-              print('____________ Dispose _____________')    ;
+              //print('____________ Dispose _____________');
               _dispose();
-              print('____________ Camera _____________')    ;
+              print('____________ Camera _____________');
               html.window.navigator.getUserMedia(audio: true, video: true);
-              print('____________ iniEngine _____________')    ;
-              _initEngine();
-              print('____________ XXXXXX _____________')    ;
+              //print('____________ iniEngine _____________');
+              //_initEngine();
+              print('____________ _joinChannel _____________');
+              _joinChannel();
+              print('____________ XXXXXX _____________');
             }
           });
 
@@ -927,8 +930,6 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   Future<void> _getQueue() async {
     String? serviceQueue = await UserPreferences.getQueue();
 
-    print(jsonDecode(serviceQueue!));
-
     _serviceQueue = ServiceQueueModel.fromJson(jsonDecode(serviceQueue!));
 
     _tutorNameController.text = _serviceQueue.tutorName!;
@@ -1043,15 +1044,15 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _dispose() async {
-    await _engine!.stopScreenCapture();
-    await _engine!.leaveChannel();
-    await _engine!.destroy();
+    await _engine.stopScreenCapture();
+    await _engine.leaveChannel();
+    await _engine.destroy();
   }
 
   Future<void> _startScreenShare() async {
     if (!shareScreen) {
       if (_engine != null) {
-        await _engine!.startScreenCaptureByDisplayId(0);
+        await _engine.startScreenCaptureByDisplayId(0);
 
         setState(() {
           shareScreen = true;
@@ -1059,7 +1060,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       }
     } else {
       if (_engine != null) {
-        await _engine!.stopScreenCapture();
+        await _engine.stopScreenCapture();
         // Potentially restart the camera feed here
         setState(() {
           shareScreen = false;
@@ -1089,7 +1090,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             source: 'shared/images/logo.jpg'));
     */
 
-    await _engine!.enableVirtualBackground(
+    await _engine.enableVirtualBackground(
         !_isEnabledVirtualBackgroundImage,
         VirtualBackgroundSource(
             backgroundSourceType: VirtualBackgroundSourceType.Blur,
@@ -1115,13 +1116,13 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     //await <Permission>[Permission.microphone, Permission.camera].request();
     _engine = await RtcEngine.create(appId);
 
-    await _engine!.enableVideo();
-    await _engine!.enableLocalVideo(true);
-    await _engine!.setChannelProfile(ChannelProfile.LiveBroadcasting);
-    await _engine!.setClientRole(ClientRole.Broadcaster);
-    await _engine!.startPreview();
+    await _engine.enableVideo();
+    await _engine.enableLocalVideo(true);
+    await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
+    await _engine.setClientRole(ClientRole.Broadcaster);
+    await _engine.startPreview();
 
-    _engine!.setEventHandler(
+    _engine.setEventHandler(
       RtcEngineEventHandler(
         joinChannelSuccess: (String channelName, int uid, int elapsed) {
           _sendRTCTokenTutor(_serviceQueue.petId, _serviceQueue.queueId);
@@ -1131,7 +1132,15 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
           });
         },
         remoteAudioStateChanged: (uid, state, reason, elapsed) {
-          print('remoteAudioStateChanged____ $state');
+          print('remoteAudioStateChanged____ ${state.name}');
+
+          if (state.name == 'Decoding') {
+            _isRemoteAudio = true;
+          } else {
+            _isRemoteAudio = false;
+          }
+
+          print('_isRemoteAudio______ $_isRemoteAudio');
         },
         error: (err) {
           print('__________________ error____ $err');
@@ -1155,27 +1164,28 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _joinChannel() async {
-    print('joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
-    await _engine!.joinChannel(_token, _channel!, null, int.parse(_crmv!));
+    print(
+        'joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
+    await _engine.joinChannel(_token, _channel!, null, int.parse(_crmv!));
   }
 
   Future<void> _toggleMicrophone() async {
-    await _engine!.enableLocalAudio(!enabledAudio);
+    await _engine.enableLocalAudio(!enabledAudio);
     setState(() {
       enabledAudio = !enabledAudio;
     });
   }
 
   Future<void> _toggleCamera() async {
-    await _engine!.enableLocalVideo(!enableCamera);
+    await _engine.enableLocalVideo(!enableCamera);
     setState(() {
       enableCamera = !enableCamera;
     });
   }
 
   Future<void> _leaveChannel() async {
-    await _engine!.stopScreenCapture();
-    await _engine!.leaveChannel();
+    await _engine.stopScreenCapture();
+    await _engine.leaveChannel();
     //Navigator.of(context).pop();
   }
 
@@ -1223,7 +1233,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                 child: Column(
                   children: [
                     // Descomentar para funcionar Vídeo
-                    _videoConsultation(),
+                    _videoConsultation(context),
                   ],
                 ),
               ),
@@ -1563,7 +1573,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     );
   }
 
-  Widget _videoConsultation() {
+  Widget _videoConsultation(BuildContext context) {
     return Expanded(
       child: Stack(
         children: <Widget>[
@@ -1586,130 +1596,155 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             ),
           ),
           Positioned(
-              bottom: 0,
-              child: Container(
-                height: 70,
-                color: Colors.black.withOpacity(0.3),
-                width: MediaQuery.of(context).size.width,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () {
-                          _toggleMicrophone();
-                        },
-                        child: Container(
-                          height: 48,
-                          width: 48,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              enabledAudio ? Icons.mic : Icons.mic_off_rounded,
-                              color: Colors.black,
-                            ),
+            bottom: 0,
+            child: Container(
+              height: 70,
+              color: Colors.black.withOpacity(0.3),
+              width: MediaQuery.of(context).size.width,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  /*
+                  Text(
+                    'Tutor desativou o Áudio',
+                    style: TextStyle(
+                        color:
+                            !_isRemoteAudio ? Colors.red : Colors.transparent,
+                        backgroundColor: !_isRemoteAudio
+                            ? Colors.white
+                            : Colors.transparent),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  */
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        _toggleMicrophone();
+                      },
+                      child: Container(
+                        height: 48,
+                        width: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          color: Colors.white,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            enabledAudio ? Icons.mic : Icons.mic_off_rounded,
+                            color: Colors.black,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 16,
-                    ),
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () {
-                          _leaveChannel();
-                        },
-                        child: Container(
-                          height: 48,
-                          width: 48,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            color: Colors.red,
-                          ),
-                          child: const Center(
-                            child: Icon(
-                              Icons.call_end,
-                              color: Colors.black,
-                            ),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        _leaveChannel();
+                      },
+                      child: Container(
+                        height: 48,
+                        width: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          color: Colors.red,
+                        ),
+                        child: const Center(
+                          child: Icon(
+                            Icons.call_end,
+                            color: Colors.black,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 16,
-                    ),
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () {
-                          _toggleCamera();
-                        },
-                        child: Container(
-                          height: 48,
-                          width: 48,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            color: Colors.white,
-                          ),
-                          child: Stack(
-                            children: <Widget>[
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        _toggleCamera();
+                      },
+                      child: Container(
+                        height: 48,
+                        width: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          color: Colors.white,
+                        ),
+                        child: Stack(
+                          children: <Widget>[
+                            const Center(
+                              child: Icon(
+                                Icons.video_camera_front_outlined,
+                                color: Colors.black,
+                              ),
+                            ),
+                            if (!enableCamera)
                               const Center(
                                 child: Icon(
-                                  Icons.video_camera_front_outlined,
-                                  color: Colors.black,
+                                  Icons.cancel_outlined,
+                                  size: 38,
                                 ),
-                              ),
-                              if (!enableCamera)
-                                const Center(
-                                  child: Icon(
-                                    Icons.cancel_outlined,
-                                    size: 38,
-                                  ),
-                                )
-                            ],
+                              )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        //_startScreenShare();
+                        _enableVirtualBackground();
+                      },
+                      child: Container(
+                        height: 48,
+                        width: 48,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          color: Colors.white,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            shareScreen
+                                ? Icons.stop_circle
+                                : Icons.screen_share,
+                            color: Colors.black,
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(
-                      width: 16,
-                    ),
-                    /*
-                    MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () {
-                          //_startScreenShare();
-                          _enableVirtualBackground();
-                        },
-                        child: Container(
-                          height: 48,
-                          width: 48,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              shareScreen
-                                  ? Icons.stop_circle
-                                  : Icons.screen_share,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                    */
-                  ],
-                ),
-              )),
+                  ),
+                  const SizedBox(
+                    width: 16,
+                  ),
+                  Text(
+                    'Tutor desativou o Áudio',
+                    style: TextStyle(
+                        color:
+                            !_isRemoteAudio ? Colors.red : Colors.transparent,
+                        backgroundColor: !_isRemoteAudio
+                            ? Colors.white
+                            : Colors.transparent),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );
