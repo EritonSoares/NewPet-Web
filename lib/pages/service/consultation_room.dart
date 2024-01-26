@@ -14,9 +14,7 @@ import 'package:petner_web/custom/custom_appbar.dart';
 import 'package:petner_web/custom/custom_drawer.dart';
 import 'dart:html' as html;
 
-import 'package:agora_rtc_engine/rtc_engine.dart';
-import 'package:agora_rtc_engine/rtc_local_view.dart' as RtcLocalView;
-import 'package:agora_rtc_engine/rtc_remote_view.dart' as RtcRemoteView;
+import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:petner_web/models/cityModel.dart';
 import 'package:petner_web/models/coatModel.dart';
 import 'package:petner_web/models/consultChatGPTModel.dart';
@@ -289,6 +287,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
             formattedTime =
                 '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
+/*
             if (seconds % 7 == 0 && !isJoined) {
               print(
                   'Não conectou no canal. tentando reconexão às $formattedTime');
@@ -302,6 +301,8 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
               //_joinChannel();
               //print('____________ XXXXXX _____________');
             }
+*/
+
           });
 
           //isJoined
@@ -1048,7 +1049,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       await _engine.stopScreenCapture();
       await _engine.stopPreview();
       await _engine.leaveChannel();
-      await _engine.destroy();
+      await _engine.release();
       print('___________________ Finalizou o Dispose');
     } catch (e) {
       print(
@@ -1069,28 +1070,10 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     }
   }
 
-  Future<void> _startScreenShare() async {
-    if (!shareScreen) {
-      if (_engine != null) {
-        await _engine.startScreenCaptureByDisplayId(0);
-
-        setState(() {
-          shareScreen = true;
-        });
-      }
-    } else {
-      if (_engine != null) {
-        await _engine.stopScreenCapture();
-        // Potentially restart the camera feed here
-        setState(() {
-          shareScreen = false;
-        });
-      }
-    }
-  }
-
   Future<void> _enableVirtualBackground() async {
-    VirtualBackgroundSource virtualBackgroundSource;
+    //await _engine.enableVirtualBackground(enabled: true, backgroundSource: , segproperty: segproperty)
+    /*
+    //VirtualBackgroundSource virtualBackgroundSource;
     //virtualBackgroundSource = VirtualBackgroundSource(
     //    backgroundSourceType: VirtualBackgroundSourceType.Img,
     //    source: "shared/images/logo.jpg");
@@ -1118,6 +1101,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
     setState(() {
       _isEnabledVirtualBackgroundImage = !_isEnabledVirtualBackgroundImage;
     });
+    */
   }
 
   Future<String> _sendRTCTokenTutor(int petId, int queueId) async {
@@ -1127,57 +1111,42 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
   }
 
   Future<void> _initEngine() async {
-    if (xteste == 0) {
-      print('___________________ Iniciou Verificação da Câmera');
       try {
         await html.window.navigator.getUserMedia(audio: true, video: true);
       } catch (e) {
         print('Erro ao verificar a câmera: $e');
       }
-      print('___________________ Terminou Verificação da Câmera');
-    }
 
-    //await <Permission>[Permission.microphone, Permission.camera].request();
-    print('___________________ Iniciou _engine - $xteste ----');
-    if (xteste == 0) {
-      _engine = await RtcEngine.create(appId);
-      xteste += 1;
-    }
+      //_engine = await RtcEngine.create(appId);
+      _engine = createAgoraRtcEngine();
+      await _engine.initialize(const RtcEngineContext(
+        appId: appId,
+        channelProfile: ChannelProfileType.channelProfileLiveBroadcasting,
+      ));
 
-    print('---------------------------------- 1');
     await _engine.enableVideo();
-    print('---------------------------------- 2');
-    await _engine.enableLocalVideo(true);
-    print('---------------------------------- 3');
-    await _engine.setChannelProfile(ChannelProfile.LiveBroadcasting);
-    print('---------------------------------- 4');
-    await _engine.setClientRole(ClientRole.Broadcaster);
-    print('---------------------------------- 5');
+    await _engine.setClientRole(role: ClientRoleType.clientRoleBroadcaster);
+    await _engine.startPreview();
 
-/*
-    if(xteste == 0){
-      xteste += 1;
-      throw TimeoutException('------------------------- Tempo limite atingido');      
-    }
-*/
-    await _engine.startPreview().timeout(const Duration(seconds: 3),
-        onTimeout: () {
-      print("---------------------------------- não abriu a câmera");
-      throw TimeoutException('------------------------- Tempo limite atingido');
-    });
-    print('---------------------------------- 6');
-
-    _engine.setEventHandler(
+    _engine.registerEventHandler(
       RtcEngineEventHandler(
-        joinChannelSuccess: (String channelName, int uid, int elapsed) {
+        onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
           _sendRTCTokenTutor(_serviceQueue.petId, _serviceQueue.queueId);
           setState(() {
             print('Conectou no canal.');
             isJoined = true;
           });
         },
-        remoteAudioStateChanged: (uid, state, reason, elapsed) {
-          print('remoteAudioStateChanged____ ${state.name}');
+        onRemoteAudioStats: (connection, stats) {
+            print('onRemoteAudioStats____ $stats');
+        },
+        onAudioDeviceStateChanged: (deviceId, deviceType, deviceState) {
+            print('onAudioDeviceStateChanged____ $deviceState');          
+        },
+        /*
+        onRemoteAudioStateChanged: (connection, remoteUid, state, reason, elapsed) {
+          print('remoteAudioStateChanged____ ${state.toString()}');
+          //print('remoteAudioStateChanged____ ${state.name}');
 
           if (state.name == 'Decoding') {
             _isRemoteAudio = true;
@@ -1187,22 +1156,25 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
           print('_isRemoteAudio______ $_isRemoteAudio');
         },
-        error: (err) {
+        */
+        onUserMuteAudio: (connection, remoteUid, muted) {
+            print('onUserMuteAudio____ $muted');          
+            if (!muted) {
+              _isRemoteAudio = true;
+            } else {
+              _isRemoteAudio = false;
+            }
+        },
+        onError: (err, msg) {
           print('__________________ error____ $err');
         },
-        rejoinChannelSuccess: (channel, uid, elapsed) {
-          print('________________ rejoinChannelSuccess');
-          print(channel);
-          print(uid);
-          print(elapsed);
-        },
-        userJoined: (int uid, int elapsed) {
+        onUserJoined: (connection, remoteUid, elapsed) {
           //print("remote user $uid joined");
           setState(() {
-            _remoteUid = uid;
+            _remoteUid = remoteUid;
           });
         },
-        userOffline: (int uid, UserOfflineReason reason) {
+        onUserOffline: (connection, remoteUid, reason) {
           //print("remote user $uid left channel");
           setState(() {
             _remoteUid = null;
@@ -1211,17 +1183,18 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       ),
     );
 
-    print('___________________ Finalizou _engine');
-
-    print('___________________ Iniciou o JOIN');
     _joinChannel();
-    print('___________________ Finalizou o JOIN');
   }
 
   Future<void> _joinChannel() async {
     print(
         'joined channed: _engine.joinChannel($_token, $_channel, null, ${int.parse(_crmv!)})');
-    await _engine.joinChannel(_token, _channel!, null, int.parse(_crmv!));
+    await _engine.joinChannel(
+      token: _token!, 
+      channelId: _channel!, 
+      uid: int.parse(_crmv!), 
+      options: const ChannelMediaOptions()
+    );
   }
 
   Future<void> _toggleMicrophone() async {
@@ -1246,9 +1219,12 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
 
   Widget _remoteVideo() {
     if (_remoteUid != null) {
-      return RtcRemoteView.SurfaceView(
-        uid: _remoteUid!,
-        channelId: '.......',
+      return AgoraVideoView(
+        controller: VideoViewController.remote(
+          rtcEngine: _engine,
+          canvas: VideoCanvas(uid: _remoteUid),
+          connection: RtcConnection(channelId: _channel),
+        ),
       );
     } else {
       return Text(
@@ -1644,7 +1620,12 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
               width: 130,
               color: Colors.black,
               child: isJoined
-                  ? const RtcLocalView.SurfaceView()
+                  ? AgoraVideoView(
+                        controller: VideoViewController(
+                          rtcEngine: _engine,
+                          canvas: const VideoCanvas(uid: 0),
+                        ),
+                      )
                   : const Center(
                       child: CircularProgressIndicator(),
                     ),
@@ -1660,7 +1641,7 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
                   Text(
-                    'Tutor desativou o Áudio',
+                    'Tutor desativou o Microfone',
                     style: TextStyle(
                         color:
                             !_isRemoteAudio ? Colors.red : Colors.transparent,
