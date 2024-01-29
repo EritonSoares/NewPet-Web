@@ -497,6 +497,34 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
       ];
 
       _screningController.text = _serviceQueue.screeningName!;
+    }  else if (_selectedTypeService == 5) {
+      _isQuestionComplaintVisible = false;
+      _isComplaint = true;
+      _pages = [
+        const UpdateRegistrationDataPage(),
+        const VaccineRegistrationPage(),
+        const ChronicHealthConditionPage(),
+        const ServiceHistoryPage(),
+        const HealthProgramPagePet(),
+        const AnamnesisPage2(),
+        const DiagnosticClosure(),
+        const PrescriptionReferralPage(),        
+        const FinalGuidelinesPage(),
+      ];
+
+      _validationFunctions = [
+        _validateUpdateRegistrationData,
+        _validateNothing,
+        _validateNothing, 
+        _validateNothing,
+        _validateNothing,
+        _validateAnamnesisPage2,
+        _validateNothing,
+        _validateNothing,
+        _validateFinalGuidelines,
+      ];
+
+      _screningController.text = _serviceQueue.screeningName!;
     } else if (_selectedTypeService == 100) {
       _pages = [
         const CheckoutPage(),
@@ -809,6 +837,64 @@ class _ConsultationRoomPageState extends State<ConsultationRoomPage> {
         restlessId,
         dullHairId,
         brittleHairId,
+      );
+    }
+
+    return validation;
+  }
+
+  bool _validateAnamnesisPage2() {
+    bool validation = true;
+
+    if (_isComplaint) {
+      _textValidation = '';
+
+      if (_complaintController.text.isEmpty) {
+        _textValidation += 'Informe a Queixa\n';
+        validation = false;
+      }
+
+      if (PetSymptomData().petSymptomList.isEmpty) {
+        _textValidation += 'Inserir possíveis Sintomas na aba SINTOMA\n';
+        validation = false;
+      }
+    } else {
+      _textValidation = '';
+      if (_complaint == null) {
+        _textValidation += 'Selecionar Sim ou Não na pergunta\n';
+        validation = false;
+      }
+    }
+
+    if (validation) {
+      _fetchRegisterAnamnese(
+        _serviceQueue.queueId,
+        _complaint == true || _complaint == null
+            ? _complaintController.text
+            : '',
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
       );
     }
 
@@ -2505,8 +2591,8 @@ class _UpdateRegistrationDataPage extends State<UpdateRegistrationDataPage> {
                         children: [
                           Text(
                               _serviceQueue.homeReleased! == true
-                                  ? 'Consulta Domiciliar Liberada ${_serviceQueue.homeReleased}'
-                                  : 'Consulta Domiciliar Bloqueada ${_serviceQueue.homeReleased}',
+                                  ? 'Consulta Domiciliar Liberada'
+                                  : 'Consulta Domiciliar Bloqueada',
                               style: TextStyle(
                                   color: (!_serviceQueue.homeReleased!
                                       ? Colors.red
@@ -5520,11 +5606,10 @@ class _AnamnesisPage extends State<AnamnesisPage>
     return responseData['validateRegisterSymptom'];
     //}
 
-    setState(() {
-      _isLoading = false;
-    });
-
-    return 4;
+    //setState(() {
+    //  _isLoading = false;
+    //});
+    //return 4;
   }
 
   @override
@@ -6755,6 +6840,898 @@ class _AnamnesisPage extends State<AnamnesisPage>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _symptomTab() {
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 400,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color.fromARGB(255, 206, 205, 205)),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+          child: Column(
+            children: [
+              const SizedBox(width: 10.0),
+              FutureBuilder<List<dynamic>>(
+                  future: _fetchPetSymptoms(),
+                  builder: (context, snapshot) {
+                    /*if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    } else */
+                    if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else {
+                      // final List<dynamic> data = snapshot.data!;
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            itemCount: PetSymptomData().petSymptomList.length,
+                            itemBuilder: (context, index) {
+                              final petSymptom =
+                                  PetSymptomData().petSymptomList[index];
+                              return Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  height:
+                                      60, // Defina a altura desejada para o card
+                                  width: double
+                                      .infinity, // Defina a largura desejada para o card
+
+                                  // Estilize o card com o BoxDecoration ou o Card widget
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      //print(petVaccine.);
+                                      _petSymptomId = petSymptom.petSymptomId;
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                petSymptom.name!,
+                                                style: const TextStyle(
+                                                    fontSize: 18),
+                                              ),
+                                              IconButton(
+                                                icon: const Icon(Icons.delete),
+                                                color: Colors.red,
+                                                onPressed: () {
+                                                  setState(() {
+                                                    _petSymptomId =
+                                                        petSymptom.petSymptomId;
+                                                  });
+                                                  showDialog(
+                                                    context: context,
+                                                    builder:
+                                                        (BuildContext context) {
+                                                      return Form(
+                                                        key: _formKey,
+                                                        child: AlertDialog(
+                                                          title: const Text(
+                                                              'Excluir Sintoma?'),
+                                                          content: const Text(
+                                                              'O sintoma será excluído. Confirma?'),
+                                                          actions: <Widget>[
+                                                            TextButton(
+                                                              child: const Text(
+                                                                  'Não'),
+                                                              onPressed: () {
+                                                                Navigator.of(
+                                                                        context)
+                                                                    .pop();
+                                                              },
+                                                            ),
+                                                            TextButton(
+                                                              child: const Text(
+                                                                  'Sim'),
+                                                              onPressed: () {
+                                                                _typeRegister =
+                                                                    'D';
+                                                                _registerSymptom(
+                                                                        context)
+                                                                    .then(
+                                                                  (value) {
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop();
+                                                                  },
+                                                                );
+                                                              },
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      );
+                                                    },
+                                                  );
+                                                  // Ação ao pressionar o botão de lixeira
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    }
+                  }),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 10, // Define a posição do botão a partir do fundo
+          right: 10, // Define a posição do botão a partir da direita
+          child: ElevatedButton(
+            onPressed: () {
+              // Adicionar ação de "Adicionar" aqui
+              setState(() {
+                _isotherSimptomVisible = false;
+              });
+              _showSymptom(context);
+            },
+            child: const Icon(Icons.add),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showSymptom(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, StateSetter setStateMedicine) {
+            return Dialog(
+              child: Container(
+                width: 450,
+                height: 250,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(5.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 5,
+                      blurRadius: 7,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8.5),
+                        decoration: const BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior esquerdo
+                            topRight: Radius.circular(
+                                5.0), // Arredonda apenas o canto superior direito
+                          ),
+                        ),
+                        height: 40, // Altura desejada
+                        width:
+                            double.infinity, // Ocupa todo o espaço horizontal
+                        child: Row(
+                          children: [
+                            IconButton(
+                              iconSize: 16,
+                              icon: const Icon(Icons.close),
+                              color: Colors.white,
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            const Text(
+                              'Sintomas',
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontFamily: 'Montserrat',
+                                //fontWeight: FontWeight.w600,
+                                color: Colors.white, // Cor do texto em branco
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView(
+                            children: <Widget>[
+                              DropdownSearch<SymptomModel>(
+                                popupProps: const PopupProps.menu(
+                                  showSearchBox: true,
+                                ),
+                                dropdownDecoratorProps: DropDownDecoratorProps(
+                                  dropdownSearchDecoration: InputDecoration(
+                                    labelText: "Sintomas",
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                ),
+                                items: SymptomData().symptomList,
+                                itemAsString: (SymptomModel symptom) =>
+                                    symptom.name,
+                                onChanged: (value) {
+                                  //print(value.id);
+                                  if (value != null) {
+                                    _symptomId = int.parse(value.id);
+                                  } else {
+                                    _symptomId = null;
+                                  }
+                                  if (_symptomId == 93) {
+                                    setStateMedicine(() {
+                                      _isotherSimptomVisible = true;
+                                    });
+                                  } else {
+                                    setStateMedicine(() {
+                                      _isotherSimptomVisible = false;
+                                    });
+                                  }
+
+                                  //print(_isotherSimptomVisible);
+                                },
+                              ),
+                              const SizedBox(height: 10.0),
+                              Visibility(
+                                visible: _isotherSimptomVisible,
+                                child: TextFormField(
+                                  controller: _otherSymptomController,
+                                  decoration: const InputDecoration(
+                                    labelText: 'Outro Sintoma',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(
+                                              8.0)), // Raio dos cantos da borda
+                                      borderSide: BorderSide(
+                                          color: Colors.black, width: 1.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(16.0),
+                        height: 60,
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: const Text('Fechar'),
+                            ),
+                            const SizedBox(width: 10.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                setStateMedicine(() {
+                                  _typeRegister = 'C';
+                                  _registerSymptom(context).then((value) {});
+                                  Navigator.of(context).pop();
+                                });
+                              },
+                              child: const Text('Cadastrar'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _drVetBotDiseaseTab(BuildContext context) {
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          height: 400,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: const Color.fromARGB(255, 206, 205, 205)),
+            borderRadius: BorderRadius.circular(5.0),
+          ),
+          //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+          child: Column(
+            children: [
+              const SizedBox(width: 10.0),
+              FutureBuilder<List<dynamic>>(
+                  future: _fetchListConsultChatGPT(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Padding(
+                        padding: EdgeInsets.all(15.0),
+                        child: Center(
+                          child: Text(''),
+                        ),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Center(
+                        child: Text('Error: ${snapshot.error}'),
+                      );
+                    } else {
+                      return Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Scrollbar(
+                            thumbVisibility: true,
+                            child: ListView.builder(
+                              itemCount: ConsultChatGPTData()
+                                  .consultChatGPTList
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final chatGPT = ConsultChatGPTData()
+                                    .consultChatGPTList[index];
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Container(
+                                    height:
+                                        60, // Defina a altura desejada para o card
+                                    width: double
+                                        .infinity, // Defina a largura desejada para o card
+
+                                    // Estilize o card com o BoxDecoration ou o Card widget
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: InkWell(
+                                      onTap: () {
+                                        //print(petVaccine.);
+                                        _chatGPTId = chatGPT.chatGPTId;
+                                        _showInfoDesease(chatGPT.description!);
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Container(
+                                                  alignment:
+                                                      Alignment.centerRight,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            0.0),
+                                                    child: Row(
+                                                      children: [
+                                                        Text(
+                                                          chatGPT.diseaseName!,
+                                                          style:
+                                                              const TextStyle(
+                                                                  fontSize: 18),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    const Text(
+                                                      'Selecionar',
+                                                      style: TextStyle(
+                                                          fontSize: 10),
+                                                    ),
+                                                    Switch(
+                                                      value: chatGPT.selected,
+                                                      onChanged: (bool value) {
+                                                        //print(_chatGPTId);
+                                                        setState(() {
+                                                          _fetchRegisterDiseaseConsultChatGPT(
+                                                              chatGPT.chatGPTId,
+                                                              value);
+                                                        });
+                                                      },
+                                                      activeTrackColor:
+                                                          Colors.lightGreen,
+                                                      activeColor: Colors.green,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+                  }),
+            ],
+          ),
+        ),
+        Positioned(
+          bottom: 10, // Define a posição do botão a partir do fundo
+          right: 10, // Define a posição do botão a partir da direita
+          child: Stack(
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  // Adicionar ação de "Adicionar" aqui
+                  if (PetSymptomData().petSymptomList.isEmpty) {
+                    _showMessageErroIA(
+                        'Deve ser informador pelo menos um Sintoma para efeturar a Consulta.');
+                  } else {
+                    setState(() {
+                      _firstConsultation = false;
+                      _isLoading = true;
+                      _fetchConsultChatGPT();
+
+                      _fetchListConsultChatGPT();
+                    });
+                  }
+                },
+                child: const Text('Efetuar Consulta Dr. VetBot'),
+              ),
+              if (_isLoading)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black
+                        .withOpacity(0.5), // Fundo escuro semitransparente
+                    child: const Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showInfoDesease(String description) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Descrição'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                description,
+                softWrap: true,
+              ), // Use a variável _textValidation no Text
+              const SizedBox(height: 20), // Espaçamento entre o texto e o botão
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showMessageErroIA(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Erro'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                message,
+                softWrap: true,
+              ), // Use a variável _textValidation no Text
+              const SizedBox(height: 20), // Espaçamento entre o texto e o botão
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showInfoMessage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('O(s) campo(s) abaixo é(são) Obrigatório(s)'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_textValidation ??
+                  ''), // Use a variável _textValidation no Text
+              const SizedBox(height: 20), // Espaçamento entre o texto e o botão
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Fecha o diálogo
+                },
+                child: const Text('Fechar'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class AnamnesisPage2 extends StatefulWidget {
+  const AnamnesisPage2({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  _AnamnesisPage2 createState() => _AnamnesisPage2();
+}
+
+class _AnamnesisPage2 extends State<AnamnesisPage2>
+    with TickerProviderStateMixin {
+  bool _isotherSimptomVisible = false;
+  int _currentIndex = 0;
+  bool _firstConsultation = true;
+
+  void initState() {
+    super.initState();
+
+    _tabController = TabController(length: 2, vsync: this);
+    // Adiciona um ouvinte para detectar mudanças de tab
+    _tabController.addListener(() {
+      //print('$_currentIndex - ${_tabController.index}');
+
+      //Descomentar para validar os Campos preenchidos
+      if (_currentIndex != _tabController.index) {
+        if (_currentIndex == 0) {
+          if (_validateSymptom()) {
+            _tabController.animateTo(_tabController.index);
+            _currentIndex = _tabController.index;
+          } else {
+            _tabController.animateTo(1);
+            _showInfoMessage(context);
+          }
+        }
+      }
+    });
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  bool _validateSymptom() {
+    bool validation = true;
+    _textValidation = '';
+
+    if (PetSymptomData().petSymptomList.isEmpty) {
+      _textValidation += 'Inserir possíveis Sintomas na aba SINTOMA\n';
+      validation = false;
+    }
+    return validation;
+  }
+
+  String? _validateDropDown(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Selecione uma opção';
+    }
+    return null;
+  }
+
+  Future<List<dynamic>> _fetchPetSymptoms() async {
+    List<PetSymptomModel> petSymptomList;
+    petSymptomList = await petSymptomListApi(
+        _serviceQueue.petId.toString(), _serviceQueue.queueId.toString());
+
+    return petSymptomList;
+  }
+
+  Future<int?> _registerSymptom(BuildContext context) async {
+    final form = _formKey.currentState;
+    if (form!.validate()) {
+      Map<String, dynamic> responseData = await registerSymptomApi(
+          _typeRegister,
+          _serviceQueue.petId.toString(),
+          _serviceQueue.queueId.toString(),
+          _symptomId.toString(),
+          _petSymptomId.toString(),
+          _otherSymptomController.text);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      //return 1;
+      return responseData['validateRegisterSymptom'];
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    return 4;
+  }
+
+  Future<void> _fetchRegisterDiseaseConsultChatGPT(
+      int chatGPTId, bool selected) async {
+    await registerDiseaseConsultChatGPTApi(chatGPTId, selected);
+  }
+
+  Future<List<dynamic>> _fetchListConsultChatGPT() async {
+    List<ConsultChatGPTModel> consultChatGPTList;
+    consultChatGPTList = await listConsultChatGPTApi(1, _serviceQueue.queueId);
+
+    return consultChatGPTList;
+  }
+
+  Future<void> _fetchConsultChatGPT() async {
+    List<ConsultChatGPTModel> consultChatGPTList;
+    consultChatGPTList = await consultChatGPTApi(1, _serviceQueue.queueId);
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future<int?> _registerSymptomQuestion(String type, int symptomId) async {
+    //final form = _formKey.currentState;
+    //if (form!.validate()) {
+    Map<String, dynamic> responseData = await registerSymptomApi(
+        type,
+        _serviceQueue.petId.toString(),
+        _serviceQueue.queueId.toString(),
+        symptomId.toString(),
+        symptomId.toString(),
+        '');
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    //return 1;
+    return responseData['validateRegisterSymptom'];
+    //}
+
+    //setState(() {
+    //  _isLoading = false;
+    //});
+    //return 4;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Anamnese Clínica',
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 3,
+                      style: TextStyle(fontSize: 30)),
+                ],
+              ),
+              Visibility(
+                visible: _isQuestionComplaintVisible,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Container(
+                    width: double.infinity,
+                    height: 70,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.grey,
+                      ),
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(10.0),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const SizedBox(width: 10.0),
+                        const Expanded(
+                          flex: 2,
+                          child: Text('Alguma queixa no momento?',
+                              style: TextStyle(fontSize: 13)),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isComplaint = true;
+                              _complaint = true;
+                            });
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                                if (_complaint != null && _complaint!) {
+                                  return Colors.green; // Cor quando ativo
+                                }
+                                return Colors.blue; // Cor padrão
+                              },
+                            ),
+                          ),
+                          child: const Text('Sim'),
+                        ),
+                        const SizedBox(width: 5.0),
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _isComplaint = false;
+                              _complaint = false;
+                            });
+                          },
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.resolveWith<Color>(
+                              (Set<MaterialState> states) {
+                                if (_complaint != null && !_complaint!) {
+                                  return Colors.red; // Cor quando ativo
+                                }
+                                return Colors.blue; // Cor padrão
+                              },
+                            ),
+                          ),
+                          child: const Text('Não'),
+                        ),
+                        const SizedBox(width: 10.0),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10.0),
+              Visibility(
+                visible: _isComplaint,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 8, 0, 0),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                        child: SizedBox(
+                          height: 40,
+                          child: TextFormField(
+                            style: const TextStyle(fontSize: 13.0),
+                            controller: _complaintController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(
+                                    8.0)), // Raio dos cantos da borda
+                                borderSide: BorderSide(
+                                    color: Colors.black,
+                                    width: 1.0), // Cor e largura da borda
+                              ),
+                              labelText: 'Informe a Queixa(*)',
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10.0),
+                      Container(
+                        width: double.maxFinite,
+                        height: 500,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                              color: const Color.fromARGB(255, 206, 205, 205)),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        //padding: const EdgeInsets.all(16.0), // Adiciona um preenchimento para espaçamento interno
+                        child: Scaffold(
+                          appBar: AppBar(
+                            toolbarHeight: 0,
+                            bottom: TabBar(
+                              controller: _tabController,
+                              tabs: const [
+                                Tab(text: 'Sintoma'),
+                                Tab(text: 'Dr. VetBot (Doença(s))'),
+                              ],
+                            ),
+                          ),
+                          body: TabBarView(
+                            controller: _tabController,
+                            children: [
+                              _symptomTab(),
+                              _drVetBotDiseaseTab(context),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10.0),
+                      const Text('* são campos obrigatórios'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
