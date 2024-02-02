@@ -6295,7 +6295,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
                             setState(() {
                               tightBellyId = int.parse(value!);
                               print('tightBellyId___ $tightBellyId');
-                              if (tightBellyId == 1) {
+                              if (tightBellyId == 1 || touchPainId == 1) {
                                 _registerSymptomQuestion('C', 12);
                               } else {
                                 _registerSymptomQuestion('E', 12);
@@ -6343,7 +6343,7 @@ class _AnamnesisPage extends State<AnamnesisPage>
                           onChanged: (value) {
                             setState(() {
                               touchPainId = int.parse(value!);
-                              if (touchPainId == 1) {
+                              if (touchPainId == 1 || tightBellyId == 1) {
                                 _registerSymptomQuestion('C', 12);
                               } else {
                                 _registerSymptomQuestion('E', 12);
